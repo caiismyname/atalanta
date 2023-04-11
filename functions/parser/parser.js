@@ -231,7 +231,7 @@ function tagWorkoutTypes(laps) {
     return workouts;
   }
 
-  const differenceThreshold = 1.2;
+  const differenceThreshold = 1.2; //TODO Tune this
   const workoutsSortedByDistance = [...workouts].sort((a, b) => a.distance < b.distance ? -1 : 1);
   let workoutTypeCounter = 0;
   let prevWorkoutDistance = workoutsSortedByDistance[0].distance;
@@ -419,21 +419,22 @@ function assignNearestDistance(lap) {
   for (const guess of validDistancesMeters) {
     const difference = Math.abs(lapDist - guess) / guess;
     if (difference < lap.closestDistanceDifference) {
-      assignDistanceGuess(lap, guess, difference, "meter");
+      assignDistanceGuess(lap, guess, difference, "m");
     }
   }
 
   for (const guess of validDistanceMiles) {
     const difference = Math.abs(lapDist - guess) / guess;
     if (difference < lap.closestDistanceDifference) {
-      assignDistanceGuess(lap, Helpers.metersToMilesRounded(guess), difference, "mile");
+      assignDistanceGuess(lap, Helpers.metersToMilesRounded(guess), difference, "mi");
     }
   }
 }
 
 function assignDistanceGuess(lap, distance, difference, unit) {
   lap.closestDistance = distance;
-  lap.closestDistanceUnit = unit + (distance > 1 ? "s" : "");
+  // You don't pluralize the abbreviations for distance units (but you do for the full word)
+  lap.closestDistanceUnit = unit //+ (distance > 1 ? "s" : "");
   lap.closestDistanceDifference = difference;
 }
 
@@ -487,14 +488,14 @@ function assignNearestTime(lap) {
   for (const time of validTimesSeconds) {
     const difference = Math.abs(time - lapTime) / time;
     if (difference < lap.closestTimeDifference) {
-      assignTimeGuess(lap, time, difference, "second");
+      assignTimeGuess(lap, time, difference, "sec");
     }
   }
 
   for (const time of validTimesMinutes) {
     const difference = Math.abs(time - lapTime) / time;
     if (difference < lap.closestTimeDifference) {
-      assignTimeGuess(lap, Helpers.secondsToMinutes(time), difference, "minute");
+      assignTimeGuess(lap, Helpers.secondsToMinutes(time), difference, "min");
     }
   }
 }
@@ -572,15 +573,15 @@ function extractPatterns(laps) {
   // console.log(" ")
 }
 
-function determineSetName(set) {
+function determineSetName(set, multiRepSetsShouldHaveParen = false) {
   let setName = "";
 
   // List out each component of the set
   for (const workoutType of set.pattern) {
     const lap = set.laps.filter((lap) => lap.workoutType === workoutType)[0];
     const lapName = lap.workoutBasis === "DISTANCE" ?
-      lap.closestDistance + " " + lap.closestDistanceUnit :
-      lap.closestTime + " " + lap.closestTimeUnit;
+      `${lap.closestDistance}${lap.closestDistanceUnit}` :
+      `${lap.closestTime} ${lap.closestTimeUnit}`;
 
     setName += `${lapName}, `;
   }
@@ -595,6 +596,9 @@ function determineSetName(set) {
   // Add reps if more than one rep
   if (set.count > 1) {
     setName = `${set.count} x ${setName}`;
+    if (multiRepSetsShouldHaveParen) {
+      setName = `(${setName})`
+    }
   }
 
   return setName;
@@ -630,7 +634,7 @@ function printSets(sets, printConfig=defaultPrintConfig) {
     let setDescription = "";
 
     // Set name
-    const setName = determineSetName(set);
+    const setName = determineSetName(set, sets.length > 1);
     overallTitle += `${setName} + `;
     setDescription += `${setName} — `; // Don't add newline so average can go on the same line as the set title
 
@@ -723,7 +727,7 @@ function print(x) {
 }
 
 
-// runExamples();
+runExamples();
 // gradeWorkoutDetection();
 
 parseWorkout(example, false, true);
