@@ -1,84 +1,176 @@
-// import * as Helpers from './parser_helpers.js'
-// import examples from './parser_testing/examples.json' assert {type: 'json'}
-
 const Helpers = require("./parser_helpers.js");
-const examples = require("./parser_testing/examples.json");
+const workoutExamples = require("./parser_testing/workout_examples.json");
+const mixedExamples = require("./parser_testing/mixed_nonworkouts.json");
+const example = require("./travis_example.json");
 
+// eslint-disable-next-line no-unused-vars
 function runExamples() {
-  for (const run of examples["examples"]) {
-    const workoutsIdentifiedLaps = tagIsWorkout(run.laps);
-    const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
-    tagWorkoutTypes(mergedLaps); // Mutates in place
-    const sets = extractPatterns(mergedLaps.filter((lap) => lap.isWorkout));
-
-
-    console.log("---------------- " + run.name);
-    // for (set of sets) {
-    //     if (set.laps[0].length === 0) {
-    //         print(set)
-    //     }
-    // }
-
-
-    print(printSets(sets));
-    // for (let lap of mergedLaps) {
-    //     console.log(lap.lap_index + " " + lap.distance + " " + lap.moving_time);
-
-    //     if (lap.isWorkout) {
-    //         if (lap.workoutBasis === "DISTANCE") {
-    //             console.log( "              " +
-    //                 (lap.isWorkout ? lap.closestDistance + " " + lap.closestDistanceUnit + " " : "")
-    //             )
-    //         } else {
-    //              console.log(
-    //                 "              " +
-    //                 (lap.isWorkout ? lap.closestTime + " " + lap.closestTimeUnit + " " : "")
-    //             );
-    //         }
-    //     }
-
-    // (lap.isWorkout ? " W" : " ") +
-    // (lap.isWorkout ? " " + lap.workoutType + " ": " ") +
-    // (lap.isWorkout ? " " + lap.workoutBasis : "")
-
-
-    // console.log( "              " +
-    //     (lap.isWorkout ? lap.closestDistance + " " + lap.closestDistanceUnit + " " : "") +
-    //     (lap.isWorkout ? lap.closestDistanceDifference + " " : "" )
-    // )
-    // console.log(
-    //     "              " +
-    //     (lap.isWorkout ? lap.closestTime + " " + lap.closestTimeUnit + " " : "") +
-    //     (lap.isWorkout ? lap.closestTimeDifference + " " : "" )
-    // );
-    // }
-    print(" ");
+  for (const run of workoutExamples["examples"]) {
+    parseWorkout(run);
   }
 }
 
 // eslint-disable-next-line no-unused-vars
-function parseWorkout(run, htmlMode=false) {
-  const workoutsIdentifiedLaps = tagIsWorkout(run.laps);
+function gradeWorkoutDetection() {
+  const allExamples = mixedExamples["examples"];
+  print(allExamples.length);
+
+  const trials = {};
+  let wrong = [];
+
+  for (let i = 1.05; i < 1.27; i = i + 0.01) {
+    for (let j = 1.05; j < 1.27; j = j + 0.01) {
+      wrong = [];
+      let correctCount = 0;
+      let falsePositive = 0;
+      let falseNegative = 0;
+
+      for (const run of allExamples) {
+        const result = determineRunIsWorkout(run.laps, i, j);
+        const truthIsWorkout = run.workout_type === 3;
+
+        if (result === truthIsWorkout) {
+          correctCount += 1;
+        } else {
+          wrong.push({
+            "guess": result,
+            "name": run.name,
+            "run": run,
+          });
+
+          if (result === false) {
+            falseNegative += 1;
+          } else {
+            falsePositive += 1;
+          }
+        }
+      }
+
+      if (correctCount > 162) {
+        trials[`${Math.round(i * 100) / 100} ${Math.round(j * 100) / 100}`] = {
+          "overall": correctCount,
+          "falseNeg": falseNegative,
+          "falsePos": falsePositive,
+        };
+      }
+    }
+  }
+
+  print(trials);
+  for (const run of wrong) {
+    print(`Guess: ${run.guess} ID: ${run.run.id}`);
+    parseWorkout(run.run, false, true);
+    print("\n\n ");
+  }
+}
+
+
+// This is the entrypoint
+// eslint-disable-next-line no-unused-vars
+function parseWorkout(run, htmlMode=false, verbose=true) {
+  const runIsWorkout = determineRunIsWorkout(run.laps);
+
+  if (!runIsWorkout) {
+    if (verbose) {
+      print(`${run.id} NOT WORKOUT`);
+    }
+    return ({
+      "isWorkout": false,
+      "summary": "",
+    });
+  }
+
+  // Remove last lap if it's super short, as this tends to give falsely fast/slow readings
+
+  let laps = run.laps;
+  if (run.laps[run.laps.length - 1].distance < Helpers.milesToMeters(.03)) {
+    laps = run.laps.slice(0, -1);
+  }
+
+  const workoutsIdentifiedLaps = tagWorkoutLaps(laps);
   const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
   tagWorkoutTypes(mergedLaps); // Mutates in place
   const sets = extractPatterns(mergedLaps.filter((lap) => lap.isWorkout));
-  const output = printSets(sets);
+  const summary = printSets(sets);
 
   if (htmlMode) {
-    output.replace("\n", "|  ");
+    summary.description.replace("\n", "<br>");
   }
 
-  console.log("---------------- " + run.name);
-  print(output);
-  print(" ");
+  if (verbose) {
+    console.log(`PARSING: ${run.name} (${run.id})`);
+    print(summary.title);
+    print(summary.description);
+    print("\n\n");
+  }
 
-  return (output);
+  return ({
+    "isWorkout": true,
+    "summary": summary,
+  });
+}
+
+function determineRunIsWorkout(laps) {
+  // Check if laps exist first. They won't exist on manual activities
+  if (laps === undefined) {
+    return (false);
+  }
+
+  // Remove last lap if it's super short, as this tends to give falsely fast/slow readings
+  if (laps[laps.length - 1].distance < Helpers.milesToMeters(.03)) {
+    laps = laps.slice(0, -1);
+  }
+
+  // If any lap's average pace is faster than 6min/mi, it's probably a workout
+  // (regardless of the person. No one recovers at < 6min)
+  const existsFastLap = laps.reduce((foundFastLap, curLap) => foundFastLap || (curLap.average_speed > Helpers.sixMinMileAsSpeed), false);
+
+  // // If we find a workout-nonworkout-workout sequence, it's probably a workout
+  // const workoutStructure = laps.map((lap) => lap.isWorkout);
+  // let hasWorkoutRecoveryPattern = false;
+  // for (let startIdx = 0; startIdx < laps.length - 3; startIdx++) {
+  //   hasWorkoutRecoveryPattern = hasWorkoutRecoveryPattern || patternReducer([true, false, true], workoutStructure.slice(startIdx)).matchCount > 0;
+  // }
+
+  // If the average speed of laps, when ordered by speed, has a big jump, it's probably a workout
+  // Compare the sorted version of laps (instead of the as-it-happened order) to make the threshold as difficult as possible.
+  // i.e. the slowest WO lap still has to be faster than the fastest recovery lap \
+  //      and it reduces the delta between the laps on a recovery run if there's just a random fast lap
+
+  const threshMax = 1.21; // Threshold for jump between second fastest and second slowest laps
+  const threshSeq = 1.13; // Threshold for jump in sequential laps
+
+  let foundSeqJump = false;
+  let foundMaxJump = false;
+  const lapsSortedBySpeed = [...laps].sort((a, b) => a.average_speed < b.average_speed ? -1 : 1);
+
+  if (laps.length >= 4) {
+    foundMaxJump = lapsSortedBySpeed[lapsSortedBySpeed.length - 2].average_speed / lapsSortedBySpeed[1].average_speed > threshMax;
+  }
+
+  let prevLap = lapsSortedBySpeed[0];
+  for (const lap of lapsSortedBySpeed) {
+    foundSeqJump = foundSeqJump || (lap.average_speed / prevLap.average_speed >= threshSeq);
+    prevLap = lap;
+  }
+
+  const foundJump = foundSeqJump || foundMaxJump;
+
+  // If there are any non km or non mile laps not including the very last lap, it's a sign it's probably a workout
+  const withoutLastLap = laps.slice(0, -1);
+  const allLapsAreStandard = withoutLastLap.reduce((allLapsStandard, curLap) => {
+    const lapIsMile = Math.abs(1.0 - Helpers.metersToMiles(curLap.distance)) <= 0.02;
+    const lapIsKilometer = Math.abs(1000.0 - curLap.distance) <= 32; // same as .02 miles
+
+    return (allLapsStandard && (lapIsMile || lapIsKilometer));
+  }, true);
+
+  return (!allLapsAreStandard || foundJump || existsFastLap);
 }
 
 // TODO DISCARD SUPER SLOW LAPS AS STANDING REST, SO IT DOESN'T MESS WITH CLASSIFICATION OF NORMAL REST LAPS
-function tagIsWorkout(laps) {
+function tagWorkoutLaps(laps) {
   // const minSpeed = Math.min(laps.map((lap) => lap.average_speed));
-
   const isWorkoutAssignments = runKnn(laps.map((lap) => {
     return {"features": [lap.average_speed]};
   }), 2);
@@ -139,11 +231,12 @@ function tagWorkoutTypes(laps) {
     return workouts;
   }
 
+  const differenceThreshold = 1.2;
   const workoutsSortedByDistance = [...workouts].sort((a, b) => a.distance < b.distance ? -1 : 1);
   let workoutTypeCounter = 0;
   let prevWorkoutDistance = workoutsSortedByDistance[0].distance;
   for (const lap of workoutsSortedByDistance) {
-    if ((lap.distance / prevWorkoutDistance) > 1.5) {
+    if ((lap.distance / prevWorkoutDistance) >= differenceThreshold) {
       workoutTypeCounter += 1;
     }
 
@@ -291,12 +384,26 @@ function assignNearestDistance(lap) {
   ];
 
   const validDistanceMiles = [
-    1609, // 1 mile
+    1609.3, // 1 mile
     3218.7, // 2 miles
     4828, // 3 miles
     6437.4, // 4 miles
     8046.7, // 5 miles
+    9654, // 6 miles
+    11265.4, // 7 miles
+    12874.8, // 8 miles
+    14484.1, // 9 miles
     16090, // 10 miles
+    17702.8, // 11 miles
+    19312.1, // 12 miles
+    20921.5, // 13 miles
+    22530.8, // 14 miles
+    24140.2, // 15 miles
+    25749.5, // 16 miles
+    27358.8, // 17 miles
+    28968.2, // 18 miles
+    30577.5, // 19 miles
+    32186.9, // 20 miles
   ];
 
   // eslint-disable-next-line no-unused-vars
@@ -353,7 +460,7 @@ function assignNearestTime(lap) {
     // 360, // 6
     // 390,
     // 420, // 7
-    450,
+    // 450,
     // 480, // 8
     // 510,
     // 540, // 9
@@ -465,57 +572,124 @@ function extractPatterns(laps) {
   // console.log(" ")
 }
 
-function printSets(sets) {
-  let output = "";
+function determineSetName(set) {
+  let setName = "";
+
+  // List out each component of the set
+  for (const workoutType of set.pattern) {
+    const lap = set.laps.filter((lap) => lap.workoutType === workoutType)[0];
+    const lapName = lap.workoutBasis === "DISTANCE" ?
+      lap.closestDistance + " " + lap.closestDistanceUnit :
+      lap.closestTime + " " + lap.closestTimeUnit;
+
+    setName += `${lapName}, `;
+  }
+
+  setName = setName.slice(0, -2); // slice to remove ending ", "
+
+  // Add parenthesis if more than one component to the set (e.g. "(400m, 200m)")
+  if (set.pattern.length > 1) {
+    setName = `(${setName})`;
+  }
+
+  // Add reps if more than one rep
+  if (set.count > 1) {
+    setName = `${set.count} x ${setName}`;
+  }
+
+  return setName;
+}
+
+// function determineSetAverages(set) {
+//   const setAverages = "";
+
+//   for (const workoutType of set.pattern) {
+//     const laps = set.laps.filter((lap) => lap.workoutType === workoutType);
+//   }
+
+//   setDescription += Helpers.indented((set.laps.length === 1 ? "" : "Avg. " ) + "Pace: " + Helpers.averagePaceOfSet(set) + "/mi");
+
+//   if (set.laps[0].workoutBasis === "DISTANCE") {
+//     setDescription += Helpers.indented((set.laps.length === 1 ? "" : "Avg. " ) + "Time: " + Helpers.averageTimeOfSetFormatted(set));
+//   } else if (set.laps[0].workoutBasis === "TIME") {
+//     setDescription += Helpers.indented((set.laps.length === 1 ? "" : "Avg. " ) + "Dist: " + Helpers.averageDistanceOfSetFormatted(set));
+//   }
+// }
+
+const defaultPrintConfig = {
+  "paceUnits": "MILE", // KM
+  "shortDistanceAverageUnit": "TIME", // "PACE", "NONE"
+
+};
+
+function printSets(sets, printConfig=defaultPrintConfig) {
+  let overallTitle = ""; // For the strava activity title, only contains the structure
+  let description = ""; // Contains details, for the activity description
+
   for (const set of sets) {
-    // Set name
-    const tokenLap = set.laps[0];
     let setDescription = "";
 
-    const lapName = tokenLap.workoutBasis === "DISTANCE" ?
-            tokenLap.closestDistance + " " + tokenLap.closestDistanceUnit :
-            tokenLap.closestTime + " " + tokenLap.closestTimeUnit;
+    // Set name
+    const setName = determineSetName(set);
+    overallTitle += `${setName} + `;
+    setDescription += `${setName} — `; // Don't add newline so average can go on the same line as the set title
 
-    if (set.count === 1) {
-      setDescription += lapName;
+
+    /* Set average
+
+    If each rep is >=1mi, show average per-mile pace
+    If each rep is <1mi, show the average time unless config overrides (`shortDistanceAverageUnit`, options: "PACE", "TIME")
+      Unless the basis is time, in which show average per-mile pace. I don't know that anyone really gauges time-based interval performance off distance...
+
+    */
+
+    const tokenLap = set.laps[0];
+
+    if (tokenLap.distance >= Helpers.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
+      // Average per-mile pace
+      setDescription += `Avg: ${Helpers.averagePaceOfSet(set)}/mi`;
     } else {
-      setDescription += set.count + " x " + lapName;
+      switch (printConfig.shortDistanceAverageUnit) {
+        case "TIME":
+          setDescription += `Avg: ${Helpers.averageTimeOfSetFormatted(set)}`;
+          break;
+        case "PACE":
+          setDescription += `Avg: ${Helpers.averagePaceOfSet(set)}/mi`;
+          break;
+        case "NONE":
+          break;
+        default:
+          break;
+      }
     }
 
     setDescription += "\n";
-    setDescription += Helpers.indented((set.laps.length === 1 ? "" : "Avg. " ) + "Pace: " + Helpers.averagePaceOfSet(set) + "/mi");
 
-    if (set.laps[0].workoutBasis === "DISTANCE") {
-      setDescription += Helpers.indented((set.laps.length === 1 ? "" : "Avg. " ) + "Time: " + Helpers.averageTimeOfSetFormatted(set));
-    } else if (set.laps[0].workoutBasis === "TIME") {
-      setDescription += Helpers.indented((set.laps.length === 1 ? "" : "Avg. " ) + "Dist: " + Helpers.averageDistanceOfSetFormatted(set));
-    }
-    output += setDescription;
 
+    // Individual laps
     if (set.laps.length > 1) {
       // List the individual laps
-      // Lap > 1mi: mile pace
-      // Lap < 1mi: time if basis DISTANCE, distance if basis TIME
+      // Lap > 1mi: mile/km pace, depending on config
+      // Lap < 1mi: time if basis DISTANCE, pace if basis TIME
 
       let lapDetails = "";
-
       if (tokenLap.closestDistanceUnit === "mile") {
         for (const lap of set.laps) {
-          lapDetails += Helpers.pacePerMileFormatted(lap) + "/mi, ";
+          lapDetails += `${Helpers.pacePerMileFormatted(lap)}, `;
         }
       } else {
         if (tokenLap.workoutBasis === "DISTANCE") {
           for (const lap of set.laps) {
-            lapDetails += Helpers.secondsToTimeFormatted(lap.moving_time) + ", ";
+            lapDetails += `${Helpers.secondsToTimeFormatted(lap.moving_time)}, `;
           }
         } else if (tokenLap.workoutBasis === "TIME") {
           for (const lap of set.laps) {
-            lapDetails += (Math.round(lap.distance )) + "m, ";
+            lapDetails += `${Helpers.pacePerMileFormatted(lap)}/mi, `;
           }
         }
       }
 
-      output += Helpers.indented("Laps: " + lapDetails.slice(0, -2)); // slice to remove ending ", "
+      setDescription += `⏱️ ${lapDetails.slice(0, -2)}`; // slice to remove ending ", "
     } else if (set.laps.length === 1 && Helpers.metersToMiles(set.laps[0].distance) > 1) {
       // List the splits
       const tokenLap = set.laps[0];
@@ -524,18 +698,24 @@ function printSets(sets) {
 
         for (const lap of tokenLap.component_laps) {
           if (Helpers.metersToMiles(lap.distance) >= .5) {
-            splits += Helpers.pacePerMileFormatted(lap) + "/mi, ";
+            splits += `${Helpers.pacePerMileFormatted(lap)}/mi, `;
           }
         }
 
-        output += Helpers.indented("Splits: " + splits.slice(0, -2));
+        setDescription += `⏱️ ${splits.slice(0, -2)}`;
       }
     }
 
-    output += "\n";
+    description += `${setDescription}\n`;
   }
 
-  return output;
+  description += `\nWorkout summary generated by stravaworkout.com`;
+  overallTitle = overallTitle.slice(0, -3);
+
+  return {
+    "title": overallTitle,
+    "description": description,
+  };
 }
 
 function print(x) {
@@ -543,6 +723,9 @@ function print(x) {
 }
 
 
-runExamples();
+// runExamples();
+// gradeWorkoutDetection();
+
+parseWorkout(example, false, true);
 
 module.exports = {parseWorkout};

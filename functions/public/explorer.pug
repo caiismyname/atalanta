@@ -1,0 +1,23 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Splitz
+    link(rel="stylesheet", href="style.css")
+
+    body 
+        header
+        h1 Splitz
+        main
+            section
+                if stravaConnected
+                    h2 Enter an activity ID (found in the URL) to label an existing workout. This will write the workout description on the Strava activity.
+                    form(action="/explorer" method="get")
+                        p
+                            | Activity ID:
+                            input(name='activityID' id='activityID' type='text')
+                        input(value='Submit', type='submit')
+                else 
+                    p Connect your Strava account to get the explorer
+            

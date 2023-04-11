@@ -80,6 +80,10 @@ function metersToMilesRounded(meters) {
   return Math.round(metersToMiles(meters));
 }
 
+function milesToMeters(miles) {
+  return miles * 1609.34;
+}
+
 // eslint-disable-next-line no-unused-vars
 function secondsToMinutes(seconds) {
   if (seconds % 60 === 30) { // half minute
@@ -164,22 +168,22 @@ function secondsFormatter(input, shouldRound) {
 
 // eslint-disable-next-line no-unused-vars
 function indented(input, indentLevel = 1) {
-  return "  ".repeat(indentLevel) + input + "\n";
+  return `${"  ".repeat(indentLevel)}${input}\n`;
 }
 
 // eslint-disable-next-line no-unused-vars
 function secondsToTimeFormatted(seconds) {
   const minutes = Math.floor(seconds / 60);
-  const shouldRound = minutes > 0; // Only round if less than 1min
-  const secondsRes = secondsFormatter(seconds % 60, shouldRound);
+  const secondsRes = secondsFormatter(seconds % 60, true); // shouldRound = true b/c strava doesn't give decimals for laps
 
-  if (minutes === 0) {
-    return (minutes + secondsRes.minuteDiff) + ":" + secondsRes.seconds;
+  if (minutes + secondsRes.minuteDiff === 0) {
+    return `${secondsRes.seconds}`;
   } else {
-    return (minutes + secondsRes.minuteDiff) + ":" + secondsRes.seconds;
+    return `${minutes + secondsRes.minuteDiff}:${secondsRes.seconds}`;
   }
 }
 
+const sixMinMileAsSpeed = 4.47;
 
 module.exports = {
   arraysAreEqual,
@@ -189,6 +193,7 @@ module.exports = {
   standardDeviation,
   metersToMiles,
   metersToMilesRounded,
+  milesToMeters,
   secondsToMinutes,
   secondsPerMile,
   averagePaceOfSet,
@@ -198,4 +203,5 @@ module.exports = {
   secondsFormatter,
   indented,
   secondsToTimeFormatted,
+  sixMinMileAsSpeed,
 };

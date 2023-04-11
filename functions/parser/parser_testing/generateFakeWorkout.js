@@ -1,5 +1,5 @@
 const fs = require("fs");
-const Helpers = require("./parser_helpers.js");
+const Helpers = require("../parser_helpers.js");
 
 const name = "4x(400, 200) + 5x(mile, 800) all with 400jg [made up]";
 const workoutSecondsPerMile = 300;
@@ -24,7 +24,26 @@ const desiredLaps = [
   [400, "METERS", true],
   [400, "METERS", false],
   [200, "METERS", true],
+  [300, "SECONDS", false],
+  [1609.3, "METERS", true],
   [400, "METERS", false],
+  [800, "METERS", true],
+  [400, "METERS", false],
+  [1609.3, "METERS", true],
+  [400, "METERS", false],
+  [800, "METERS", true],
+  [400, "METERS", false],
+  [1609.3, "METERS", true],
+  [400, "METERS", false],
+  [800, "METERS", true],
+  [400, "METERS", false],
+  [1609.3, "METERS", true],
+  [400, "METERS", false],
+  [800, "METERS", true],
+  [400, "METERS", false],
+  [1609.3, "METERS", true],
+  [400, "METERS", false],
+  [800, "METERS", true],
   [4424, "METERS", false],
 ];
 
@@ -84,7 +103,7 @@ function generateLap(value, unit, isWorkout, prevIndex, lapIndex) {
     lap.moving_time = Math.round(Helpers.metersToMiles(lap.distance) * (isWorkout ? workoutSecondsPerMile : restSecondsPerMile));
   } else if (unit === "SECONDS") {
     lap.moving_time = Math.round(fuzz(value));
-    lap.distance = Helpers.milesToMeter(lap.moving_time / (isWorkout ? workoutSecondsPerMile : restSecondsPerMile));
+    lap.distance = Helpers.milesToMeters(lap.moving_time / (isWorkout ? workoutSecondsPerMile : restSecondsPerMile));
   }
 
   lap.elapsed_time = lap.moving_time;

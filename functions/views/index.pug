@@ -1,6 +1,68 @@
+doctype html
 html
-    head
-        title= title 
-    body 
-        h1= bodyMessage
-        a(href="https://www.strava.com/oauth/authorize?client_id=101816&redirect_uri=http://localhost:4004/oauth_redirect&response_type=code&scope=activity:read") Login
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Splitz
+    link(rel='stylesheet', href='/style.css')
+    
+  body
+    header
+      h1 Splitz
+      a.button.login-style(href='/login') Log in
+
+    main
+      .text-section
+        p Splitz automatically detects your workout, names it, and adds split summaries to the description.
+        br
+        p All you need to do is mark a lap for each rep, and Splitz will handle the rest.
+        br
+        div.image-frame
+          img(src='/demo.jpg')
+          div.placeholder-image
+          div.overlay
+            h3 See it in action
+            p Automatically extract format, averages, and splits from your workout
+
+      section
+        h2 Automate your workout descriptions today
+        a.button(href='/login') Sign Up Now
+        br
+        br
+        p Splitz is in beta and free to use
+
+      .text-section 
+        h1 FAQ 
+        p <b>How does Splitz figure out what my workout was?</b>
+        p It uses laps in your activity, how far and fast you ran, and some clever guesswork 🪄. It can detect most types of workouts including intervals and repeats, fartleks, and mixed-distance work.
+        br
+        p <b>What if I use auto-lap, or a pre-programmed workout on my watch?</b>
+        p As long as you also have lap markers when each rep starts and stops, it can figure it out — you can leave auto-lap on! Programmed workouts work great with Splitz as well (we actually prefer it 😉).
+        br
+        p <b>What if I recorded my warmup and cooldown in the activity as well?</b>
+        p That's totally fine, and in fact encouraged! It makes it easier to detect workouts, and saves your followers from a wall of posts 😉
+        br
+        p <b>Why didn't it update one of my workouts?</b>
+        p Sometimes the workout detection gets it wrong. I'm sorry when it does, and I'm working to improve it! 🚀
+        br
+        p <b>Can it also show my rest?</b>
+        p Not yet, but I'm working on it!👷
+        br
+        p <b>Can I add my own notes?</b>
+        p Go for it ✏️! Splitz won't do anything besides create the initial summary for you.
+        br
+        p <b>Do you collect any personal data?</b>
+        p Not at all 🙅‍♂️. Your activity info is parsed, then discarded.
+        br
+        p <b>Why do I need an account on here?</b>
+        p Boring technical reasons 💻. See above though, none of your personal data is collected or stored, and you can delete your account anytime.
+        br
+        p <b>Who made this? Why?</b>
+        p Splitz is made by 
+          a(href="https://davidcai.me") David Cai 👋.
+          | I got tired of manually updating my workouts with splits and built this instead. I hope you find it useful as well!
+
+        
+    footer
+      p Copyright © 2023 Splitz
+      img(src="/powered_by_strava.svg" height='24px')

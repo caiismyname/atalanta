@@ -1,0 +1,70 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Splitz Settings
+    link(rel="stylesheet", href="style.css")
+  body
+    header
+      h1 Splitz
+    main
+      .text-section 
+        //- h2 Welcome, #{name}!
+      section.fixed-width
+        if stravaConnected
+          h2
+            | Strava Connection Status: 
+            span.status(style={color: '#00CC00'})
+              | Connected
+          h3 Splitz is connected and watching for new workouts. 
+          h3 Nothing left for you to do except ... run 👟
+          br
+          p 
+            | To disconnect your Strava account, remove Splitz from your installed apps within your 
+            a(href="https://www.strava.com/settings/apps") Strava settings          
+        else
+          h2
+            | Strava Connection Status: 
+            span.status(style={color: '#FF0000'})
+              | Unconnected
+            h3 Connect your Strava account to generate workout summaries automatically.
+            a(href=`https://www.strava.com/oauth/authorize?client_id=101816&redirect_uri=https://stravaworkout.com/strava_oauth_redirect&response_type=code&scope=activity:read_all,activity:write`)
+              img(src="/connect_with_strava.svg")
+            br
+            br
+            p Splitz does not keep or share any of your activity once the summary has been sent to Strava.
+    
+      section.fixed-width
+        h2 Account Settings
+        if stravaConnected 
+            p 
+                | To delete your Splitz account, first remove Splitz in your 
+                a(href="https://www.strava.com/settings/apps") Strava Settings
+        else
+            a.button(href="/delete_account") Delete Account
+    footer
+      p Copyright © 2023 Splitz
+      img(src="/powered_by_strava.svg" height='24px')
+
+
+
+
+
+//- doctype html
+//- html
+//-   head
+//-     title Splitz
+//-     link(rel='stylesheet', href='/style.css')
+
+//-     body 
+//-         h1= bodyMessage
+//-         if stravaConnected
+//-             form(action="/parse_activity" method="get")
+//-                 p
+//-                     | Activity ID:
+//-                     input(name='activityID' id='activityID' type='text')
+//-                 input(value='Submit', type='submit')
+//-         else 
+//-             a(href=`https://www.strava.com/oauth/authorize?client_id=101816&redirect_uri=https://stravaworkout.com/strava_oauth_redirect&response_type=code&scope=activity:read_all,activity:write`) Connect Strava
+        
