@@ -669,31 +669,43 @@ function printSets(sets, printConfig=defaultPrintConfig) {
 
     setDescription += "\n";
 
-
     // Individual laps
     if (set.laps.length > 1) {
-      // List the individual laps
+
+
+
       // Lap > 1mi: mile/km pace, depending on config
       // Lap < 1mi: time if basis DISTANCE, pace if basis TIME
-
+      let setDetails = "";
       let lapDetails = "";
-      if (tokenLap.closestDistanceUnit === "mile") {
-        for (const lap of set.laps) {
+
+      let lapCounter = 0;
+      for (const lap of set.laps) {
+        if (tokenLap.closestDistanceUnit === "mile") {
           lapDetails += `${Helpers.pacePerMileFormatted(lap)}, `;
-        }
-      } else {
-        if (tokenLap.workoutBasis === "DISTANCE") {
-          for (const lap of set.laps) {
+        } else {
+          if (tokenLap.workoutBasis === "DISTANCE") {
             lapDetails += `${Helpers.secondsToTimeFormatted(lap.moving_time)}, `;
-          }
-        } else if (tokenLap.workoutBasis === "TIME") {
-          for (const lap of set.laps) {
+          } else if (tokenLap.workoutBasis === "TIME") {
             lapDetails += `${Helpers.pacePerMileFormatted(lap)}/mi, `;
           }
         }
+
+        // If each rep consists of more than one component (e.g. 3 x 1,2,3,2,1), then list each rep on its own line
+        
+        // Every time we hit the end of a rep...
+        if (set.pattern.length > 1 && (lapCounter % set.pattern.length) === set.pattern.length - 1) {
+          // Prefix an indent and the rep number
+          setDetails += `\t${Math.ceil(lapCounter / set.pattern.length)}. ${lapDetails.slice(0, -2)}\n`;  // slice to remove ending ", "
+          lapDetails = "";
+        } else if (set.pattern.length === 1 && lapCounter === set.count - 1) {
+          setDetails = lapDetails.slice(0, -2);
+        }
+
+        lapCounter++;
       }
 
-      setDescription += `⏱️ ${lapDetails.slice(0, -2)}`; // slice to remove ending ", "
+      setDescription += `⏱️ ${setDetails}`;
     } else if (set.laps.length === 1 && Helpers.metersToMiles(set.laps[0].distance) > 1) {
       // List the splits
       const tokenLap = set.laps[0];
