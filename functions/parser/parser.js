@@ -1,7 +1,7 @@
 const Helpers = require("./parser_helpers.js");
 const workoutExamples = require("./parser_testing/workout_examples.json");
 const mixedExamples = require("./parser_testing/mixed_nonworkouts.json");
-const example = require("./travis_example.json");
+// const example = require("./travis_example.json");
 
 // eslint-disable-next-line no-unused-vars
 function runExamples() {
@@ -231,7 +231,7 @@ function tagWorkoutTypes(laps) {
     return workouts;
   }
 
-  const differenceThreshold = 1.2; //TODO Tune this
+  const differenceThreshold = 1.2; // TODO Tune this
   const workoutsSortedByDistance = [...workouts].sort((a, b) => a.distance < b.distance ? -1 : 1);
   let workoutTypeCounter = 0;
   let prevWorkoutDistance = workoutsSortedByDistance[0].distance;
@@ -434,7 +434,7 @@ function assignNearestDistance(lap) {
 function assignDistanceGuess(lap, distance, difference, unit) {
   lap.closestDistance = distance;
   // You don't pluralize the abbreviations for distance units (but you do for the full word)
-  lap.closestDistanceUnit = unit //+ (distance > 1 ? "s" : "");
+  lap.closestDistanceUnit = unit; // + (distance > 1 ? "s" : "");
   lap.closestDistanceDifference = difference;
 }
 
@@ -597,7 +597,7 @@ function determineSetName(set, multiRepSetsShouldHaveParen = false) {
   if (set.count > 1) {
     setName = `${set.count} x ${setName}`;
     if (multiRepSetsShouldHaveParen) {
-      setName = `(${setName})`
+      setName = `(${setName})`;
     }
   }
 
@@ -671,9 +671,6 @@ function printSets(sets, printConfig=defaultPrintConfig) {
 
     // Individual laps
     if (set.laps.length > 1) {
-
-
-
       // Lap > 1mi: mile/km pace, depending on config
       // Lap < 1mi: time if basis DISTANCE, pace if basis TIME
       let setDetails = "";
@@ -692,11 +689,11 @@ function printSets(sets, printConfig=defaultPrintConfig) {
         }
 
         // If each rep consists of more than one component (e.g. 3 x 1,2,3,2,1), then list each rep on its own line
-        
+
         // Every time we hit the end of a rep...
         if (set.pattern.length > 1 && (lapCounter % set.pattern.length) === set.pattern.length - 1) {
           // Prefix an indent and the rep number
-          setDetails += `\t${Math.ceil(lapCounter / set.pattern.length)}. ${lapDetails.slice(0, -2)}\n`;  // slice to remove ending ", "
+          setDetails += `\t${Math.ceil(lapCounter / set.pattern.length)}. ${lapDetails.slice(0, -2)}\n`; // slice to remove ending ", "
           lapDetails = "";
         } else if (set.pattern.length === 1 && lapCounter === set.count - 1) {
           setDetails = lapDetails.slice(0, -2);
@@ -739,9 +736,9 @@ function print(x) {
 }
 
 
-runExamples();
-// gradeWorkoutDetection();
+// runExamples();
+// // gradeWorkoutDetection();
 
-parseWorkout(example, false, true);
+// parseWorkout(example, false, true);
 
 module.exports = {parseWorkout};
