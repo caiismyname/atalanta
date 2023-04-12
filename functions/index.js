@@ -3,6 +3,8 @@ const axios = require("axios");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
+const path = require("path");
+const favicon = require("serve-favicon");
 
 const {parseWorkout} = require("./parser/parser.js");
 
@@ -18,6 +20,7 @@ app.set("view engine", "pug");
 app.use(cookieParser());
 app.use(express.static("public"));
 app.use(cors());
+app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 
 const serviceAccount = require("./serviceAccountKey.json");
 const firebase = admin.initializeApp({
@@ -37,11 +40,6 @@ const stravaClientID = "101816";
 const stravaClientSecret = functions.config().strava.api_secret;
 const initialGrantType = "authorization_code";
 const refreshGrantType = "refresh_token";
-
-// Set the favicon
-app.get('/favicon.ico', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.ico'));
-});
 
 app.get("/", (req, res) => {
   res.render("index", {
