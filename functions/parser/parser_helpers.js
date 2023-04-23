@@ -77,7 +77,12 @@ function metersToMiles(meters) {
 
 // eslint-disable-next-line no-unused-vars
 function metersToMilesRounded(meters) {
-  return Math.round(metersToMiles(meters));
+  let res = Math.round(metersToMiles(meters) * 10) / 10;
+  if (res % 1 === 0) {
+    return Math.round(res) // Cut off the `.0` if it's a whole number
+  } else {
+    return res
+  }
 }
 
 function milesToMeters(miles) {

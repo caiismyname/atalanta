@@ -1,73 +1,8 @@
 const Helpers = require("./parser_helpers.js");
-const workoutExamples = require("./parser_testing/workout_examples.json");
-const mixedExamples = require("./parser_testing/mixed_nonworkouts.json");
-// const example = require("./travis_example.json");
-
-// eslint-disable-next-line no-unused-vars
-function runExamples() {
-  for (const run of workoutExamples["examples"]) {
-    parseWorkout(run);
-  }
-}
-
-// eslint-disable-next-line no-unused-vars
-function gradeWorkoutDetection() {
-  const allExamples = mixedExamples["examples"];
-  print(allExamples.length);
-
-  const trials = {};
-  let wrong = [];
-
-  for (let i = 1.05; i < 1.27; i = i + 0.01) {
-    for (let j = 1.05; j < 1.27; j = j + 0.01) {
-      wrong = [];
-      let correctCount = 0;
-      let falsePositive = 0;
-      let falseNegative = 0;
-
-      for (const run of allExamples) {
-        const result = determineRunIsWorkout(run.laps, i, j);
-        const truthIsWorkout = run.workout_type === 3;
-
-        if (result === truthIsWorkout) {
-          correctCount += 1;
-        } else {
-          wrong.push({
-            "guess": result,
-            "name": run.name,
-            "run": run,
-          });
-
-          if (result === false) {
-            falseNegative += 1;
-          } else {
-            falsePositive += 1;
-          }
-        }
-      }
-
-      if (correctCount > 162) {
-        trials[`${Math.round(i * 100) / 100} ${Math.round(j * 100) / 100}`] = {
-          "overall": correctCount,
-          "falseNeg": falseNegative,
-          "falsePos": falsePositive,
-        };
-      }
-    }
-  }
-
-  print(trials);
-  for (const run of wrong) {
-    print(`Guess: ${run.guess} ID: ${run.run.id}`);
-    parseWorkout(run.run, false, true);
-    print("\n\n ");
-  }
-}
-
 
 // This is the entrypoint
 // eslint-disable-next-line no-unused-vars
-function parseWorkout(run, htmlMode=false, verbose=true) {
+function parseWorkout(run, htmlMode=false, verbose=true, returnSets=false) {
   const runIsWorkout = determineRunIsWorkout(run.laps);
 
   if (!runIsWorkout) {
@@ -104,10 +39,16 @@ function parseWorkout(run, htmlMode=false, verbose=true) {
     print("\n\n");
   }
 
-  return ({
+  let output = {
     "isWorkout": true,
-    "summary": summary,
-  });
+    "summary": summary
+  };
+
+  if (returnSets) {
+    output.sets = sets;
+  }
+
+  return (output);
 }
 
 function determineRunIsWorkout(laps) {
@@ -346,9 +287,9 @@ function mergeLaps(base, addition) {
   const combinedMaxSpeed = Math.max(base.max_speed, addition.max_speed);
 
   if ("component_laps" in base) {
-    base.component_laps.push(addition);
+    base.component_laps.push({...addition});
   } else {
-    base.component_laps = [base, addition];
+    base.component_laps = [ {...base}, {...addition}]; // Spread notation prevents a circular reference
   }
 
   base.elapsed_time = combinedElapsedTime;
@@ -385,6 +326,7 @@ function assignNearestDistance(lap) {
 
   const validDistanceMiles = [
     1609.3, // 1 mile
+    2414, // 1.5 miles
     3218.7, // 2 miles
     4828, // 3 miles
     6437.4, // 4 miles
@@ -736,9 +678,4 @@ function print(x) {
 }
 
 
-// runExamples();
-// // gradeWorkoutDetection();
-
-// parseWorkout(example, false, true);
-
-module.exports = {parseWorkout};
+module.exports = {parseWorkout, determineRunIsWorkout};

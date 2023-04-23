@@ -405,25 +405,31 @@ exports.app = functions.https.onRequest(app);
 //
 //
 
-// eslint-disable-next-line no-unused-vars
-function saveJSON(content) {
-  const jsonContent = JSON.stringify(content);
-  fs.writeFile("output.json", jsonContent, "utf8", (err) => {
+function saveJSON(content, fileName="output.json") {
+  const jsonContent = JSON.stringify(content, null, 4);
+  fs.writeFile(fileName, jsonContent, "utf8", (err) => {
     if (err) {
-      console.log("An error occured while writing JSON Object to File.");
+      console.log("An error occured while writing JSON Object to file.");
       return console.log(err);
     }
 
-    console.log("JSON file has been saved.");
+    console.log(`JSON file ${fileName} has been saved.`);
   });
 }
 
+// eslint-disable-next-line no-unused-vars
+function saveActivityForUser(userID, activityID) {
+  getStravaTokenForID(userID, (stravaToken) => {
+    getActivity(activityID, stravaToken, (activity) => {
+      saveJSON(activity);
+    });
+  });
+} 
 
-// const stravaToken = "";
 
-// getActivity(12345, stravaToken, (activity) => {
-//   saveJSON(activity);
-// });
+const testUserID = "bFvD0RHOtnbZlpZB4UliU3ZPudw2";
+const testActivityID = "8889055751";
+saveActivityForUser(testUserID, testActivityID);
 
 // getRecentRuns(stravaToken, (runs) => {
 //   console.log(runs.length);
