@@ -16,7 +16,6 @@ function parseWorkout(run, htmlMode=false, verbose=true, returnSets=false) {
   }
 
   // Remove last lap if it's super short, as this tends to give falsely fast/slow readings
-
   let laps = run.laps;
   if (run.laps[run.laps.length - 1].distance < Helpers.milesToMeters(.03)) {
     laps = run.laps.slice(0, -1);
@@ -314,17 +313,21 @@ function assignNearestDistance(lap) {
     500,
     600,
     800,
-    1000,
     1200,
     1500,
     // 1600,
+  ];
+
+  // Separate from meters for display purposes
+  const validDistancesKilometers = [
+    1000,
     2000,
     3000,
     5000,
-    10000,
-  ];
+    10000
+  ]
 
-  const validDistanceMiles = [
+  const validDistancesMiles = [
     1609.3, // 1 mile
     2414, // 1.5 miles
     3218.7, // 2 miles
@@ -365,7 +368,14 @@ function assignNearestDistance(lap) {
     }
   }
 
-  for (const guess of validDistanceMiles) {
+  for (const guess of validDistancesKilometers) {
+    const difference = Math.abs(lapDist - guess) / guess;
+    if (difference < lap.closestDistanceDifference) {
+      assignDistanceGuess(lap, guess / 1000, difference, "km");
+    }
+  }
+
+  for (const guess of validDistancesMiles) {
     const difference = Math.abs(lapDist - guess) / guess;
     if (difference < lap.closestDistanceDifference) {
       assignDistanceGuess(lap, Helpers.metersToMilesRounded(guess), difference, "mi");

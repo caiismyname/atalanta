@@ -119,7 +119,7 @@ function saveJSON(content, fileName="output.json") {
   
       console.log(`JSON file ${fileName} has been saved.`);
     });
-  }
+}
   
 
 
