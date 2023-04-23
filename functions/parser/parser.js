@@ -288,7 +288,7 @@ function mergeLaps(base, addition) {
   if ("component_laps" in base) {
     base.component_laps.push({...addition});
   } else {
-    base.component_laps = [ {...base}, {...addition}]; // Spread notation prevents a circular reference
+    base.component_laps = [{...base}, {...addition}]; // Spread notation prevents a circular reference
   }
 
   base.elapsed_time = combinedElapsedTime;

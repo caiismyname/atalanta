@@ -6,6 +6,7 @@ const workoutFormatGroundTruth = require("./parser_testing_examples/workout_form
 const workoutDetectionFalsePositive = require("./parser_testing_examples/workout_detection_false_positive.json");
 const workoutDetectionFalseNegative = require("./parser_testing_examples/workout_detection_false_negative.json");
 const mixedExamples = require("./parser_testing_examples/mixed_nonworkouts.json");
+const { parse } = require("path");
 
 // eslint-disable-next-line no-unused-vars
 function runFormatTests(displayAll=false) {
@@ -15,14 +16,17 @@ function runFormatTests(displayAll=false) {
     print(`\nTesting Workout Formats`);
 
     for (const run of workoutFormatTests["examples"]) {
-      let testRes = parseWorkout(run, false, displayAll, true); // Last param set `returnSets` to true 
+      // NOTE because we might be reparsing the same run, we create a copy using json parse/stringify because running parseWorkout on the same run object is not idempotent
+      let testRes = parseWorkout(JSON.parse(JSON.stringify(run)), false, displayAll, true); // Last param set `returnSets` to true 
       let groundTruthSets;
     
       if (run.id in workoutFormatGroundTruth) {
         groundTruthSets = workoutFormatGroundTruth[run.id];
       } else {
+        print(`================================`);
         print(`${run.id} DOES NOT HAVE GROUND TRUTH`);
-        print(`${testRes.summary.title}\n${testRes.summary.description}`)
+        parseWorkout(JSON.parse(JSON.stringify(run)), false, true, false);
+        print(`================================`);
         continue
       }
 
@@ -34,8 +38,9 @@ function runFormatTests(displayAll=false) {
     }
 
     for (const run of wrongExamples) {
-        print(`${run.name} | (${run.id})`);
-        parseWorkout(run, false, true, false);
+        print(`================================`);
+        parseWorkout(JSON.parse(JSON.stringify(run)), false, true, false);
+        print(`================================`);
     }
 
     print(`\tParsed ${correctCount} /${workoutFormatTests['examples'].length} correctly.`);

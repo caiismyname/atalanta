@@ -427,8 +427,8 @@ function saveActivityForUser(userID, activityID) {
 } 
 
 
-const testUserID = "bFvD0RHOtnbZlpZB4UliU3ZPudw2";
-const testActivityID = "8889055751";
+const testUserID = "2bRykeL3b8V6ACaeHpggVDTZss83";
+const testActivityID = "8936731276";
 saveActivityForUser(testUserID, testActivityID);
 
 // getRecentRuns(stravaToken, (runs) => {
