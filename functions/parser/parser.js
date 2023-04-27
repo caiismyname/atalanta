@@ -38,9 +38,9 @@ function parseWorkout(run, htmlMode=false, verbose=true, returnSets=false) {
     print("\n\n");
   }
 
-  let output = {
+  const output = {
     "isWorkout": true,
-    "summary": summary
+    "summary": summary,
   };
 
   if (returnSets) {
@@ -324,8 +324,8 @@ function assignNearestDistance(lap) {
     2000,
     3000,
     5000,
-    10000
-  ]
+    10000,
+  ];
 
   const validDistancesMiles = [
     1609.3, // 1 mile

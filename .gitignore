@@ -13,7 +13,7 @@ firebase-debug.*.log*
 
 # Creds
 *serviceAccountKey.json
-
+*.runtimeconfig.json
 
 # Firebase cache
 .firebase/
