@@ -171,10 +171,11 @@ app.post("/strava_webhook", (req, res) => {
         getActivity(activityID, stravaToken, (activity) => {
           if (activity.type === "Run") {
             console.log(`Activity is run, processing...`);
-            logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
+            logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
             const output = parseWorkout(activity, false, false);
             if (output.isWorkout) {
               console.log(`Activity ${activityID} is a workout. Title: [${output.summary.title}]`);
+              logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
               setTimeout(() => {
                 writeSummaryToStrava(activityID, output.summary, stravaToken);
                 logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);

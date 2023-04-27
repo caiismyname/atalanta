@@ -1,6 +1,7 @@
 
 const ANALYTICS_EVENTS = {
   INBOUND_WEBHOOK: "inbound_webhook",
+  ACTIVITY_IS_RUN: "activity_is_run",
   WORKOUT_DETECTED: "workout_detected",
   WORKOUT_WRITTEN: "workout_written",
   USER_SIGNUP: "user_signup",
