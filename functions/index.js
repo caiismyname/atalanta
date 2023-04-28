@@ -67,6 +67,7 @@ app.get("/strava_oauth_redirect", (req, res) => {
       const refreshToken = authRes.data.refresh_token;
       const expiration = authRes.data.expires_at;
       saveStravaCredentialsForUser(userID, athleteID, accessToken, refreshToken, expiration);
+      logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_CONNECTION, db);
 
       res.redirect("/home");
     });
@@ -321,6 +322,7 @@ function isUserCreated(userID, callback) {
 
 function createNewUser(userID, name) {
   console.log(`CREATED USER: ${userID}`);
+  logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, db);
   db.ref(`users/${userID}`).update({
     stravaConnected: false,
     name: name,

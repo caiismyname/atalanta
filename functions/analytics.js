@@ -1,11 +1,12 @@
 
 const ANALYTICS_EVENTS = {
   INBOUND_WEBHOOK: "inbound_webhook",
-  ACTIVITY_IS_RUN: "activity_is_run",
+  ACTIVITY_IS_ELIGIBLE: "activity_is_eligible",
   WORKOUT_DETECTED: "workout_detected",
   WORKOUT_WRITTEN: "workout_written",
-  USER_SIGNUP: "user_signup",
+  USER_STRAVA_CONNECTION: "user_strava_connection",
   USER_STRAVA_DEACTIVATION: "user_strava_deactivation",
+  USER_ACCOUNT_SIGNUP: "user_account_signup",
   USER_ACCOUNT_DELETION: "user_account_deletion",
 };
 
