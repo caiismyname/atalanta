@@ -275,7 +275,7 @@ function getRecentRuns(accessToken, callback) {
 }
 
 function writeSummaryToStrava(activityID, summary, accessToken) {
-  console.log(`Writing workout:\n\tActivity: ${activityID}\nTitle:${summary.title}`);
+  console.log(`Writing workout:\n\tActivity: ${activityID}\n\tTitle:${summary.title}\n\tDescription:${summary.description.replace("\n", "")}`);
 
   const config = {headers: {Accept: "application/json", Authorization: `Bearer ${accessToken}`}};
   const newTitleAndDescription = {
@@ -436,9 +436,9 @@ function saveActivityForUser(userID, activityID) {
 }
 
 
-// const testUserID = "";
-// const testActivityID = "";
-// saveActivityForUser(testUserID, testActivityID);
+const testUserID = "hMPrTuPNKChzonEJGLzh7l2Zuhn1";
+const testActivityID = "8971243607";
+saveActivityForUser(testUserID, testActivityID);
 
 // getRecentRuns(stravaToken, (runs) => {
 //   console.log(runs.length);

@@ -58792,6 +58792,1234 @@
             "heartrate",
             "pace"
         ]
+      },
+      {
+        "resource_state": 3,
+        "athlete": {
+            "id": 96578203,
+            "resource_state": 1
+        },
+        "name": "4@10k",
+        "distance": 11271.6,
+        "moving_time": 3519,
+        "elapsed_time": 3535,
+        "total_elevation_gain": 26.9,
+        "type": "Run",
+        "sport_type": "Run",
+        "workout_type": 3,
+        "id": 8971243607,
+        "start_date": "2023-04-28T09:58:21Z",
+        "start_date_local": "2023-04-28T05:58:21Z",
+        "timezone": "(GMT-05:00) America/New_York",
+        "utc_offset": -14400,
+        "location_city": null,
+        "location_state": null,
+        "location_country": null,
+        "achievement_count": 3,
+        "kudos_count": 9,
+        "comment_count": 4,
+        "athlete_count": 1,
+        "photo_count": 0,
+        "map": {
+            "id": "a8971243607",
+            "polyline": "gy{rFvzxiM@@CVBF?LG^_@z@m@z@a@x@M^{@fBBLSbAFP@VHZn@v@?j@MXJb@ANKb@BJN@z@Cj@DLDFDOPi@bAYZ[f@c@|@Yt@MRaA~@OZk@t@o@bAe@tCBTHVc@~@Ml@Kz@En@Dd@ZXd@LnAh@BB@JEHyCbCa@d@qAzAgApBYVENeAd@o@?SB]NMPe@^o@V[H_@Mg@Ai@DcB^uATQHOXI|@STKFa@BYRa@h@]Rk@Lg@f@a@V_@Da@Z]f@q@tAUxC@NYvD_@tD[zEUv@[b@c@b@MFkCPiAGyAUk@?g@Fg@L[PmBl@}BfAsAv@_Bz@c@`Ae@\\WZa@TMBu@p@u@d@{@z@c@Lm@p@Wh@{AtAm@b@}@`AaAxAqA~ByAvB{AjCi@x@w@zAs@fAWh@[bAYjAq@vDK`@g@nA_BzCc@d@u@hAgArAc@p@kApA_A|@s@d@_AZo@Fe@Aq@M}@e@_@a@sAoBi@q@Yc@iB{Do@aAkDwD][WO}@y@k@a@_CkC_@WgA{Aa@a@_@c@cBeAu@s@{AeAqAy@SQs@_A_CuFIAEDDJ\\Rx@tBd@`AZl@h@l@tDbClBvAj@ZdB~Bf@`@d@r@dAhAzAvAPJjC~B|AhB^Zd@n@Zj@~@tBj@|@hAvAd@z@h@r@~@h@rA`@TA`AQf@ORMdAw@h@o@dAeAXc@l@q@\\a@l@aAb@g@`BoC^cAV_Az@gF^sAvB{Dr@mAvCsE`DmFRUn@q@nC_Cd@o@\\]\\i@h@W\\a@d@_@r@c@`@a@j@OFER_@^WXg@DOZa@r@_@j@WpA}@VGx@c@t@UzAo@z@Wd@El@CbB^^B~AGv@Gl@Qd@c@Tc@Pu@HaAL_CdAsN@a@Jq@Tk@~@iAt@Qb@Ub@k@hAYb@i@^YDAj@YR_@Jo@XMr@STOh@Od@Kj@If@A\\@b@NNGf@GVW|@o@f@B`@A`@Up@m@\\c@Tg@p@eAxBaCv@u@`As@P[EMa@MgAc@_@_@E_@V{BNo@\\}@MeA`@gDISBKnAyBRWrAqB^e@z@mAHe@sAk@AIDKH[Ka@N[Dm@MUWYMe@Ig@TuA|@aATk@Fq@Lc@t@sBNm@",
+            "resource_state": 3,
+            "summary_polyline": "gz{rF~ryiMLDFDOPi@bAYZ[f@c@|@Yt@MRaA~@OZk@t@o@bAUtAO~@BTHVa@x@Or@QjBDd@ZXd@LnAh@BB@JEHyCbCa@d@qAzAgApBYVENeAd@o@?SB]NMPe@^o@V[H_@Mg@Ai@DcB^uATQHOXI|@STKFa@BYRa@h@]Rk@Lg@f@a@V_@Da@Z]f@q@tAUxC@NYvD_@tD[zEUv@[b@c@b@MFO@{BNiAGyAUk@?g@Fg@L[PaCv@a@TgAf@sAv@_Bz@c@`Ae@\\WZa@TMBu@p@u@d@{@z@c@Lm@p@Wh@{AtAm@b@w@z@cBfCu@vAyAvB{AjCi@x@w@zAs@fAWh@[bAg@zBc@fCK`@g@nA_BzCc@d@u@hAoCjDgBhBs@d@_AZo@Fe@Aq@M}@e@_@a@sAoBi@q@Yc@iB{D]k@QU}@_AiAsAaA_AWO}@y@k@a@_CkC_@WgA{Aa@a@_@c@cBeAu@s@{AeAqAy@SQs@_A_CuFIAEDDJ\\Rx@tB|@hBl@r@tDbClBvAj@ZdB~Bf@`@d@r@dAhAzAvAPJjC~B|AhB^Zd@n@Zj@~@tBj@|@hAvAd@z@h@r@~@h@rA`@TA`AQf@ORMdAw@h@o@dAeAXc@l@q@\\a@l@aAb@g@`BoC^cAV_Az@gF^sAvB{Dr@mAvCsE`DmFRUn@q@nC_Cd@o@\\]\\i@h@W\\a@d@_@r@c@`@a@j@OFER_@^WXg@DOZa@r@_@j@WpA}@VGx@c@t@UzAo@z@Wd@El@CbB^^B~AGv@Gl@Qd@c@Tc@Pu@HaAL_CdAsN@a@Jq@Tk@~@iAt@Qb@Ub@k@hAYb@i@^YDAj@YR_@Jo@XMr@STOh@Od@Kj@If@A\\@b@NNGf@GVW|@o@f@B`@A`@Up@m@\\c@Tg@p@eAxBaCv@u@`As@P[EMa@MgAc@_@_@E_@V{BNo@\\}@MeA`@gDISBKnAyBRWrAqB^e@z@mA"
+        },
+        "trainer": false,
+        "commute": false,
+        "manual": false,
+        "private": false,
+        "visibility": "followers_only",
+        "flagged": false,
+        "gear_id": "g9743714",
+        "start_latlng": [
+            39.96068908832967,
+            -75.1711545791477
+        ],
+        "end_latlng": [
+            39.96076502837241,
+            -75.17124401405454
+        ],
+        "average_speed": 3.203,
+        "max_speed": 5.183,
+        "average_cadence": 98.2,
+        "has_heartrate": true,
+        "average_heartrate": 174.9,
+        "max_heartrate": 195,
+        "heartrate_opt_out": false,
+        "display_hide_heartrate_option": true,
+        "elev_high": 14.8,
+        "elev_low": 6,
+        "upload_id": 9625447572,
+        "upload_id_str": "9625447572",
+        "external_id": "garmin_ping_271489568601",
+        "from_accepted_tag": false,
+        "pr_count": 3,
+        "total_photo_count": 0,
+        "has_kudoed": false,
+        "description": "",
+        "calories": 646,
+        "perceived_exertion": null,
+        "prefer_perceived_exertion": false,
+        "segment_efforts": [
+            {
+                "id": 3086985566051662300,
+                "resource_state": 2,
+                "name": "Boathouse Row 1st 800 meters out",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 289,
+                "moving_time": 289,
+                "start_date": "2023-04-28T10:10:43Z",
+                "start_date_local": "2023-04-28T06:10:43Z",
+                "distance": 798.7,
+                "start_index": 176,
+                "end_index": 229,
+                "average_cadence": 94.8,
+                "device_watts": false,
+                "average_heartrate": 158.1,
+                "max_heartrate": 163,
+                "segment": {
+                    "id": 6621970,
+                    "resource_state": 2,
+                    "name": "Boathouse Row 1st 800 meters out",
+                    "activity_type": "Run",
+                    "distance": 798.7,
+                    "average_grade": -0.5,
+                    "maximum_grade": 2.6,
+                    "elevation_high": 6.6,
+                    "elevation_low": 1,
+                    "start_latlng": [
+                        39.969406,
+                        -75.185451
+                    ],
+                    "end_latlng": [
+                        39.973672,
+                        -75.190701
+                    ],
+                    "elevation_profile": null,
+                    "climb_category": 0,
+                    "city": "Philadelphia",
+                    "state": "PA",
+                    "country": "United States",
+                    "private": false,
+                    "hazardous": false,
+                    "starred": false
+                },
+                "pr_rank": null,
+                "achievements": [],
+                "hidden": false
+            },
+            {
+                "id": 3086985566055162400,
+                "resource_state": 2,
+                "name": "Elf to Circle",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 183,
+                "moving_time": 183,
+                "start_date": "2023-04-28T10:12:48Z",
+                "start_date_local": "2023-04-28T06:12:48Z",
+                "distance": 542.1,
+                "start_index": 199,
+                "end_index": 233,
+                "average_cadence": 94.8,
+                "device_watts": false,
+                "average_heartrate": 157.5,
+                "max_heartrate": 161,
+                "segment": {
+                    "id": 15556223,
+                    "resource_state": 2,
+                    "name": "Elf to Circle",
+                    "activity_type": "Run",
+                    "distance": 542.1,
+                    "average_grade": -0.1,
+                    "maximum_grade": 2.8,
+                    "elevation_high": 10.4,
+                    "elevation_low": 8.2,
+                    "start_latlng": [
+                        39.96993,
+                        -75.189435
+                    ],
+                    "end_latlng": [
+                        39.974103,
+                        -75.191289
+                    ],
+                    "elevation_profile": null,
+                    "climb_category": 0,
+                    "city": "Philadelphia",
+                    "state": "Pennsylvania",
+                    "country": "United States",
+                    "private": false,
+                    "hazardous": false,
+                    "starred": false
+                },
+                "pr_rank": null,
+                "achievements": [],
+                "hidden": false
+            },
+            {
+                "id": 3086985566052918000,
+                "resource_state": 2,
+                "name": "through the wormhole",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 191,
+                "moving_time": 191,
+                "start_date": "2023-04-28T10:13:45Z",
+                "start_date_local": "2023-04-28T06:13:45Z",
+                "distance": 529.967,
+                "start_index": 211,
+                "end_index": 244,
+                "average_cadence": 94.9,
+                "device_watts": false,
+                "average_heartrate": 157.5,
+                "max_heartrate": 161,
+                "segment": {
+                    "id": 3288553,
+                    "resource_state": 2,
+                    "name": "through the wormhole",
+                    "activity_type": "Run",
+                    "distance": 529.967,
+                    "average_grade": 0.1,
+                    "maximum_grade": 3.6,
+                    "elevation_high": 2.7,
+                    "elevation_low": 0.8,
+                    "start_latlng": [
+                        39.971118,
+                        -75.190239
+                    ],
+                    "end_latlng": [
+                        39.975434,
+                        -75.192062
+                    ],
+                    "elevation_profile": null,
+                    "climb_category": 0,
+                    "city": "Philadelphia",
+                    "state": "PA",
+                    "country": "United States",
+                    "private": false,
+                    "hazardous": false,
+                    "starred": false
+                },
+                "pr_rank": null,
+                "achievements": [],
+                "hidden": false
+            },
+            {
+                "id": 3086985566052819500,
+                "resource_state": 2,
+                "name": "Boathouse Row 2nd 800 meters out",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 258,
+                "moving_time": 258,
+                "start_date": "2023-04-28T10:15:24Z",
+                "start_date_local": "2023-04-28T06:15:24Z",
+                "distance": 817.5,
+                "start_index": 227,
+                "end_index": 282,
+                "average_cadence": 97.4,
+                "device_watts": false,
+                "average_heartrate": 167.6,
+                "max_heartrate": 181,
+                "segment": {
+                    "id": 6601104,
+                    "resource_state": 2,
+                    "name": "Boathouse Row 2nd 800 meters out",
+                    "activity_type": "Run",
+                    "distance": 817.5,
+                    "average_grade": 0.5,
+                    "maximum_grade": 3.4,
+                    "elevation_high": 8.6,
+                    "elevation_low": 0.8,
+                    "start_latlng": [
+                        39.973491,
+                        -75.190605
+                    ],
+                    "end_latlng": [
+                        39.979273,
+                        -75.196309
+                    ],
+                    "elevation_profile": null,
+                    "climb_category": 0,
+                    "city": "Philadelphia",
+                    "state": "PA",
+                    "country": "United States",
+                    "private": false,
+                    "hazardous": false,
+                    "starred": false
+                },
+                "pr_rank": null,
+                "achievements": [],
+                "hidden": false
+            },
+            {
+                "id": 3086985566051479000,
+                "resource_state": 2,
+                "name": "Schuylkill River Trail   Philadelphia To Valley Forge Climb",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 302,
+                "moving_time": 302,
+                "start_date": "2023-04-28T10:32:45Z",
+                "start_date_local": "2023-04-28T06:32:45Z",
+                "distance": 1106.13,
+                "start_index": 467,
+                "end_index": 534,
+                "average_cadence": 101.6,
+                "device_watts": false,
+                "average_heartrate": 190.6,
+                "max_heartrate": 193,
+                "segment": {
+                    "id": 1777350,
+                    "resource_state": 2,
+                    "name": "Schuylkill River Trail   Philadelphia To Valley Forge Climb",
+                    "activity_type": "Run",
+                    "distance": 1106.13,
+                    "average_grade": 4.6,
+                    "maximum_grade": 64.4,
+                    "elevation_high": 17.6,
+                    "elevation_low": -33.4,
+                    "start_latlng": [
+                        39.9871555,
+                        -75.2002845
+                    ],
+                    "end_latlng": [
+                        39.9802608,
+                        -75.19788
+                    ],
+                    "elevation_profile": null,
+                    "climb_category": 0,
+                    "city": "Philadelphia",
+                    "state": "PA",
+                    "country": "United States",
+                    "private": false,
+                    "hazardous": false,
+                    "starred": false
+                },
+                "pr_rank": 1,
+                "achievements": [
+                    {
+                        "type_id": 3,
+                        "type": "pr",
+                        "rank": 1
+                    }
+                ],
+                "hidden": false
+            },
+            {
+                "id": 3086985566054181400,
+                "resource_state": 2,
+                "name": "Columbia RR to Pennsylvania RR",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 352,
+                "moving_time": 352,
+                "start_date": "2023-04-28T10:34:28Z",
+                "start_date_local": "2023-04-28T06:34:28Z",
+                "distance": 1291.7,
+                "start_index": 490,
+                "end_index": 566,
+                "average_cadence": 102,
+                "device_watts": false,
+                "average_heartrate": 191.1,
+                "max_heartrate": 193,
+                "segment": {
+                    "id": 16491555,
+                    "resource_state": 2,
+                    "name": "Columbia RR to Pennsylvania RR",
+                    "activity_type": "Run",
+                    "distance": 1291.7,
+                    "average_grade": 0.4,
+                    "maximum_grade": 2.3,
+                    "elevation_high": 62.8,
+                    "elevation_low": 57.4,
+                    "start_latlng": [
+                        39.984812,
+                        -75.203176
+                    ],
+                    "end_latlng": [
+                        39.976804,
+                        -75.193344
+                    ],
+                    "elevation_profile": null,
+                    "climb_category": 0,
+                    "city": null,
+                    "state": null,
+                    "country": null,
+                    "private": false,
+                    "hazardous": false,
+                    "starred": false
+                },
+                "pr_rank": 1,
+                "achievements": [
+                    {
+                        "type_id": 3,
+                        "type": "pr",
+                        "rank": 1
+                    }
+                ],
+                "hidden": false
+            },
+            {
+                "id": 3086985566051655000,
+                "resource_state": 2,
+                "name": "Fountain Green to Lloyd Hall",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 495,
+                "moving_time": 495,
+                "start_date": "2023-04-28T10:37:39Z",
+                "start_date_local": "2023-04-28T06:37:39Z",
+                "distance": 1798.2,
+                "start_index": 532,
+                "end_index": 641,
+                "average_cadence": 102,
+                "device_watts": false,
+                "average_heartrate": 190.9,
+                "max_heartrate": 193,
+                "segment": {
+                    "id": 28690426,
+                    "resource_state": 2,
+                    "name": "Fountain Green to Lloyd Hall",
+                    "activity_type": "Run",
+                    "distance": 1798.2,
+                    "average_grade": -0.2,
+                    "maximum_grade": 2.7,
+                    "elevation_high": 11.2,
+                    "elevation_low": 7.4,
+                    "start_latlng": [
+                        39.980399,
+                        -75.198187
+                    ],
+                    "end_latlng": [
+                        39.969412,
+                        -75.185578
+                    ],
+                    "elevation_profile": null,
+                    "climb_category": 0,
+                    "city": "Philadelphia",
+                    "state": "Pennsylvania",
+                    "country": "United States",
+                    "private": false,
+                    "hazardous": false,
+                    "starred": false
+                },
+                "pr_rank": 1,
+                "achievements": [
+                    {
+                        "type_id": 3,
+                        "type": "pr",
+                        "rank": 1
+                    }
+                ],
+                "hidden": false
+            },
+            {
+                "id": 3086985566054430000,
+                "resource_state": 2,
+                "name": "Final Sprint along the Boathouses",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 107,
+                "moving_time": 107,
+                "start_date": "2023-04-28T10:44:01Z",
+                "start_date_local": "2023-04-28T06:44:01Z",
+                "distance": 421.8,
+                "start_index": 615,
+                "end_index": 640,
+                "average_cadence": 101.6,
+                "device_watts": false,
+                "average_heartrate": 190.3,
+                "max_heartrate": 192,
+                "segment": {
+                    "id": 23025293,
+                    "resource_state": 2,
+                    "name": "Final Sprint along the Boathouses",
+                    "activity_type": "Run",
+                    "distance": 421.8,
+                    "average_grade": -0.2,
+                    "maximum_grade": 2,
+                    "elevation_high": 7,
+                    "elevation_low": 6.2,
+                    "start_latlng": [
+                        39.970275,
+                        -75.189956
+                    ],
+                    "end_latlng": [
+                        39.969382,
+                        -75.185793
+                    ],
+                    "elevation_profile": null,
+                    "climb_category": 0,
+                    "city": "Philadelphia",
+                    "state": "Pennsylvania",
+                    "country": "United States",
+                    "private": false,
+                    "hazardous": false,
+                    "starred": false
+                },
+                "pr_rank": null,
+                "achievements": [],
+                "hidden": false
+            },
+            {
+                "id": 3086985566055495000,
+                "resource_state": 2,
+                "name": "downupupdown",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 164,
+                "moving_time": 164,
+                "start_date": "2023-04-28T10:48:29Z",
+                "start_date_local": "2023-04-28T06:48:29Z",
+                "distance": 469.2,
+                "start_index": 675,
+                "end_index": 707,
+                "average_cadence": 94.5,
+                "device_watts": false,
+                "average_heartrate": 173.9,
+                "max_heartrate": 181,
+                "segment": {
+                    "id": 32267910,
+                    "resource_state": 2,
+                    "name": "downupupdown",
+                    "activity_type": "Run",
+                    "distance": 469.2,
+                    "average_grade": 0.2,
+                    "maximum_grade": 8.1,
+                    "elevation_high": 7.2,
+                    "elevation_low": 2,
+                    "start_latlng": [
+                        39.965497,
+                        -75.183312
+                    ],
+                    "end_latlng": [
+                        39.962205,
+                        -75.180412
+                    ],
+                    "elevation_profile": null,
+                    "climb_category": 0,
+                    "city": "Philadelphia",
+                    "state": "Pennsylvania",
+                    "country": "United States",
+                    "private": false,
+                    "hazardous": false,
+                    "starred": false
+                },
+                "pr_rank": null,
+                "achievements": [],
+                "hidden": false
+            }
+        ],
+        "splits_metric": [
+            {
+                "distance": 1005.2,
+                "elapsed_time": 381,
+                "elevation_difference": -3.1,
+                "moving_time": 365,
+                "split": 1,
+                "average_speed": 2.75,
+                "average_grade_adjusted_speed": 2.74,
+                "average_heartrate": 145.43013698630136,
+                "pace_zone": 1
+            },
+            {
+                "distance": 1005.4,
+                "elapsed_time": 360,
+                "elevation_difference": -2.3,
+                "moving_time": 360,
+                "split": 2,
+                "average_speed": 2.79,
+                "average_grade_adjusted_speed": 2.79,
+                "average_heartrate": 158.925,
+                "pace_zone": 1
+            },
+            {
+                "distance": 1002.8,
+                "elapsed_time": 358,
+                "elevation_difference": -0.5,
+                "moving_time": 358,
+                "split": 3,
+                "average_speed": 2.8,
+                "average_grade_adjusted_speed": 2.8,
+                "average_heartrate": 157.87709497206703,
+                "pace_zone": 1
+            },
+            {
+                "distance": 989.9,
+                "elapsed_time": 292,
+                "elevation_difference": 1.1,
+                "moving_time": 292,
+                "split": 4,
+                "average_speed": 3.39,
+                "average_grade_adjusted_speed": 3.4,
+                "average_heartrate": 176.47602739726028,
+                "pace_zone": 3
+            },
+            {
+                "distance": 1000.1,
+                "elapsed_time": 276,
+                "elevation_difference": -0.1,
+                "moving_time": 276,
+                "split": 5,
+                "average_speed": 3.62,
+                "average_grade_adjusted_speed": 3.63,
+                "average_heartrate": 187.4927536231884,
+                "pace_zone": 3
+            },
+            {
+                "distance": 1013.5,
+                "elapsed_time": 279,
+                "elevation_difference": 0.2,
+                "moving_time": 279,
+                "split": 6,
+                "average_speed": 3.63,
+                "average_grade_adjusted_speed": 3.64,
+                "average_heartrate": 190.21146953405017,
+                "pace_zone": 3
+            },
+            {
+                "distance": 986,
+                "elapsed_time": 272,
+                "elevation_difference": -1.2,
+                "moving_time": 272,
+                "split": 7,
+                "average_speed": 3.63,
+                "average_grade_adjusted_speed": 3.62,
+                "average_heartrate": 189.50735294117646,
+                "pace_zone": 3
+            },
+            {
+                "distance": 997.7,
+                "elapsed_time": 273,
+                "elevation_difference": 1.5,
+                "moving_time": 273,
+                "split": 8,
+                "average_speed": 3.65,
+                "average_grade_adjusted_speed": 3.66,
+                "average_heartrate": 191.55677655677655,
+                "pace_zone": 3
+            },
+            {
+                "distance": 1009.4,
+                "elapsed_time": 277,
+                "elevation_difference": -1.2,
+                "moving_time": 277,
+                "split": 9,
+                "average_speed": 3.64,
+                "average_grade_adjusted_speed": 3.64,
+                "average_heartrate": 191.1263537906137,
+                "pace_zone": 3
+            },
+            {
+                "distance": 999,
+                "elapsed_time": 307,
+                "elevation_difference": -0.8,
+                "moving_time": 307,
+                "split": 10,
+                "average_speed": 3.25,
+                "average_grade_adjusted_speed": 3.26,
+                "average_heartrate": 186.6840390879479,
+                "pace_zone": 2
+            },
+            {
+                "distance": 1006.5,
+                "elapsed_time": 365,
+                "elevation_difference": 5.9,
+                "moving_time": 365,
+                "split": 11,
+                "average_speed": 2.76,
+                "average_grade_adjusted_speed": 2.82,
+                "average_heartrate": 169.63013698630138,
+                "pace_zone": 1
+            },
+            {
+                "distance": 258.3,
+                "elapsed_time": 95,
+                "elevation_difference": 0.6,
+                "moving_time": 95,
+                "split": 12,
+                "average_speed": 2.72,
+                "average_grade_adjusted_speed": 2.75,
+                "average_heartrate": 171.52631578947367,
+                "pace_zone": 1
+            }
+        ],
+        "splits_standard": [
+            {
+                "distance": 1609.9,
+                "elapsed_time": 595,
+                "elevation_difference": -3.6,
+                "moving_time": 579,
+                "split": 1,
+                "average_speed": 2.78,
+                "average_grade_adjusted_speed": 2.78,
+                "average_heartrate": 150.87910189982728,
+                "pace_zone": 1
+            },
+            {
+                "distance": 1608.9,
+                "elapsed_time": 579,
+                "elevation_difference": -0.6,
+                "moving_time": 579,
+                "split": 2,
+                "average_speed": 2.78,
+                "average_grade_adjusted_speed": 2.78,
+                "average_heartrate": 158.31088082901553,
+                "pace_zone": 1
+            },
+            {
+                "distance": 1611.6,
+                "elapsed_time": 445,
+                "elevation_difference": -0.8,
+                "moving_time": 445,
+                "split": 3,
+                "average_speed": 3.62,
+                "average_grade_adjusted_speed": 3.63,
+                "average_heartrate": 184.2449438202247,
+                "pace_zone": 3
+            },
+            {
+                "distance": 1607.7,
+                "elapsed_time": 442,
+                "elevation_difference": -0.1,
+                "moving_time": 442,
+                "split": 4,
+                "average_speed": 3.64,
+                "average_grade_adjusted_speed": 3.64,
+                "average_heartrate": 190.0950226244344,
+                "pace_zone": 3
+            },
+            {
+                "distance": 1608.8,
+                "elapsed_time": 442,
+                "elevation_difference": 0.5,
+                "moving_time": 442,
+                "split": 5,
+                "average_speed": 3.64,
+                "average_grade_adjusted_speed": 3.64,
+                "average_heartrate": 190.68325791855204,
+                "pace_zone": 3
+            },
+            {
+                "distance": 1612.9,
+                "elapsed_time": 443,
+                "elevation_difference": 0.7,
+                "moving_time": 443,
+                "split": 6,
+                "average_speed": 3.64,
+                "average_grade_adjusted_speed": 3.65,
+                "average_heartrate": 191.36343115124154,
+                "pace_zone": 3
+            },
+            {
+                "distance": 1606.9,
+                "elapsed_time": 586,
+                "elevation_difference": 3.9,
+                "moving_time": 586,
+                "split": 7,
+                "average_speed": 2.74,
+                "average_grade_adjusted_speed": 2.78,
+                "average_heartrate": 172.14846416382252,
+                "pace_zone": 1
+            },
+            {
+                "distance": 7.1,
+                "elapsed_time": 3,
+                "elevation_difference": 0.1,
+                "moving_time": 3,
+                "split": 8,
+                "average_speed": 2.37,
+                "average_grade_adjusted_speed": 2.4,
+                "average_heartrate": 167,
+                "pace_zone": 1
+            }
+        ],
+        "laps": [
+            {
+                "id": 30506851664,
+                "resource_state": 2,
+                "name": "Lap 1",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 595,
+                "moving_time": 579,
+                "start_date": "2023-04-28T09:58:21Z",
+                "start_date_local": "2023-04-28T05:58:21Z",
+                "distance": 1609.34,
+                "start_index": 0,
+                "end_index": 92,
+                "total_elevation_gain": 6.2,
+                "average_speed": 2.78,
+                "max_speed": 4.149,
+                "average_cadence": 94.3,
+                "device_watts": false,
+                "average_heartrate": 150.9,
+                "max_heartrate": 172,
+                "lap_index": 1,
+                "split": 1,
+                "pace_zone": 1
+            },
+            {
+                "id": 30506851668,
+                "resource_state": 2,
+                "name": "Lap 2",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 579,
+                "moving_time": 579,
+                "start_date": "2023-04-28T10:08:23Z",
+                "start_date_local": "2023-04-28T06:08:23Z",
+                "distance": 1609.34,
+                "start_index": 93,
+                "end_index": 203,
+                "total_elevation_gain": 2,
+                "average_speed": 2.78,
+                "max_speed": 3.594,
+                "average_cadence": 94.7,
+                "device_watts": false,
+                "average_heartrate": 158.3,
+                "max_heartrate": 169,
+                "lap_index": 2,
+                "split": 2,
+                "pace_zone": 1
+            },
+            {
+                "id": 30506851670,
+                "resource_state": 2,
+                "name": "Lap 3",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 444,
+                "moving_time": 444,
+                "start_date": "2023-04-28T10:17:59Z",
+                "start_date_local": "2023-04-28T06:17:59Z",
+                "distance": 1609.34,
+                "start_index": 204,
+                "end_index": 308,
+                "total_elevation_gain": 2.2,
+                "average_speed": 3.62,
+                "max_speed": 4.213,
+                "average_cadence": 101.3,
+                "device_watts": false,
+                "average_heartrate": 184.4,
+                "max_heartrate": 191,
+                "lap_index": 3,
+                "split": 3,
+                "pace_zone": 3
+            },
+            {
+                "id": 30506851675,
+                "resource_state": 2,
+                "name": "Lap 4",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 442,
+                "moving_time": 442,
+                "start_date": "2023-04-28T10:25:25Z",
+                "start_date_local": "2023-04-28T06:25:25Z",
+                "distance": 1609.34,
+                "start_index": 309,
+                "end_index": 412,
+                "total_elevation_gain": 0,
+                "average_speed": 3.64,
+                "max_speed": 4.246,
+                "average_cadence": 102,
+                "device_watts": false,
+                "average_heartrate": 190.1,
+                "max_heartrate": 193,
+                "lap_index": 4,
+                "split": 4,
+                "pace_zone": 3
+            },
+            {
+                "id": 30506851679,
+                "resource_state": 2,
+                "name": "Lap 5",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 442,
+                "moving_time": 442,
+                "start_date": "2023-04-28T10:32:45Z",
+                "start_date_local": "2023-04-28T06:32:45Z",
+                "distance": 1609.34,
+                "start_index": 413,
+                "end_index": 509,
+                "total_elevation_gain": 2.9,
+                "average_speed": 3.64,
+                "max_speed": 3.944,
+                "average_cadence": 101.8,
+                "device_watts": false,
+                "average_heartrate": 190.7,
+                "max_heartrate": 193,
+                "lap_index": 5,
+                "split": 5,
+                "pace_zone": 3
+            },
+            {
+                "id": 30506851683,
+                "resource_state": 2,
+                "name": "Lap 6",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 442,
+                "moving_time": 442,
+                "start_date": "2023-04-28T10:40:10Z",
+                "start_date_local": "2023-04-28T06:40:10Z",
+                "distance": 1609.34,
+                "start_index": 510,
+                "end_index": 610,
+                "total_elevation_gain": 2.2,
+                "average_speed": 3.64,
+                "max_speed": 5.183,
+                "average_cadence": 101.9,
+                "device_watts": false,
+                "average_heartrate": 191.3,
+                "max_heartrate": 195,
+                "lap_index": 6,
+                "split": 6,
+                "pace_zone": 3
+            },
+            {
+                "id": 30506851687,
+                "resource_state": 2,
+                "name": "Lap 7",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 586,
+                "moving_time": 586,
+                "start_date": "2023-04-28T10:47:33Z",
+                "start_date_local": "2023-04-28T06:47:33Z",
+                "distance": 1609.34,
+                "start_index": 611,
+                "end_index": 698,
+                "total_elevation_gain": 9.9,
+                "average_speed": 2.75,
+                "max_speed": 3.355,
+                "average_cadence": 94.4,
+                "device_watts": false,
+                "average_heartrate": 171.9,
+                "max_heartrate": 195,
+                "lap_index": 7,
+                "split": 7,
+                "pace_zone": 1
+            }
+        ],
+        "best_efforts": [
+            {
+                "id": 25765220350,
+                "resource_state": 2,
+                "name": "400m",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 105,
+                "moving_time": 107,
+                "start_date": "2023-04-28T10:39:25Z",
+                "start_date_local": "2023-04-28T06:39:25Z",
+                "distance": 400,
+                "start_index": 555,
+                "end_index": 578,
+                "pr_rank": null,
+                "achievements": []
+            },
+            {
+                "id": 25765220360,
+                "resource_state": 2,
+                "name": "1/2 mile",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 218,
+                "moving_time": 219,
+                "start_date": "2023-04-28T10:29:17Z",
+                "start_date_local": "2023-04-28T06:29:17Z",
+                "distance": 805,
+                "start_index": 419,
+                "end_index": 469,
+                "pr_rank": null,
+                "achievements": []
+            },
+            {
+                "id": 25765220369,
+                "resource_state": 2,
+                "name": "1k",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 272,
+                "moving_time": 273,
+                "start_date": "2023-04-28T10:29:17Z",
+                "start_date_local": "2023-04-28T06:29:17Z",
+                "distance": 1000,
+                "start_index": 419,
+                "end_index": 482,
+                "pr_rank": null,
+                "achievements": []
+            },
+            {
+                "id": 25765220381,
+                "resource_state": 2,
+                "name": "1 mile",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 438,
+                "moving_time": 440,
+                "start_date": "2023-04-28T10:34:43Z",
+                "start_date_local": "2023-04-28T06:34:43Z",
+                "distance": 1609,
+                "start_index": 494,
+                "end_index": 589,
+                "pr_rank": null,
+                "achievements": []
+            },
+            {
+                "id": 25765220389,
+                "resource_state": 2,
+                "name": "2 mile",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 881,
+                "moving_time": 882,
+                "start_date": "2023-04-28T10:26:29Z",
+                "start_date_local": "2023-04-28T06:26:29Z",
+                "distance": 3219,
+                "start_index": 378,
+                "end_index": 577,
+                "pr_rank": null,
+                "achievements": []
+            },
+            {
+                "id": 25765220400,
+                "resource_state": 2,
+                "name": "5k",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 1373,
+                "moving_time": 1374,
+                "start_date": "2023-04-28T10:19:18Z",
+                "start_date_local": "2023-04-28T06:19:18Z",
+                "distance": 5000,
+                "start_index": 277,
+                "end_index": 591,
+                "pr_rank": null,
+                "achievements": []
+            },
+            {
+                "id": 25765220411,
+                "resource_state": 2,
+                "name": "10k",
+                "activity": {
+                    "id": 8971243607,
+                    "resource_state": 1
+                },
+                "athlete": {
+                    "id": 96578203,
+                    "resource_state": 1
+                },
+                "elapsed_time": 3054,
+                "moving_time": 3054,
+                "start_date": "2023-04-28T10:04:28Z",
+                "start_date_local": "2023-04-28T06:04:28Z",
+                "distance": 10000,
+                "start_index": 96,
+                "end_index": 761,
+                "pr_rank": null,
+                "achievements": []
+            }
+        ],
+        "gear": {
+            "id": "g9743714",
+            "primary": false,
+            "name": "Saucony Endorphin Speed",
+            "nickname": null,
+            "resource_state": 2,
+            "retired": false,
+            "distance": 1244634,
+            "converted_distance": 773.4
+        },
+        "photos": {
+            "primary": null,
+            "count": 0
+        },
+        "stats_visibility": [
+            {
+                "type": "heart_rate",
+                "visibility": "everyone"
+            },
+            {
+                "type": "pace",
+                "visibility": "everyone"
+            },
+            {
+                "type": "power",
+                "visibility": "everyone"
+            },
+            {
+                "type": "speed",
+                "visibility": "everyone"
+            },
+            {
+                "type": "calories",
+                "visibility": "everyone"
+            }
+        ],
+        "hide_from_home": false,
+        "device_name": "Garmin Forerunner 55",
+        "embed_token": "5155537b583139ae820d6d456195088dc3829c1a",
+        "similar_activities": {
+            "effort_count": 1,
+            "average_speed": 3.2030747704425973,
+            "min_average_speed": 3.2030747704425973,
+            "mid_average_speed": 3.2030747704425973,
+            "max_average_speed": 3.2030747704425973,
+            "pr_rank": null,
+            "frequency_milestone": null,
+            "trend": {
+                "speeds": [
+                    3.2030747704425973
+                ],
+                "current_activity_index": 0,
+                "min_speed": 3.2030747704425973,
+                "mid_speed": 3.2030747704425973,
+                "max_speed": 3.2030747704425973,
+                "direction": 0
+            },
+            "resource_state": 2
+        },
+        "available_zones": []
     }
     ]
 }

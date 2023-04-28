@@ -13,7 +13,6 @@ const ANALYTICS_EVENTS = {
 function logAnalytics(event, db) {
   const now = new Date();
   const datestamp = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  console.log(datestamp);
 
   const eventRef = db.ref(`analytics/${datestamp}/${event}`);
   eventRef.transaction((currentValue) => {

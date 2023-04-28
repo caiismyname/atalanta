@@ -124,7 +124,7 @@ function saveJSON(content, fileName="output.json") {
 
 
 // runDetectionTests();
-// runFormatTests();
+runFormatTests(true);
 
 // generateFormatGroundTruth()
 
