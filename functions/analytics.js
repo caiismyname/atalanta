@@ -1,4 +1,3 @@
-
 const ANALYTICS_EVENTS = {
   INBOUND_WEBHOOK: "inbound_webhook",
   ACTIVITY_IS_ELIGIBLE: "activity_is_eligible",
