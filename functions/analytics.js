@@ -1,3 +1,4 @@
+const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const ANALYTICS_EVENTS = {
   INBOUND_WEBHOOK: "inbound_webhook",
   ACTIVITY_IS_ELIGIBLE: "activity_is_eligible",
@@ -13,10 +14,14 @@ function logAnalytics(event, db) {
   const now = new Date();
   const datestamp = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 
-  const eventRef = db.ref(`analytics/${datestamp}/${event}`);
-  eventRef.transaction((currentValue) => {
-    return (currentValue || 0) + 1; // Initalize if null, then increment
-  });
+  if (!isEmulator) {
+    const eventRef = db.ref(`analytics/${datestamp}/${event}`);
+    eventRef.transaction((currentValue) => {
+      return (currentValue || 0) + 1; // Initalize if null, then increment
+    });
+  } else {
+    console.log(`ANALYTICS NOT SAVED B/C EMULATOR: ${datestamp} | ${event}`);
+  }
 }
 
 module.exports = {
