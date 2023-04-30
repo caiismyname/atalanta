@@ -7213,6 +7213,138 @@
               "pace",
               "power"
           ]
+        },
+        {
+          "name": "Fast last mile example",
+          "distance": 17668.82,
+          "moving_time": 5215,
+          "elapsed_time": 5215,
+          "id": 1012,
+          "workout_type": 3,
+          "laps": [
+              {
+                  "elapsed_time": 474,
+                  "moving_time": 474,
+                  "distance": 1587.76,
+                  "start_index": 1,
+                  "end_index": 92,
+                  "total_elevation_gain": 25,
+                  "average_speed": 3.3497046413502107,
+                  "max_speed": 8,
+                  "lap_index": 1
+              },
+              {
+                  "elapsed_time": 484,
+                  "moving_time": 484,
+                  "distance": 1621.77,
+                  "start_index": 93,
+                  "end_index": 149,
+                  "total_elevation_gain": -21,
+                  "average_speed": 3.3507644628099174,
+                  "max_speed": 3.3507644628099174,
+                  "lap_index": 2
+              },
+              {
+                  "elapsed_time": 481,
+                  "moving_time": 481,
+                  "distance": 1612.37,
+                  "start_index": 150,
+                  "end_index": 243,
+                  "total_elevation_gain": -7,
+                  "average_speed": 3.3521205821205817,
+                  "max_speed": 3.3521205821205817,
+                  "lap_index": 3
+              },
+              {
+                  "elapsed_time": 485,
+                  "moving_time": 485,
+                  "distance": 1627.1,
+                  "start_index": 244,
+                  "end_index": 340,
+                  "total_elevation_gain": 26,
+                  "average_speed": 3.354845360824742,
+                  "max_speed": 4,
+                  "lap_index": 4
+              },
+              {
+                  "elapsed_time": 522,
+                  "moving_time": 522,
+                  "distance": 1750.15,
+                  "start_index": 341,
+                  "end_index": 401,
+                  "total_elevation_gain": -15,
+                  "average_speed": 3.352777777777778,
+                  "max_speed": 6,
+                  "lap_index": 5
+              },
+              {
+                  "elapsed_time": 479,
+                  "moving_time": 479,
+                  "distance": 1607.66,
+                  "start_index": 402,
+                  "end_index": 409,
+                  "total_elevation_gain": -12,
+                  "average_speed": 3.356283924843424,
+                  "max_speed": 7,
+                  "lap_index": 6
+              },
+              {
+                  "elapsed_time": 500,
+                  "moving_time": 500,
+                  "distance": 1675.09,
+                  "start_index": 410,
+                  "end_index": 446,
+                  "total_elevation_gain": 15,
+                  "average_speed": 3.35018,
+                  "max_speed": 5,
+                  "lap_index": 7
+              },
+              {
+                  "elapsed_time": 441,
+                  "moving_time": 441,
+                  "distance": 1477.93,
+                  "start_index": 447,
+                  "end_index": 447,
+                  "total_elevation_gain": -27,
+                  "average_speed": 3.351315192743764,
+                  "max_speed": 7,
+                  "lap_index": 8
+              },
+              {
+                  "elapsed_time": 444,
+                  "moving_time": 444,
+                  "distance": 1490.1,
+                  "start_index": 448,
+                  "end_index": 448,
+                  "total_elevation_gain": 0,
+                  "average_speed": 3.356081081081081,
+                  "max_speed": 4,
+                  "lap_index": 9
+              },
+              {
+                  "elapsed_time": 518,
+                  "moving_time": 518,
+                  "distance": 1736.76,
+                  "start_index": 449,
+                  "end_index": 538,
+                  "total_elevation_gain": -14,
+                  "average_speed": 3.352818532818533,
+                  "max_speed": 3.352818532818533,
+                  "lap_index": 10
+              },
+              {
+                  "elapsed_time": 387,
+                  "moving_time": 387,
+                  "distance": 1482.13,
+                  "start_index": 539,
+                  "end_index": 632,
+                  "total_elevation_gain": 20,
+                  "average_speed": 3.829793281653747,
+                  "max_speed": 3.829793281653747,
+                  "lap_index": 11
+              }
+          ],
+          "average_speed": 3.388076701821668
       }
     ]
 }

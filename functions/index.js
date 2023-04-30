@@ -436,9 +436,9 @@ function saveActivityForUser(userID, activityID) {
 }
 
 
-const testUserID = "hMPrTuPNKChzonEJGLzh7l2Zuhn1";
-const testActivityID = "8971243607";
-saveActivityForUser(testUserID, testActivityID);
+// const testUserID = "";
+// const testActivityID = "";
+// saveActivityForUser(testUserID, testActivityID);
 
 // getRecentRuns(stravaToken, (runs) => {
 //   console.log(runs.length);

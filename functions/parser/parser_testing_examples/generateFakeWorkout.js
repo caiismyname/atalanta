@@ -1,50 +1,23 @@
 const fs = require("fs");
 const Helpers = require("../parser_helpers.js");
 
-const name = "4x(400, 200) + 5x(mile, 800) all with 400jg [made up]";
-const workoutSecondsPerMile = 300;
-const restSecondsPerMile = 420;
-// let fuzzingPercentage = .1 // Maximum percentage from true pace for fuzzing
+const name = "Fast last mile example";
+const workoutSecondsPerMile = 420;
+const restSecondsPerMile = 480;
 
 // Structure: [(value, "METERS" or "SECONDS", isWorkout), ...]
 const desiredLaps = [
-  [3424, "METERS", false],
-  [400, "METERS", true],
-  [400, "METERS", false],
-  [200, "METERS", true],
-  [400, "METERS", false],
-  [400, "METERS", true],
-  [400, "METERS", false],
-  [200, "METERS", true],
-  [400, "METERS", false],
-  [400, "METERS", true],
-  [400, "METERS", false],
-  [200, "METERS", true],
-  [400, "METERS", false],
-  [400, "METERS", true],
-  [400, "METERS", false],
-  [200, "METERS", true],
-  [300, "SECONDS", false],
+  [1609.3, "METERS", false],
+  [1609.3, "METERS", false],
+  [1609.3, "METERS", false],
+  [1609.3, "METERS", false],
+  [1609.3, "METERS", false],
+  [1609.3, "METERS", false],
+  [1609.3, "METERS", false],
+  [1609.3, "METERS", false],
+  [1609.3, "METERS", false],
+  [1609.3, "METERS", false],
   [1609.3, "METERS", true],
-  [400, "METERS", false],
-  [800, "METERS", true],
-  [400, "METERS", false],
-  [1609.3, "METERS", true],
-  [400, "METERS", false],
-  [800, "METERS", true],
-  [400, "METERS", false],
-  [1609.3, "METERS", true],
-  [400, "METERS", false],
-  [800, "METERS", true],
-  [400, "METERS", false],
-  [1609.3, "METERS", true],
-  [400, "METERS", false],
-  [800, "METERS", true],
-  [400, "METERS", false],
-  [1609.3, "METERS", true],
-  [400, "METERS", false],
-  [800, "METERS", true],
-  [4424, "METERS", false],
 ];
 
 
@@ -66,14 +39,15 @@ function generate() {
     "distance": laps.reduce((a, b) => a + b.distance, 0),
     "moving_time": laps.reduce((a, b) => a + b.moving_time, 0),
     "elapsed_time": laps.reduce((a, b) => a + b.elapsed_time, 0),
+    "id": Math.round(Math.random() * 10000),
+    "workout_type": 3, // 3 means workout, anything else is not a workout
     "laps": laps,
   };
 
   run.average_speed = run.distance / run.moving_time;
 
   // print(run)
-
-  const jsonContent = JSON.stringify(run);
+  const jsonContent = JSON.stringify(run, null, 4);
   fs.writeFile(name + ".json", jsonContent, "utf8", (err) => {
     if (err) {
       console.log("An error occured while writing JSON Object to File.");

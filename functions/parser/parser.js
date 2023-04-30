@@ -3,8 +3,8 @@ const { printSets } = require("./formatter.js");
 
 // This is the entrypoint
 // eslint-disable-next-line no-unused-vars
-function parseWorkout(run, htmlMode=false, verbose=true, returnSets=false) {
-  const runIsWorkout = determineRunIsWorkout(run.laps);
+function parseWorkout(run, htmlMode=false, verbose=true, returnSets=false, forceParse=false) {
+  const runIsWorkout = determineRunIsWorkout(run.laps) || forceParse;
 
   if (!runIsWorkout) {
     if (verbose) {
@@ -51,28 +51,31 @@ function parseWorkout(run, htmlMode=false, verbose=true, returnSets=false) {
   return (output);
 }
 
-function determineRunIsWorkout(laps) {
-  // Check if laps exist first. They won't exist on manual activities
+function determineRunIsWorkout(laps, debug=false) {
+  // 1. Check if laps exist first. They won't exist on manual activities
   if (laps === undefined) {
     return (false);
   }
 
-  // Remove last lap if it's super short, as this tends to give falsely fast/slow readings
-  if (laps[laps.length - 1].distance < Helpers.milesToMeters(.03)) {
+  // 2. Remove last lap for two reasons:
+  //   - If there are strides, they are commonly at the end, and it'll read as a fast lap even though there's no lap data
+  //   - Even if a workout has a workout lap as its last lap (unlikely), this will only be a problem if there's exactly one workout lap (and it's at the end)
+
+  // First, slice off any super-short remnants 
+  if (laps[laps.length - 1].distance <= Helpers.milesToMeters(.05)) {
     laps = laps.slice(0, -1);
   }
 
-  // If any lap's average pace is faster than 6min/mi, it's probably a workout
+  // Then slice off the last "real" lap
+  laps = laps.slice(0, -1);
+  
+
+  // 3. If any lap's average pace is faster than 6min/mi, it's probably a workout
   // (regardless of the person. No one recovers at < 6min)
   const existsFastLap = laps.reduce((foundFastLap, curLap) => foundFastLap || (curLap.average_speed > Helpers.sixMinMileAsSpeed), false);
 
-  // // If we find a workout-nonworkout-workout sequence, it's probably a workout
-  // const workoutStructure = laps.map((lap) => lap.isWorkout);
-  // let hasWorkoutRecoveryPattern = false;
-  // for (let startIdx = 0; startIdx < laps.length - 3; startIdx++) {
-  //   hasWorkoutRecoveryPattern = hasWorkoutRecoveryPattern || patternReducer([true, false, true], workoutStructure.slice(startIdx)).matchCount > 0;
-  // }
 
+  // 4. If we find a jump in speed between the laps
   // If the average speed of laps, when ordered by speed, has a big jump, it's probably a workout
   // Compare the sorted version of laps (instead of the as-it-happened order) to make the threshold as difficult as possible.
   // i.e. the slowest WO lap still has to be faster than the fastest recovery lap \
@@ -85,19 +88,32 @@ function determineRunIsWorkout(laps) {
   let foundMaxJump = false;
   const lapsSortedBySpeed = [...laps].sort((a, b) => a.average_speed < b.average_speed ? -1 : 1);
 
+  // Check the global diff if there are enough laps
   if (laps.length >= 4) {
-    foundMaxJump = lapsSortedBySpeed[lapsSortedBySpeed.length - 2].average_speed / lapsSortedBySpeed[1].average_speed > threshMax;
+    foundMaxJump = lapsSortedBySpeed[lapsSortedBySpeed.length - 2].average_speed / lapsSortedBySpeed[1].average_speed >= threshMax;
   }
 
+  // Look for a sequential jump
   let prevLap = lapsSortedBySpeed[0];
-  for (const lap of lapsSortedBySpeed) {
-    foundSeqJump = foundSeqJump || (lap.average_speed / prevLap.average_speed >= threshSeq);
+  for (let lapIdx = 0; lapIdx < lapsSortedBySpeed.length; lapIdx++ ) {
+    const lap = lapsSortedBySpeed[lapIdx]
+    const thisComparisonHasJump = lap.average_speed / prevLap.average_speed >= threshSeq;
+    foundSeqJump = foundSeqJump || thisComparisonHasJump
+    
+    // // Don't count a jump if the only jump in the run is to the very last lap, and the lap is less than a km.
+    // // This is a proxy for strides.
+    // if (thisComparisonHasJump && !foundSeqJump) {
+    //   if (lapIdx !== lapsSortedBySpeed.length - 1 && lap.distance > 1000) {
+    //     foundSeqJump = foundSeqJump || thisComparisonHasJump
+    //   }
+    // }
+
     prevLap = lap;
   }
 
   const foundJump = foundSeqJump || foundMaxJump;
 
-  // If there are any non km or non mile laps not including the very last lap, it's a sign it's probably a workout
+  // 5. If there are any non km or non mile laps not including the very last lap, it's a sign it's probably a workout
   const withoutLastLap = laps.slice(0, -1);
   const allLapsAreStandard = withoutLastLap.reduce((allLapsStandard, curLap) => {
     const lapIsMile = Math.abs(1.0 - Helpers.metersToMiles(curLap.distance)) <= 0.02;
@@ -528,6 +544,12 @@ function extractPatterns(laps) {
 
 function print(x) {
   console.log(x);
+}
+
+function debugPrint(laps) {
+  for (const lap of laps) {
+    print(lap);
+  }
 }
 
 module.exports = {parseWorkout, determineRunIsWorkout};

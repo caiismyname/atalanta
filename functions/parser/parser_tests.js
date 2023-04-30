@@ -11,10 +11,17 @@ const mixedExamples = require("./parser_testing_examples/mixed_nonworkouts.json"
 function runFormatTests(displayAll=false) {
   let correctCount = 0;
   const wrongExamples = [];
+  const falseNegatives = [];
 
   print(`\nTesting Workout Formats`);
 
   for (const run of workoutFormatTests["examples"]) {
+    // Run it through workout detection just in case. It'd be a real bad false neg if it fails here
+    if (!determineRunIsWorkout(run.laps)) {
+      falseNegatives.push(run);
+      continue;
+    }
+
     // NOTE because we might be reparsing the same run, we create a copy using json parse/stringify because running parseWorkout on the same run object is not idempotent
     const testRes = parseWorkout(JSON.parse(JSON.stringify(run)), false, displayAll, true); // Last param set `returnSets` to true
     let groundTruthSets;
@@ -42,7 +49,13 @@ function runFormatTests(displayAll=false) {
     print(`================================`);
   }
 
-  print(`\tParsed ${correctCount} /${workoutFormatTests["examples"].length} correctly.`);
+  print(`Parsed ${correctCount} / ${workoutFormatTests["examples"].length} correctly.`);
+  if (falseNegatives.length > 0) {
+    print(`\tFalse negatives:`);
+    for (const run of falseNegatives) {
+      print(`\t\t${run.id}`)
+    }
+  }
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -52,12 +65,13 @@ function runDetectionTests() {
   const falsePositiveExamples = [];
   const falseNegativeExamples = [];
 
-  // const allExamples = workoutDetectionFalseNegative["examples"].concat(workoutDetectionFalsePositive["examples"]);
+  const allExamples = workoutDetectionFalseNegative["examples"].concat(workoutDetectionFalsePositive["examples"]);
 
-  const allExamples = mixedExamples["examples"];
+  // const allExamples = mixedExamples["examples"];
 
   for (const run of allExamples) {
-    const testIsWorkout = determineRunIsWorkout(run.laps);
+    print(run.name)
+    const testIsWorkout = determineRunIsWorkout(run.laps, true);
     const truthIsWorkout = run.workout_type === 3;
 
     if (testIsWorkout !== truthIsWorkout) {
@@ -124,7 +138,7 @@ function saveJSON(content, fileName="output.json") {
 
 
 // runDetectionTests();
-runFormatTests(true);
+// runFormatTests();
 
 // generateFormatGroundTruth()
 
