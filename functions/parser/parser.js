@@ -1,5 +1,5 @@
 const Helpers = require("./parser_helpers.js");
-const { printSets } = require("./formatter.js");
+const {printSets} = require("./formatter.js");
 
 // This is the entrypoint
 // eslint-disable-next-line no-unused-vars
@@ -61,14 +61,14 @@ function determineRunIsWorkout(laps, debug=false) {
   //   - If there are strides, they are commonly at the end, and it'll read as a fast lap even though there's no lap data
   //   - Even if a workout has a workout lap as its last lap (unlikely), this will only be a problem if there's exactly one workout lap (and it's at the end)
 
-  // First, slice off any super-short remnants 
+  // First, slice off any super-short remnants
   if (laps[laps.length - 1].distance <= Helpers.milesToMeters(.05)) {
     laps = laps.slice(0, -1);
   }
 
   // Then slice off the last "real" lap
   laps = laps.slice(0, -1);
-  
+
 
   // 3. If any lap's average pace is faster than 6min/mi, it's probably a workout
   // (regardless of the person. No one recovers at < 6min)
@@ -96,10 +96,10 @@ function determineRunIsWorkout(laps, debug=false) {
   // Look for a sequential jump
   let prevLap = lapsSortedBySpeed[0];
   for (let lapIdx = 0; lapIdx < lapsSortedBySpeed.length; lapIdx++ ) {
-    const lap = lapsSortedBySpeed[lapIdx]
+    const lap = lapsSortedBySpeed[lapIdx];
     const thisComparisonHasJump = lap.average_speed / prevLap.average_speed >= threshSeq;
-    foundSeqJump = foundSeqJump || thisComparisonHasJump
-    
+    foundSeqJump = foundSeqJump || thisComparisonHasJump;
+
     // // Don't count a jump if the only jump in the run is to the very last lap, and the lap is less than a km.
     // // This is a proxy for strides.
     // if (thisComparisonHasJump && !foundSeqJump) {
@@ -544,12 +544,6 @@ function extractPatterns(laps) {
 
 function print(x) {
   console.log(x);
-}
-
-function debugPrint(laps) {
-  for (const lap of laps) {
-    print(lap);
-  }
 }
 
 module.exports = {parseWorkout, determineRunIsWorkout};

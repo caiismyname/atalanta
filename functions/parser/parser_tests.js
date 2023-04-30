@@ -5,7 +5,7 @@ const workoutFormatTests = require("./parser_testing_examples/workout_format_exa
 const workoutFormatGroundTruth = require("./parser_testing_examples/workout_format_ground_truth.json");
 const workoutDetectionFalsePositive = require("./parser_testing_examples/workout_detection_false_positive.json");
 const workoutDetectionFalseNegative = require("./parser_testing_examples/workout_detection_false_negative.json");
-const mixedExamples = require("./parser_testing_examples/mixed_nonworkouts.json");
+// const mixedExamples = require("./parser_testing_examples/mixed_nonworkouts.json");
 
 // eslint-disable-next-line no-unused-vars
 function runFormatTests(displayAll=false) {
@@ -53,7 +53,7 @@ function runFormatTests(displayAll=false) {
   if (falseNegatives.length > 0) {
     print(`\tFalse negatives:`);
     for (const run of falseNegatives) {
-      print(`\t\t${run.id}`)
+      print(`\t\t${run.id}`);
     }
   }
 }
@@ -70,7 +70,7 @@ function runDetectionTests() {
   // const allExamples = mixedExamples["examples"];
 
   for (const run of allExamples) {
-    print(run.name)
+    print(run.name);
     const testIsWorkout = determineRunIsWorkout(run.laps, true);
     const truthIsWorkout = run.workout_type === 3;
 

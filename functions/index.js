@@ -14,6 +14,8 @@ const admin = require("firebase-admin");
 
 const app = express();
 
+print(`IS EMULATOR: ${rocess.env.FUNCTIONS_EMULATOR}`);
+
 app.set("title", "Strava Workout Parser");
 app.set("views", "./views");
 app.set("view engine", "pug");
