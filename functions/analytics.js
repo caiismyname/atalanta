@@ -8,6 +8,7 @@ const ANALYTICS_EVENTS = {
   USER_STRAVA_DEACTIVATION: "user_strava_deactivation",
   USER_ACCOUNT_SIGNUP: "user_account_signup",
   USER_ACCOUNT_DELETION: "user_account_deletion",
+  TEST: "test_event",
 };
 
 function logAnalytics(event, db) {

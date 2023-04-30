@@ -7,6 +7,7 @@ const path = require("path");
 const favicon = require("serve-favicon");
 
 const {parseWorkout} = require("./parser/parser.js");
+const {StravaInterface} = require("./strava_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics} = require("./analytics.js");
 
 const functions = require("firebase-functions");
@@ -36,11 +37,10 @@ const db = firebase.database();
 //
 //
 
-const stravaAuthTokenURL = "https://www.strava.com/oauth/token";
-const stravaClientID = "101816";
-const stravaClientSecret = functions.config().strava.api_secret;
-const initialGrantType = "authorization_code";
-const refreshGrantType = "refresh_token";
+app.get("/test", (req, res) => {
+  logAnalytics(ANALYTICS_EVENTS.TEST);
+  res.send("Testing");
+});
 
 app.get("/", (req, res) => {
   res.render("index", {
@@ -49,18 +49,15 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/test", (req, res) => {
-  logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED);
-  res.send("Testing");
-});
-
 app.get("/strava_oauth_redirect", (req, res) => {
   const code = req.query.code;
   const userToken = req.cookies["__session"];
+  const stravaConfigDetails = StravaInterface.stravaConfigDetails();
+
   validateUserToken(userToken, res, (userID) => {
     axios({
       method: "post",
-      url: `${stravaAuthTokenURL}?client_id=${stravaClientID}&client_secret=${stravaClientSecret}&grant_type=${initialGrantType}&code=${code}`,
+      url: `${stravaConfigDetails.stravaAuthTokenURL}?client_id=${stravaConfigDetails.stravaClientID}&client_secret=${stravaConfigDetails.stravaClientSecret}&grant_type=${stravaConfigDetails.initialGrantType}&code=${code}`,
       headers: "application/json",
     }).then((authRes) => {
       const athleteID = authRes.data.athlete.id;
@@ -116,11 +113,11 @@ app.get("/explorer_parse", (req, res) => {
 
   validateUserToken(userToken, res, (userID) => {
     getStravaTokenForID(userID, (accessToken) => {
-      getActivity(activityID, accessToken, (activity) => {
+      StravaInterface.getActivity(activityID, accessToken, (activity) => {
         if (activity.type === "Run") {
           const output = parseWorkout(activity, false, false);
           if (output.isWorkout) {
-            writeSummaryToStrava(activityID, output.summary, accessToken);
+            StravaInterface.writeSummaryToStrava(activityID, output.summary, accessToken);
           }
         }
       });
@@ -130,30 +127,16 @@ app.get("/explorer_parse", (req, res) => {
 
 // Adds support for GET requests to the webhook for webhook subscription creation
 app.get("/strava_webhook", (req, res) => {
-  // Your verify token. Should be a random string.
-  const VERIFY_TOKEN = "atalanta_verify";
-  // Parses the query params
-  const mode = req.query["hub.mode"];
-  const token = req.query["hub.verify_token"];
-  const challenge = req.query["hub.challenge"];
-  // Checks if a token and mode is in the query string of the request
-  if (mode && token) {
-    // Verifies that the mode and token sent are valid
-    if (mode === "subscribe" && token === VERIFY_TOKEN) {
-      // Responds with the challenge token from the request
-      console.log(`STRAVA WEBHOOK VERIFIED`);
-      res.json({"hub.challenge": challenge});
-    } else {
-      // Responds with '403 Forbidden' if verify tokens do not match
-      res.sendStatus(403);
-    }
-  }
+  StravaInterface.webhookCreationResponse(req, res);
 });
 
-app.post("/strava_webhook", (req, res) => {
+// Store all logic in a function for easy access by tests
+function handleIncomingWebhook(req, res, isTest=false) {
   console.log("INCOMING STRAVA WEBHOOK");
   console.log(req.body);
-  logAnalytics(ANALYTICS_EVENTS.INBOUND_WEBHOOK, db);
+  if (!isTest) {
+    logAnalytics(ANALYTICS_EVENTS.INBOUND_WEBHOOK, db);
+  }
 
   // Decide if we want to process the event
   const isActivityUpdate = req.body.object_type === "activity";
@@ -161,7 +144,9 @@ app.post("/strava_webhook", (req, res) => {
    req.body.aspect_type === "update" && (req.body.updates === "title" || req.body.updates === "type");
   const isAccountDeauthorization = req.body.updates.authorized === "false";
 
-  acknowledgeWebhook(res);
+  if (!isTest) {
+    StravaInterface.acknowledgeWebhook(res);
+  }
 
   if (isActivityUpdate && isRelevantUpdateType) {
     console.log(`Pulling activity for incoming webhook`);
@@ -170,24 +155,34 @@ app.post("/strava_webhook", (req, res) => {
 
     getUserIDForStravaID(userStravaID, (userID) => {
       getStravaTokenForID(userID, (stravaToken) => {
-        getActivity(activityID, stravaToken, (activity) => {
+        StravaInterface.getActivity(activityID, stravaToken, (activity) => {
           if (activity.type === "Run") {
             console.log(`Activity is run, processing...`);
-            logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
+            if (!isTest) {
+              logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
+            }
             const output = parseWorkout(activity, false, false);
             if (output.isWorkout) {
               console.log(`Activity ${activityID} is a workout. Title: [${output.summary.title}]`);
-              logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
+              if (!isTest) {
+                logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
+              }
               setTimeout(() => {
-                writeSummaryToStrava(activityID, output.summary, stravaToken);
-                logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);
+                if (isTest) {
+                  output.summary.title += ` ${new Date()}`;
+                  output.summary.description += `\n${new Date()}`;
+                }
+                StravaInterface.writeSummaryToStrava(activityID, output.summary, stravaToken);
+                if (!isTest) {
+                  logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);
+                }
               }, 5000);
             } else {
               console.log(`Activity ${activityID} is NOT a workout`);
             }
           }
         });
-      });
+      }, isTest); // Force a refresh for code-exercise purposes if in test mode
     });
   } else if (isAccountDeauthorization) {
     getUserIDForStravaID(req.body.owner_id, (userID) => {
@@ -197,6 +192,26 @@ app.post("/strava_webhook", (req, res) => {
   } else {
     console.log(`Ignoring webhook contents`);
   }
+}
+
+app.post("/strava_webhook", (req, res) => {
+  handleIncomingWebhook(req, res);
+});
+
+app.get("/_mock_incoming_webhook", (req, res) => {
+  const fakeReqBody = {
+    "aspect_type": "create",
+    "event_time": 1682863513, // mock time, shouldn't matter I think?
+    "object_id": 8973556870, // https://www.strava.com/activities/8973556870
+    "object_type": "activity",
+    "owner_id": 92353751, // https://www.strava.com/athletes/92353751 (caiismyname2012@gmail.com)
+    "subscription_id": 238513, // Prod subscription as of 4/31/23
+    "updates": {},
+  };
+
+  req.body = fakeReqBody;
+  handleIncomingWebhook(req, res, true);
+  res.send("Mocked");
 });
 
 app.get("/delete_account", (req, res) => {
@@ -208,86 +223,6 @@ app.get("/delete_account", (req, res) => {
   });
 });
 
-//
-//
-// Strava API
-//
-//
-
-const apiBase = "https://www.strava.com/api/v3";
-
-function acknowledgeWebhook(res) {
-  console.log(`ACK STRAVA WEBHOOK`);
-  res.status(200).send("EVENT_RECEIVED");
-}
-
-function refreshStravaAccessToken(id, callback) {
-  // Get refresh token from DB
-  db.ref(`users/${id}/refreshToken`).once("value", (snapshot) => {
-    const refreshToken = snapshot.val();
-
-    // Request new access token
-    axios({
-      method: "post",
-      url: `${stravaAuthTokenURL}?client_id=${stravaClientID}&client_secret=${stravaClientSecret}&grant_type=${refreshGrantType}&refresh_token=${refreshToken}`,
-      headers: "application/json",
-    }).then((res) => {
-      // Save new access token and expiry
-      const accessToken = res.data.access_token;
-      const expiration = res.data.expires_at;
-
-      db.ref(`users/${id}`).update({
-        accessToken: accessToken,
-        accessTokenExpiration: expiration,
-      });
-
-      callback(accessToken);
-    });
-  });
-}
-
-function getActivity(activityID, accessToken, callback) {
-  console.log(`Getting ${activityID} from Strava`);
-
-  const config = {
-    headers: {Accept: "application/json", Authorization: `Bearer ${accessToken}`},
-  };
-
-  axios.get(`${apiBase}/activities/${activityID}`, config)
-      .then((res) => {
-        callback(res.data);
-      });
-}
-
-// eslint-disable-next-line no-unused-vars
-function getRecentRuns(accessToken, callback) {
-  const config = {
-    headers: {Accept: "application/json", Authorization: `Bearer ${accessToken}`},
-  };
-
-  const activitiesPerPage = 80;
-  axios.get(`${apiBase}/athlete/activities?&per_page=${activitiesPerPage}`, config)
-      .then((res) => {
-        callback(res.data
-            .filter((activity) => activity.type === "Run")
-            .map((activity) => activity.id),
-        );
-      });
-}
-
-function writeSummaryToStrava(activityID, summary, accessToken) {
-  console.log(`Writing workout:\n\tActivity: ${activityID}\n\tTitle:${summary.title}\n\tDescription:${summary.description.replace("\n", "")}`);
-
-  const config = {headers: {Accept: "application/json", Authorization: `Bearer ${accessToken}`}};
-  const newTitleAndDescription = {
-    "name": summary.title,
-    "description": summary.description,
-  };
-  axios.put(`${apiBase}/activities/${activityID}`, newTitleAndDescription, config)
-      .then((res) => {
-        console.log(`Writing to Strava result: ${res.status}`);
-      });
-}
 
 //
 //
@@ -351,16 +286,26 @@ function saveStravaCredentialsForUser(userID, stravaID, accessToken, refreshToke
   });
 }
 
-function getStravaTokenForID(userID, callback) {
+function getStravaTokenForID(userID, callback, forceRefresh=false) {
   db.ref(`users/${userID}/accessTokenExpiration`).once("value", (snapshot) => {
     const expirationEpoch = snapshot.val();
     const expiration = new Date(0);
     expiration.setUTCSeconds(expirationEpoch);
 
     // Token has expired, request a new one
-    if (new Date() >= expiration) {
-      refreshStravaAccessToken(userID, (newAccessToken) => {
-        callback(newAccessToken);
+    if (new Date() >= expiration || forceRefresh) {
+      // Get refresh token
+      db.ref(`users/${userID}/refreshToken`).once("value", (snapshot) => {
+        const refreshToken = snapshot.val();
+        // Get new access token from Strava
+        StravaInterface.refreshAccessToken(refreshToken, (res) => {
+          // Save new access token and expiry
+          db.ref(`users/${userID}`).update({
+            accessToken: res.accessToken,
+            accessTokenExpiration: res.expiration,
+          });
+          callback(res.accessToken);
+        });
       });
     } else {
       db.ref(`users/${userID}/accessToken`).once("value", (snapshot) => {
@@ -430,7 +375,7 @@ function saveJSON(content, fileName="output.json") {
 // eslint-disable-next-line no-unused-vars
 function saveActivityForUser(userID, activityID) {
   getStravaTokenForID(userID, (stravaToken) => {
-    getActivity(activityID, stravaToken, (activity) => {
+    StravaInterface.getActivity(activityID, stravaToken, (activity) => {
       saveJSON(activity);
     });
   });
