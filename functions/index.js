@@ -38,7 +38,7 @@ const db = firebase.database();
 //
 
 app.get("/test", (req, res) => {
-  logAnalytics(ANALYTICS_EVENTS.TEST);
+  logAnalytics(ANALYTICS_EVENTS.TEST, db);
   res.send("Testing");
 });
 
@@ -78,16 +78,17 @@ app.get("/login", (req, res) => {
 
 app.get("/home", (req, res) => {
   // res.render("home", {
-  //   name: `${"David"}`,g
-  //   bodyMessage: `Welcome to Splitz ${"David"}`,
-  //   stravaConnected: false,
+  //   name: "David Cai",
+  //   stravaConnected: true,
   // });
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
   validateUserToken(userToken, res, (userID) => {
     if (userID !== null) {
       isUserCreated(userID, (isCreated) => {
         if (!isCreated) {
-          createNewUser(userID, "foo");
+          getPersonalDetailsFromUserToken(userToken, (details) => {
+            createNewUser(details);
+          });
         }
 
         getUserDetails(userID, (details) => {
@@ -198,7 +199,7 @@ app.post("/strava_webhook", (req, res) => {
   handleIncomingWebhook(req, res);
 });
 
-app.get("/_mock_incoming_webhook", (req, res) => {
+app.get("/_mock_strava_webhook", (req, res) => {
   const fakeReqBody = {
     "aspect_type": "create",
     "event_time": 1682863513, // mock time, shouldn't matter I think?
@@ -239,6 +240,13 @@ function validateUserToken(idToken, res, callback) {
         .then((decodedToken) => {
           const uid = decodedToken.uid;
           callback(uid);
+          // const name = decodedToken.name;
+          // const email = decodedToken.email;
+          // callback({
+          //   'uid': uid,
+          //   'name': name,
+          //   'email': email
+          // });
         })
         .catch((error) => {
           console.error(`Invalid user authentication: ${error}`);
@@ -250,18 +258,51 @@ function validateUserToken(idToken, res, callback) {
   }
 }
 
+function getPersonalDetailsFromUserToken(idToken, callback) {
+  try {
+    firebase.auth()
+        .verifyIdToken(idToken)
+        .then((decodedToken) => {
+          const uid = decodedToken.uid;
+          const name = decodedToken.name;
+          const email = decodedToken.email;
+          callback({
+            "userID": uid,
+            "name": name,
+            "email": email,
+          });
+        })
+        .catch((error) => {
+          console.error(`Invalid user authentication: ${error}`);
+          callback({
+            "userID": "",
+            "name": "",
+            "email": "",
+          });
+        });
+  } catch (error) {
+    console.error(error);
+    callback({
+      "userID": "",
+      "name": "",
+      "email": "",
+    });
+  }
+}
+
 function isUserCreated(userID, callback) {
   db.ref(`users/${userID}`).once("value", (snapshot) => {
     callback(snapshot.exists());
   });
 }
 
-function createNewUser(userID, name) {
-  console.log(`CREATED USER: ${userID}`);
+function createNewUser(details) {
+  console.log(`CREATED USER: ${details.userID}`);
   logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, db);
-  db.ref(`users/${userID}`).update({
+  db.ref(`users/${details.userID}`).update({
     stravaConnected: false,
-    name: name,
+    name: details.name,
+    email: details.email,
   }, (error) => {
     console.log(error);
   });
