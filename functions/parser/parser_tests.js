@@ -16,6 +16,10 @@ function runFormatTests(displayAll=false) {
   print(`\nTesting Workout Formats`);
 
   for (const run of workoutFormatTests["examples"]) {
+    // if (run.id !== 9933) {
+    //   continue
+    // }
+
     // Run it through workout detection just in case. It'd be a real bad false neg if it fails here
     if (!determineRunIsWorkout(run.laps)) {
       falseNegatives.push(run);

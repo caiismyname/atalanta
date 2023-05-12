@@ -8,7 +8,8 @@ function determineSetName(set, multiRepSetsShouldHaveParen = false) {
     const lap = set.laps.filter((lap) => lap.workoutType === workoutType)[0];
     const lapName = lap.workoutBasis === "DISTANCE" ?
         `${lap.closestDistance}${lap.closestDistanceUnit}` :
-        `${lap.closestTime} ${lap.closestTimeUnit}`;
+        // `${lap.closestTime} ${lap.closestTimeUnit}`;
+        `${Helpers.secondsToTimeFormatted(lap.closestTime, true)}`
 
     setName += `${lapName}, `;
   }
@@ -142,7 +143,6 @@ line 5:   4. 1:00, 29
 const defaultPrintConfig = {
   "paceUnits": "MILE", // KM
   "shortDistanceAverageUnit": "TIME", // "PACE", "NONE"
-
 };
 
 function printSets(sets, printConfig=defaultPrintConfig) {

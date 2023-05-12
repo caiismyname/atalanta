@@ -14,7 +14,6 @@ class StravaInterface {
   }
 
   static acknowledgeWebhook(res) {
-    console.log(`ACK STRAVA WEBHOOK`);
     res.status(200).send("EVENT_RECEIVED");
   }
 
@@ -40,7 +39,7 @@ class StravaInterface {
 
   static getActivity(activityID, accessToken, callback) {
     const stravaConfigDetails = this.stravaConfigDetails();
-    console.log(`Getting ${activityID} from Strava`);
+    // console.log(`Getting ${activityID} from Strava`);
 
     const config = {
       headers: {Accept: "application/json", Authorization: `Bearer ${accessToken}`},
@@ -70,7 +69,7 @@ class StravaInterface {
 
   static writeSummaryToStrava(activityID, summary, accessToken) {
     const stravaConfigDetails = this.stravaConfigDetails();
-    console.log(`Writing workout:\n\tActivity: ${activityID}\n\tTitle:${summary.title}\n\tDescription:${summary.description.replace("\n", "")}`);
+    // console.log(`Writing workout:\n\tActivity: ${activityID}\n\tTitle:${summary.title}\n\tDescription:${summary.description.replace("\n", "")}`);
 
     const config = {headers: {Accept: "application/json", Authorization: `Bearer ${accessToken}`}};
     const newTitleAndDescription = {
@@ -79,7 +78,7 @@ class StravaInterface {
     };
     axios.put(`${stravaConfigDetails.apiBase}/activities/${activityID}`, newTitleAndDescription, config)
         .then((res) => {
-          console.log(`Writing to Strava result: ${res.status}`);
+          console.log(`ACTIVITY ${activityID} written to Strava (${res.status})`);
         });
   }
 

@@ -1,4 +1,433 @@
 {
+    "9933": [
+        {
+            "pattern": [
+                0
+            ],
+            "count": 4,
+            "laps": [
+                {
+                    "elapsed_time": 65,
+                    "moving_time": 65,
+                    "distance": 233.7374761904762,
+                    "start_index": 1,
+                    "end_index": 100,
+                    "total_elevation_gain": 0,
+                    "average_speed": 3.5959611721611724,
+                    "max_speed": 7,
+                    "lap_index": 1,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 200,
+                    "closestDistanceDifference": 0.168687380952381,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 65,
+                    "closestTimeDifference": 0.08333333333333333,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 65,
+                    "moving_time": 65,
+                    "distance": 256.7280476190476,
+                    "start_index": 132,
+                    "end_index": 229,
+                    "total_elevation_gain": 9,
+                    "average_speed": 3.9496622710622704,
+                    "max_speed": 5,
+                    "lap_index": 3,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 300,
+                    "closestDistanceDifference": 0.14423984126984143,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 65,
+                    "closestTimeDifference": 0.08333333333333333,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 65,
+                    "moving_time": 65,
+                    "distance": 268.2233333333333,
+                    "start_index": 243,
+                    "end_index": 305,
+                    "total_elevation_gain": 12,
+                    "average_speed": 4.12651282051282,
+                    "max_speed": 4.12651282051282,
+                    "lap_index": 5,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 300,
+                    "closestDistanceDifference": 0.10592222222222233,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 65,
+                    "closestTimeDifference": 0.08333333333333333,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 65,
+                    "moving_time": 65,
+                    "distance": 264.3915714285714,
+                    "start_index": 320,
+                    "end_index": 369,
+                    "total_elevation_gain": -23,
+                    "average_speed": 4.067562637362637,
+                    "max_speed": 5,
+                    "lap_index": 7,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 300,
+                    "closestDistanceDifference": 0.11869476190476197,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 65,
+                    "closestTimeDifference": 0.08333333333333333,
+                    "workoutBasis": "TIME"
+                }
+            ]
+        },
+        {
+            "pattern": [
+                1
+            ],
+            "count": 2,
+            "laps": [
+                {
+                    "elapsed_time": 103,
+                    "moving_time": 103,
+                    "distance": 371.68090476190474,
+                    "start_index": 378,
+                    "end_index": 424,
+                    "total_elevation_gain": 8,
+                    "average_speed": 3.608552473416551,
+                    "max_speed": 7,
+                    "lap_index": 9,
+                    "isWorkout": true,
+                    "workoutType": 1,
+                    "closestDistance": 400,
+                    "closestDistanceDifference": 0.07079773809523815,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 103,
+                    "closestTimeDifference": 0.14166666666666666,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 103,
+                    "moving_time": 103,
+                    "distance": 429.1573333333333,
+                    "start_index": 467,
+                    "end_index": 502,
+                    "total_elevation_gain": -7,
+                    "average_speed": 4.166576051779935,
+                    "max_speed": 4.166576051779935,
+                    "lap_index": 11,
+                    "isWorkout": true,
+                    "workoutType": 1,
+                    "closestDistance": 400,
+                    "closestDistanceDifference": 0.07289333333333331,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 103,
+                    "closestTimeDifference": 0.14166666666666666,
+                    "workoutBasis": "TIME"
+                }
+            ]
+        },
+        {
+            "pattern": [
+                3,
+                4,
+                2,
+                4,
+                3
+            ],
+            "count": 3,
+            "laps": [
+                {
+                    "elapsed_time": 407,
+                    "moving_time": 407,
+                    "distance": 1601.676476190476,
+                    "start_index": 535,
+                    "end_index": 563,
+                    "total_elevation_gain": 15,
+                    "average_speed": 3.935323037323037,
+                    "max_speed": 4,
+                    "lap_index": 13,
+                    "isWorkout": true,
+                    "workoutType": 3,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.0047371675943105275,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 407,
+                    "closestTimeDifference": 0.32166666666666666,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 982,
+                    "moving_time": 982,
+                    "distance": 4134.471095238096,
+                    "start_index": 587,
+                    "end_index": 655,
+                    "total_elevation_gain": 17,
+                    "average_speed": 4.210255697798468,
+                    "max_speed": 4.210255697798468,
+                    "lap_index": 15,
+                    "isWorkout": true,
+                    "workoutType": 4,
+                    "closestDistance": 3,
+                    "closestDistanceDifference": 0.14364724622243255,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 982,
+                    "closestTimeDifference": 0.09111111111111111,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 251,
+                    "moving_time": 251,
+                    "distance": 869.8099523809523,
+                    "start_index": 695,
+                    "end_index": 711,
+                    "total_elevation_gain": -9,
+                    "average_speed": 3.653782963384554,
+                    "max_speed": 3.4653782963384554,
+                    "lap_index": 17,
+                    "isWorkout": true,
+                    "workoutType": 2,
+                    "closestDistance": 800,
+                    "closestDistanceDifference": 0.08726244047619033,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 251,
+                    "closestTimeDifference": 0.04583333333333333,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 982,
+                    "moving_time": 982,
+                    "distance": 3912.2289047619042,
+                    "start_index": 714,
+                    "end_index": 735,
+                    "total_elevation_gain": -29,
+                    "average_speed": 3.9839398215498005,
+                    "max_speed": 6,
+                    "lap_index": 19,
+                    "isWorkout": true,
+                    "workoutType": 4,
+                    "closestDistance": 3,
+                    "closestDistanceDifference": 0.18967918294078207,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 982,
+                    "closestTimeDifference": 0.09111111111111111,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 407,
+                    "moving_time": 407,
+                    "distance": 1440.7424761904763,
+                    "start_index": 793,
+                    "end_index": 891,
+                    "total_elevation_gain": -3,
+                    "average_speed": 3.5399078039078042,
+                    "max_speed": 3.5399078039078042,
+                    "lap_index": 21,
+                    "isWorkout": true,
+                    "workoutType": 3,
+                    "closestDistance": 1500,
+                    "closestDistanceDifference": 0.03950501587301581,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 407,
+                    "closestTimeDifference": 0.32166666666666666,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 407,
+                    "moving_time": 407,
+                    "distance": 1456.0695238095238,
+                    "start_index": 954,
+                    "end_index": 1025,
+                    "total_elevation_gain": 25,
+                    "average_speed": 3.5775663975663976,
+                    "max_speed": 3.5775663975663976,
+                    "lap_index": 23,
+                    "isWorkout": true,
+                    "workoutType": 3,
+                    "closestDistance": 1500,
+                    "closestDistanceDifference": 0.029286984126984106,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 407,
+                    "closestTimeDifference": 0.32166666666666666,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 982,
+                    "moving_time": 982,
+                    "distance": 4065.4993809523808,
+                    "start_index": 1049,
+                    "end_index": 1085,
+                    "total_elevation_gain": -6,
+                    "average_speed": 4.140019736204054,
+                    "max_speed": 4.140019736204054,
+                    "lap_index": 25,
+                    "isWorkout": true,
+                    "workoutType": 4,
+                    "closestDistance": 3,
+                    "closestDistanceDifference": 0.15793301968674797,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 982,
+                    "closestTimeDifference": 0.09111111111111111,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 251,
+                    "moving_time": 251,
+                    "distance": 931.1181428571429,
+                    "start_index": 1159,
+                    "end_index": 1212,
+                    "total_elevation_gain": -6,
+                    "average_speed": 3.7096340352874217,
+                    "max_speed": 5,
+                    "lap_index": 27,
+                    "isWorkout": true,
+                    "workoutType": 2,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.06888185714285715,
+                    "closestDistanceUnit": "km",
+                    "closestTime": 251,
+                    "closestTimeDifference": 0.04583333333333333,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 982,
+                    "moving_time": 982,
+                    "distance": 3965.8735714285713,
+                    "start_index": 1298,
+                    "end_index": 1325,
+                    "total_elevation_gain": 9,
+                    "average_speed": 4.03856779167879,
+                    "max_speed": 5,
+                    "lap_index": 29,
+                    "isWorkout": true,
+                    "workoutType": 4,
+                    "closestDistance": 3,
+                    "closestDistanceDifference": 0.1785680258018701,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 982,
+                    "closestTimeDifference": 0.09111111111111111,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 407,
+                    "moving_time": 407,
+                    "distance": 1609.34,
+                    "start_index": 1387,
+                    "end_index": 1413,
+                    "total_elevation_gain": 25,
+                    "average_speed": 3.954152334152334,
+                    "max_speed": 4,
+                    "lap_index": 31,
+                    "isWorkout": true,
+                    "workoutType": 3,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.000024855527247849142,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 407,
+                    "closestTimeDifference": 0.32166666666666666,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 407,
+                    "moving_time": 407,
+                    "distance": 1628.4988095238093,
+                    "start_index": 1501,
+                    "end_index": 1592,
+                    "total_elevation_gain": -7,
+                    "average_speed": 4.0012255762255755,
+                    "max_speed": 4.0012255762255755,
+                    "lap_index": 33,
+                    "isWorkout": true,
+                    "workoutType": 3,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.011929913331143578,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 407,
+                    "closestTimeDifference": 0.32166666666666666,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 982,
+                    "moving_time": 982,
+                    "distance": 3509.893904761904,
+                    "start_index": 1689,
+                    "end_index": 1714,
+                    "total_elevation_gain": -8,
+                    "average_speed": 3.574230045582387,
+                    "max_speed": 5,
+                    "lap_index": 35,
+                    "isWorkout": true,
+                    "workoutType": 4,
+                    "closestDistance": 2,
+                    "closestDistanceDifference": 0.09046941459654656,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 982,
+                    "closestTimeDifference": 0.09111111111111111,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 251,
+                    "moving_time": 251,
+                    "distance": 1007.7533809523809,
+                    "start_index": 1815,
+                    "end_index": 1891,
+                    "total_elevation_gain": 3,
+                    "average_speed": 4.014953708973629,
+                    "max_speed": 4.014953708973629,
+                    "lap_index": 37,
+                    "isWorkout": true,
+                    "workoutType": 2,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.0077533809523808945,
+                    "closestDistanceUnit": "km",
+                    "closestTime": 251,
+                    "closestTimeDifference": 0.04583333333333333,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 982,
+                    "moving_time": 982,
+                    "distance": 3831.7619047619046,
+                    "start_index": 1966,
+                    "end_index": 1980,
+                    "total_elevation_gain": -7,
+                    "average_speed": 3.9019978663563184,
+                    "max_speed": 6,
+                    "lap_index": 39,
+                    "isWorkout": true,
+                    "workoutType": 4,
+                    "closestDistance": 2,
+                    "closestDistanceDifference": 0.19046879322767105,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 982,
+                    "closestTimeDifference": 0.09111111111111111,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "elapsed_time": 407,
+                    "moving_time": 407,
+                    "distance": 1590.1811904761905,
+                    "start_index": 2004,
+                    "end_index": 2019,
+                    "total_elevation_gain": -23,
+                    "average_speed": 3.9070790920790923,
+                    "max_speed": 3.9070790920790923,
+                    "lap_index": 41,
+                    "isWorkout": true,
+                    "workoutType": 3,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.01188020227664788,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 407,
+                    "closestTimeDifference": 0.32166666666666666,
+                    "workoutBasis": "TIME"
+                }
+            ]
+        }
+    ],
     "347652898": [
         {
             "pattern": [
@@ -22,9 +451,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.02617500000000007,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.18888888888888888,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -44,7 +472,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 30,
                     "closestTimeDifference": 0.16666666666666666,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -62,9 +489,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.095325,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.11666666666666667,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -84,7 +510,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 30,
                     "closestTimeDifference": 0.2,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -102,9 +527,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.015799999999999984,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.15555555555555556,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -124,7 +548,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.15555555555555556,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -142,9 +565,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.08222499999999996,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.13333333333333333,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -164,7 +586,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.17777777777777778,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -191,9 +612,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.0023612750885477875,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.0033333333333333335,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -211,10 +631,9 @@
                     "closestDistance": 800,
                     "closestDistanceDifference": 0.0535875,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2.5,
-                    "closestTimeDifference": 0.04666666666666667,
-                    "closestTimeUnit": "mins",
-                    "workoutBasis": "TIME"
+                    "closestTime": 180,
+                    "closestTimeDifference": 0.12777777777777777,
+                    "workoutBasis": "DISTANCE"
                 },
                 {
                     "elapsed_time": 313,
@@ -231,9 +650,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.04222954079413412,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.043333333333333335,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -251,10 +669,9 @@
                     "closestDistance": 800,
                     "closestDistanceDifference": 0.02541250000000005,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2.5,
-                    "closestTimeDifference": 0.02,
-                    "closestTimeUnit": "mins",
-                    "workoutBasis": "TIME"
+                    "closestTime": 180,
+                    "closestTimeDifference": 0.15,
+                    "workoutBasis": "DISTANCE"
                 },
                 {
                     "elapsed_time": 285,
@@ -271,9 +688,8 @@
                     "closestDistance": 1500,
                     "closestDistanceDifference": 0.020826666666666674,
                     "closestDistanceUnit": "m",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.05,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -291,10 +707,9 @@
                     "closestDistance": 800,
                     "closestDistanceDifference": 0.054000000000000055,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2.5,
-                    "closestTimeDifference": 0.06,
-                    "closestTimeUnit": "mins",
-                    "workoutBasis": "TIME"
+                    "closestTime": 120,
+                    "closestTimeDifference": 0.175,
+                    "workoutBasis": "DISTANCE"
                 },
                 {
                     "elapsed_time": 290,
@@ -311,9 +726,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.032486174112968356,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.03333333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -331,10 +745,9 @@
                     "closestDistance": 800,
                     "closestDistanceDifference": 0.014625000000000056,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2.5,
-                    "closestTimeDifference": 0.006666666666666667,
-                    "closestTimeUnit": "mins",
-                    "workoutBasis": "TIME"
+                    "closestTime": 180,
+                    "closestTimeDifference": 0.16111111111111112,
+                    "workoutBasis": "DISTANCE"
                 },
                 {
                     "elapsed_time": 323,
@@ -351,9 +764,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.07781022804946251,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.07666666666666666,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -371,10 +783,9 @@
                     "closestDistance": 800,
                     "closestDistanceDifference": 0.009449999999999932,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2.5,
-                    "closestTimeDifference": 0.013333333333333334,
-                    "closestTimeUnit": "mins",
-                    "workoutBasis": "TIME"
+                    "closestTime": 180,
+                    "closestTimeDifference": 0.17777777777777778,
+                    "workoutBasis": "DISTANCE"
                 }
             ]
         }
@@ -417,9 +828,8 @@
                     "closestDistance": 1500,
                     "closestDistanceDifference": 0.014239999999999933,
                     "closestDistanceUnit": "m",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -453,9 +863,8 @@
                     "closestDistance": 1500,
                     "closestDistanceDifference": 0.03592666666666673,
                     "closestDistanceUnit": "m",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -489,9 +898,8 @@
                     "closestDistance": 1500,
                     "closestDistanceDifference": 0.04619999999999997,
                     "closestDistanceUnit": "m",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.0033333333333333335,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -525,9 +933,8 @@
                     "closestDistance": 1500,
                     "closestDistanceDifference": 0.05480000000000003,
                     "closestDistanceUnit": "m",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.0033333333333333335,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -561,9 +968,8 @@
                     "closestDistance": 1500,
                     "closestDistanceDifference": 0.021839999999999995,
                     "closestDistanceUnit": "m",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -597,9 +1003,8 @@
                     "closestDistance": 1500,
                     "closestDistanceDifference": 0.03211333333333338,
                     "closestDistanceUnit": "m",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.0033333333333333335,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -633,9 +1038,8 @@
                     "closestDistance": 1500,
                     "closestDistanceDifference": 0.03911333333333338,
                     "closestDistanceUnit": "m",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.0033333333333333335,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 }
             ]
@@ -679,9 +1083,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.0036537625054372147,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.25,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -715,9 +1118,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.0009196545081712659,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.24666666666666667,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -751,9 +1153,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.00417572857764247,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.25,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -787,9 +1188,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.006369228857267135,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.26666666666666666,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -823,9 +1223,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.0017212452619151072,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.26,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -859,9 +1258,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.006288448393711625,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.2733333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -905,7 +1303,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.13333333333333333,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -941,7 +1338,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.06666666666666667,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -977,7 +1373,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.13333333333333333,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1013,7 +1408,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.08888888888888889,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1049,7 +1443,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.1111111111111111,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -1149,9 +1542,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.013105076741440468,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.16333333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -1492,9 +1884,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.008799999999999954,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3.5,
-                    "closestTimeDifference": 0.03333333333333333,
-                    "closestTimeUnit": "mins",
+                    "closestTime": 180,
+                    "closestTimeDifference": 0.12777777777777777,
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1528,9 +1919,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.0026399999999999865,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3.5,
-                    "closestTimeDifference": 0.02857142857142857,
-                    "closestTimeUnit": "mins",
+                    "closestTime": 180,
+                    "closestTimeDifference": 0.13333333333333333,
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1564,9 +1954,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.007480000000000018,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3.5,
-                    "closestTimeDifference": 0.023809523809523808,
-                    "closestTimeUnit": "mins",
+                    "closestTime": 180,
+                    "closestTimeDifference": 0.1388888888888889,
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1600,9 +1989,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.004580000000000041,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3.5,
-                    "closestTimeDifference": 0.014285714285714285,
-                    "closestTimeUnit": "mins",
+                    "closestTime": 240,
+                    "closestTimeDifference": 0.1375,
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1636,9 +2024,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.01399000000000001,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3.5,
-                    "closestTimeDifference": 0.014285714285714285,
-                    "closestTimeUnit": "mins",
+                    "closestTime": 240,
+                    "closestTimeDifference": 0.1375,
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -1680,9 +2067,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.04202500000000001,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.13333333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1716,9 +2102,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.05722499999999996,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.12222222222222222,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1752,9 +2137,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.015100000000000051,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.15555555555555556,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -1801,9 +2185,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.022533333333333305,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.03333333333333333,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1840,9 +2223,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.02453333333333338,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.03333333333333333,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1879,9 +2261,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.013933333333333357,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.016666666666666666,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1918,9 +2299,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.008233333333333424,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.016666666666666666,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1957,9 +2337,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.019399999999999976,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.016666666666666666,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -1996,9 +2375,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.008433333333333242,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.03333333333333333,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2035,9 +2413,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.00806666666666672,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.016666666666666666,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2074,9 +2451,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.016533333333333265,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.03333333333333333,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -2218,9 +2594,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.03310032000497094,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 12,
+                    "closestTime": 720,
                     "closestTimeDifference": 0.075,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -2267,7 +2642,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.08888888888888889,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2306,7 +2680,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.1111111111111111,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2345,7 +2718,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.08888888888888889,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2384,7 +2756,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.08888888888888889,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2423,7 +2794,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.06666666666666667,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2462,7 +2832,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.1111111111111111,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2501,7 +2870,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.1111111111111111,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2538,9 +2906,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.01669999999999997,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0.13333333333333333,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -2713,9 +3080,8 @@
                     "closestDistance": 4,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 25,
+                    "closestTime": 1500,
                     "closestTimeDifference": 0.082,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -2762,9 +3128,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.17,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2801,9 +3166,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.14666666666666667,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2840,9 +3204,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.13,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2879,9 +3242,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.12666666666666668,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2918,9 +3280,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.13,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2957,9 +3318,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.13,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -2996,9 +3356,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.12333333333333334,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3035,9 +3394,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.11333333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3074,9 +3432,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.11333333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3113,9 +3470,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.11,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -3226,9 +3582,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.015761021530431688,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.07833333333333334,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3329,9 +3684,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.01642277938298089,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.056666666666666664,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3432,9 +3786,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.01558703824525432,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.03666666666666667,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -3481,9 +3834,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.029440000000000053,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.05,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3520,9 +3872,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.019990000000000008,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.044444444444444446,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3559,9 +3910,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.0235,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.05,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3598,9 +3948,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.0338900000000001,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.05,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3637,9 +3986,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.035960000000000034,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.03333333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3676,9 +4024,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.03573000000000002,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.03888888888888889,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3715,9 +4062,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.046210000000000036,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.044444444444444446,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3754,9 +4100,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.03170000000000005,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.03333333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3793,9 +4138,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.031029999999999974,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.03888888888888889,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -3832,9 +4176,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.02999000000000001,
                     "closestDistanceUnit": "km",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0.044444444444444446,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -3881,9 +4224,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.07775000000000006,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -3920,9 +4262,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.10470000000000004,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -3959,9 +4300,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.08017999999999995,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -3998,9 +4338,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.08472000000000003,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4037,9 +4376,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.08303999999999996,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4076,9 +4414,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.08127499999999997,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4115,9 +4452,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.11060000000000002,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4154,9 +4490,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.036440000000000056,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4193,9 +4528,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.07689999999999998,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4232,9 +4566,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.09496000000000003,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4271,9 +4604,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.0985,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4310,9 +4642,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.09336000000000001,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4349,9 +4680,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.08039999999999997,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4388,9 +4718,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.08601999999999999,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4427,9 +4756,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.10074000000000001,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4466,9 +4794,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.09852500000000006,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -4505,9 +4832,8 @@
                     "closestDistance": 500,
                     "closestDistanceDifference": 0.07584000000000003,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 }
             ]
@@ -4647,9 +4973,8 @@
                     "closestDistance": 1200,
                     "closestDistanceDifference": 0.06528333333333346,
                     "closestDistanceUnit": "m",
-                    "closestTime": 4,
+                    "closestTime": 240,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 }
             ]
@@ -4791,9 +5116,8 @@
                     "closestDistance": 3,
                     "closestDistanceDifference": 0.0000041425020711530785,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 20,
+                    "closestTime": 1200,
                     "closestTimeDifference": 0.1425,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -4838,9 +5162,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.13333333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -4877,9 +5200,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.12,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -4916,9 +5238,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.11,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -5058,9 +5379,8 @@
                     "closestDistance": 3,
                     "closestDistanceDifference": 0.0000041425020711530785,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 20,
+                    "closestTime": 1200,
                     "closestTimeDifference": 0.135,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -5233,9 +5553,8 @@
                     "closestDistance": 4,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 25,
+                    "closestTime": 1500,
                     "closestTimeDifference": 0.09133333333333334,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -5280,9 +5599,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.14333333333333334,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -5319,9 +5637,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.13,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -5358,9 +5675,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.000024855527247849142,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.13,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -5531,9 +5847,8 @@
                     "closestDistance": 4,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 25,
+                    "closestTime": 1500,
                     "closestTimeDifference": 0.086,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -5580,9 +5895,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.13629999999999995,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.011111111111111112,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -5619,9 +5933,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.12422499999999999,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.011111111111111112,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -5658,9 +5971,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.10745000000000005,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -5697,9 +6009,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.1122,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -5736,9 +6047,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.132475,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.011111111111111112,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -5775,9 +6085,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.07992500000000007,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -5814,9 +6123,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.11370000000000005,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.011111111111111112,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -5853,9 +6161,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.14235,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -5892,9 +6199,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.12487499999999997,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -5931,9 +6237,8 @@
                     "closestDistance": 400,
                     "closestDistanceDifference": 0.02555000000000007,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1.5,
+                    "closestTime": 90,
                     "closestTimeDifference": 0.022222222222222223,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 }
             ]
@@ -6075,9 +6380,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.01342778140242949,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.08166666666666667,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -6209,9 +6513,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.0051262932239724114,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.08833333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -6343,9 +6646,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.004632304967844116,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 12,
+                    "closestTime": 720,
                     "closestTimeDifference": 0.08611111111111111,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -6477,9 +6779,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.008105756982632786,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 12,
+                    "closestTime": 720,
                     "closestTimeDifference": 0.08472222222222223,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -6524,9 +6825,8 @@
                     "closestDistance": 1,
                     "closestDistanceDifference": 0.002491766606599137,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 5,
+                    "closestTime": 300,
                     "closestTimeDifference": 0.11333333333333333,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -6637,9 +6937,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 12,
+                    "closestTime": 720,
                     "closestTimeDifference": 0.05555555555555555,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -6740,9 +7039,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 12,
+                    "closestTime": 720,
                     "closestTimeDifference": 0.059722222222222225,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -6843,9 +7141,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 12,
+                    "closestTime": 720,
                     "closestTimeDifference": 0.05138888888888889,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -6946,9 +7243,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 12,
+                    "closestTime": 720,
                     "closestTimeDifference": 0.06388888888888888,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -7049,9 +7345,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 12,
+                    "closestTime": 720,
                     "closestTimeDifference": 0.06805555555555555,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -7152,9 +7447,8 @@
                     "closestDistance": 2,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 12,
+                    "closestTime": 720,
                     "closestTimeDifference": 0.0625,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -7205,9 +7499,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.07206666666666668,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7244,9 +7537,8 @@
                     "closestDistance": 600,
                     "closestDistanceDifference": 0.0020166666666667273,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2,
+                    "closestTime": 120,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7283,9 +7575,8 @@
                     "closestDistance": 800,
                     "closestDistanceDifference": 0.06551249999999996,
                     "closestDistanceUnit": "m",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7322,9 +7613,8 @@
                     "closestDistance": 600,
                     "closestDistanceDifference": 0.015433333333333318,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2,
+                    "closestTime": 120,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7361,9 +7651,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.07663333333333336,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7400,9 +7689,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.06943333333333328,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7439,9 +7727,8 @@
                     "closestDistance": 600,
                     "closestDistanceDifference": 0.02556666666666672,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2,
+                    "closestTime": 120,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7478,9 +7765,8 @@
                     "closestDistance": 800,
                     "closestDistanceDifference": 0.09784999999999996,
                     "closestDistanceUnit": "m",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7517,9 +7803,8 @@
                     "closestDistance": 600,
                     "closestDistanceDifference": 0.0024833333333333487,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2,
+                    "closestTime": 120,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7556,9 +7841,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.053233333333333424,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7595,9 +7879,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.03616666666666674,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7634,9 +7917,8 @@
                     "closestDistance": 600,
                     "closestDistanceDifference": 0.014616666666666637,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2,
+                    "closestTime": 120,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7673,9 +7955,8 @@
                     "closestDistance": 800,
                     "closestDistanceDifference": 0.09026250000000005,
                     "closestDistanceUnit": "m",
-                    "closestTime": 3,
+                    "closestTime": 180,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7712,9 +7993,8 @@
                     "closestDistance": 600,
                     "closestDistanceDifference": 0.02281666666666676,
                     "closestDistanceUnit": "m",
-                    "closestTime": 2,
+                    "closestTime": 120,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "TIME"
                 },
                 {
@@ -7751,9 +8031,8 @@
                     "closestDistance": 300,
                     "closestDistanceDifference": 0.06919999999999997,
                     "closestDistanceUnit": "m",
-                    "closestTime": 1,
+                    "closestTime": 60,
                     "closestTimeDifference": 0,
-                    "closestTimeUnit": "min",
                     "workoutBasis": "TIME"
                 }
             ]
@@ -7801,9 +8080,8 @@
                     "closestDistance": 1.5,
                     "closestDistanceDifference": 0.000008285004142494535,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.18,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -7841,9 +8119,8 @@
                     "closestDistance": 1.5,
                     "closestDistanceDifference": 0.000008285004142494535,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.17333333333333334,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -7881,9 +8158,8 @@
                     "closestDistance": 1.5,
                     "closestDistanceDifference": 0.000008285004142494535,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.17,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 },
                 {
@@ -7921,9 +8197,8 @@
                     "closestDistance": 1.5,
                     "closestDistanceDifference": 0.000008285004142494535,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 10,
+                    "closestTime": 600,
                     "closestTimeDifference": 0.18166666666666667,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -8189,9 +8464,8 @@
                     "closestDistance": 7,
                     "closestDistanceDifference": 0.0000017753475243166296,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 30,
+                    "closestTime": 1800,
                     "closestTimeDifference": 0.7327777777777778,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -8238,7 +8512,6 @@
                     "closestDistanceUnit": "m",
                     "closestTime": 45,
                     "closestTimeDifference": 0.06666666666666667,
-                    "closestTimeUnit": "secs",
                     "workoutBasis": "TIME"
                 }
             ]
@@ -8411,10 +8684,491 @@
                     "closestDistance": 4,
                     "closestDistanceDifference": 0.000006213688756324545,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 30,
+                    "closestTime": 1800,
                     "closestTimeDifference": 0.016666666666666666,
-                    "closestTimeUnit": "mins",
                     "workoutBasis": "DISTANCE"
+                }
+            ]
+        }
+    ],
+    "9042013084": [
+        {
+            "pattern": [
+                2
+            ],
+            "count": 2,
+            "laps": [
+                {
+                    "id": 30772986885,
+                    "resource_state": 2,
+                    "name": "Lap 2",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 480,
+                    "moving_time": 480,
+                    "start_date": "2023-05-09T18:50:47Z",
+                    "start_date_local": "2023-05-09T11:50:47Z",
+                    "distance": 2183.54,
+                    "start_index": 391,
+                    "end_index": 551,
+                    "total_elevation_gain": 35,
+                    "average_speed": 4.55,
+                    "max_speed": 5.298,
+                    "average_cadence": 96.7,
+                    "device_watts": false,
+                    "average_heartrate": 160.2,
+                    "max_heartrate": 167,
+                    "lap_index": 2,
+                    "split": 2,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "workoutType": 2,
+                    "closestDistance": 2,
+                    "closestDistanceDifference": 0.09176999999999998,
+                    "closestDistanceUnit": "km",
+                    "closestTime": 480,
+                    "closestTimeDifference": 0.2,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30772986897,
+                    "resource_state": 2,
+                    "name": "Lap 4",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 480,
+                    "moving_time": 480,
+                    "start_date": "2023-05-09T19:00:46Z",
+                    "start_date_local": "2023-05-09T12:00:46Z",
+                    "distance": 2252.4,
+                    "start_index": 588,
+                    "end_index": 753,
+                    "total_elevation_gain": 17.6,
+                    "average_speed": 4.69,
+                    "max_speed": 5.167,
+                    "average_cadence": 97.5,
+                    "device_watts": false,
+                    "average_heartrate": 158.4,
+                    "max_heartrate": 166,
+                    "lap_index": 4,
+                    "split": 4,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "workoutType": 2,
+                    "closestDistance": 1.5,
+                    "closestDistanceDifference": 0.0669428334714167,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 480,
+                    "closestTimeDifference": 0.2,
+                    "workoutBasis": "TIME"
+                }
+            ]
+        },
+        {
+            "pattern": [
+                1
+            ],
+            "count": 4,
+            "laps": [
+                {
+                    "id": 30772986908,
+                    "resource_state": 2,
+                    "name": "Lap 6",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 240,
+                    "moving_time": 240,
+                    "start_date": "2023-05-09T19:10:48Z",
+                    "start_date_local": "2023-05-09T12:10:48Z",
+                    "distance": 1127.83,
+                    "start_index": 786,
+                    "end_index": 870,
+                    "total_elevation_gain": 14.2,
+                    "average_speed": 4.7,
+                    "max_speed": 5.15,
+                    "average_cadence": 98.5,
+                    "device_watts": false,
+                    "average_heartrate": 156.7,
+                    "max_heartrate": 166,
+                    "lap_index": 6,
+                    "split": 6,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "workoutType": 1,
+                    "closestDistance": 1200,
+                    "closestDistanceDifference": 0.060141666666666725,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 240,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30772986919,
+                    "resource_state": 2,
+                    "name": "Lap 8",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 240,
+                    "moving_time": 240,
+                    "start_date": "2023-05-09T19:16:14Z",
+                    "start_date_local": "2023-05-09T12:16:14Z",
+                    "distance": 1187.61,
+                    "start_index": 898,
+                    "end_index": 994,
+                    "total_elevation_gain": 4.4,
+                    "average_speed": 4.95,
+                    "max_speed": 5.538,
+                    "average_cadence": 99.2,
+                    "device_watts": false,
+                    "average_heartrate": 156.2,
+                    "max_heartrate": 165,
+                    "lap_index": 8,
+                    "split": 8,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "workoutType": 1,
+                    "closestDistance": 1200,
+                    "closestDistanceDifference": 0.010325000000000084,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 240,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30772986931,
+                    "resource_state": 2,
+                    "name": "Lap 10",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 240,
+                    "moving_time": 240,
+                    "start_date": "2023-05-09T19:21:47Z",
+                    "start_date_local": "2023-05-09T12:21:47Z",
+                    "distance": 1122.64,
+                    "start_index": 1020,
+                    "end_index": 1106,
+                    "total_elevation_gain": 14.6,
+                    "average_speed": 4.68,
+                    "max_speed": 5.186,
+                    "average_cadence": 98.7,
+                    "device_watts": false,
+                    "average_heartrate": 159.8,
+                    "max_heartrate": 166,
+                    "lap_index": 10,
+                    "split": 10,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "workoutType": 1,
+                    "closestDistance": 1200,
+                    "closestDistanceDifference": 0.06446666666666659,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 240,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30772986939,
+                    "resource_state": 2,
+                    "name": "Lap 12",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 240,
+                    "moving_time": 240,
+                    "start_date": "2023-05-09T19:27:03Z",
+                    "start_date_local": "2023-05-09T12:27:03Z",
+                    "distance": 1199.1,
+                    "start_index": 1132,
+                    "end_index": 1223,
+                    "total_elevation_gain": 4.2,
+                    "average_speed": 5,
+                    "max_speed": 5.88,
+                    "average_cadence": 100.2,
+                    "device_watts": false,
+                    "average_heartrate": 158.2,
+                    "max_heartrate": 167,
+                    "lap_index": 12,
+                    "split": 12,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "workoutType": 1,
+                    "closestDistance": 1200,
+                    "closestDistanceDifference": 0.0007500000000000758,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 240,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                }
+            ]
+        },
+        {
+            "pattern": [
+                0
+            ],
+            "count": 6,
+            "laps": [
+                {
+                    "id": 30772986945,
+                    "resource_state": 2,
+                    "name": "Lap 14",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 120,
+                    "moving_time": 120,
+                    "start_date": "2023-05-09T19:32:58Z",
+                    "start_date_local": "2023-05-09T12:32:58Z",
+                    "distance": 571.13,
+                    "start_index": 1255,
+                    "end_index": 1294,
+                    "total_elevation_gain": 10.8,
+                    "average_speed": 4.76,
+                    "max_speed": 5.518,
+                    "average_cadence": 97.5,
+                    "device_watts": false,
+                    "average_heartrate": 144.3,
+                    "max_heartrate": 167,
+                    "lap_index": 14,
+                    "split": 14,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 600,
+                    "closestDistanceDifference": 0.048116666666666676,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 120,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30772986954,
+                    "resource_state": 2,
+                    "name": "Lap 16",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 120,
+                    "moving_time": 120,
+                    "start_date": "2023-05-09T19:35:57Z",
+                    "start_date_local": "2023-05-09T12:35:57Z",
+                    "distance": 621.14,
+                    "start_index": 1312,
+                    "end_index": 1357,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.18,
+                    "max_speed": 6.062,
+                    "average_cadence": 100.6,
+                    "device_watts": false,
+                    "average_heartrate": 151.6,
+                    "max_heartrate": 166,
+                    "lap_index": 16,
+                    "split": 16,
+                    "pace_zone": 5,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 600,
+                    "closestDistanceDifference": 0.03523333333333331,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 120,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30772986962,
+                    "resource_state": 2,
+                    "name": "Lap 18",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 120,
+                    "moving_time": 120,
+                    "start_date": "2023-05-09T19:38:58Z",
+                    "start_date_local": "2023-05-09T12:38:58Z",
+                    "distance": 574.45,
+                    "start_index": 1380,
+                    "end_index": 1422,
+                    "total_elevation_gain": 9.8,
+                    "average_speed": 4.79,
+                    "max_speed": 5.466,
+                    "average_cadence": 100.5,
+                    "device_watts": false,
+                    "average_heartrate": 152.4,
+                    "max_heartrate": 169,
+                    "lap_index": 18,
+                    "split": 18,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 600,
+                    "closestDistanceDifference": 0.04258333333333326,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 120,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30772986972,
+                    "resource_state": 2,
+                    "name": "Lap 20",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 120,
+                    "moving_time": 120,
+                    "start_date": "2023-05-09T19:41:58Z",
+                    "start_date_local": "2023-05-09T12:41:58Z",
+                    "distance": 627.9,
+                    "start_index": 1442,
+                    "end_index": 1489,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.23,
+                    "max_speed": 5.637,
+                    "average_cadence": 101.9,
+                    "device_watts": false,
+                    "average_heartrate": 150.4,
+                    "max_heartrate": 169,
+                    "lap_index": 20,
+                    "split": 20,
+                    "pace_zone": 5,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 600,
+                    "closestDistanceDifference": 0.046499999999999965,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 120,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30772986987,
+                    "resource_state": 2,
+                    "name": "Lap 22",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 120,
+                    "moving_time": 120,
+                    "start_date": "2023-05-09T19:45:00Z",
+                    "start_date_local": "2023-05-09T12:45:00Z",
+                    "distance": 574.83,
+                    "start_index": 1513,
+                    "end_index": 1553,
+                    "total_elevation_gain": 9.8,
+                    "average_speed": 4.79,
+                    "max_speed": 5.3,
+                    "average_cadence": 100.2,
+                    "device_watts": false,
+                    "average_heartrate": 153,
+                    "max_heartrate": 169,
+                    "lap_index": 22,
+                    "split": 22,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 600,
+                    "closestDistanceDifference": 0.04194999999999993,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 120,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30772987000,
+                    "resource_state": 2,
+                    "name": "Lap 24",
+                    "activity": {
+                        "id": 9042013084,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 120,
+                    "moving_time": 120,
+                    "start_date": "2023-05-09T19:47:57Z",
+                    "start_date_local": "2023-05-09T12:47:57Z",
+                    "distance": 633.61,
+                    "start_index": 1572,
+                    "end_index": 1618,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.28,
+                    "max_speed": 5.89,
+                    "average_cadence": 100.6,
+                    "device_watts": false,
+                    "average_heartrate": 155.8,
+                    "max_heartrate": 171,
+                    "lap_index": 24,
+                    "split": 24,
+                    "pace_zone": 5,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 600,
+                    "closestDistanceDifference": 0.05601666666666669,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 120,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
                 }
             ]
         }

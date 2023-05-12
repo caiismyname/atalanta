@@ -155,7 +155,7 @@ function secondsFormatter(input, shouldRound) {
     };
   } else if (rounded < 10) {
     return {
-      seconds: "0" + rounded,
+      seconds: `0${rounded}`,
       minuteDiff: 0,
     };
   } else if (rounded === 60) {
@@ -177,14 +177,18 @@ function indented(input, indentLevel = 1) {
 }
 
 // eslint-disable-next-line no-unused-vars
-function secondsToTimeFormatted(seconds) {
+function secondsToTimeFormatted(seconds, displayWholeMinutes = false) {
   const minutes = Math.floor(seconds / 60);
   const secondsRes = secondsFormatter(seconds % 60, true); // shouldRound = true b/c strava doesn't give decimals for laps
 
   if (minutes + secondsRes.minuteDiff === 0) {
     return `${secondsRes.seconds}`;
   } else {
-    return `${minutes + secondsRes.minuteDiff}:${secondsRes.seconds}`;
+    if (secondsRes.seconds === "00" && displayWholeMinutes) {
+      return `${minutes} min${minutes === 1 ? "" : "s"}`
+    } else {
+      return `${minutes + secondsRes.minuteDiff}:${secondsRes.seconds}`;
+    }
   }
 }
 

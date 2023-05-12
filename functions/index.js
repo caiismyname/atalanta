@@ -110,7 +110,7 @@ app.get("/explorer_parse", (req, res) => {
   const activityID = req.query.activityID;
   const userToken = req.cookies["__session"];
 
-  console.log(`Explorer parsing: ${activityID}`);
+  // console.log(`Explorer parsing: ${activityID}`);
 
   validateUserToken(userToken, res, (userID) => {
     getStravaTokenForID(userID, (accessToken) => {
@@ -133,8 +133,6 @@ app.get("/strava_webhook", (req, res) => {
 
 // Store all logic in a function for easy access by tests
 function handleIncomingWebhook(req, res, isTest=false) {
-  console.log("INCOMING STRAVA WEBHOOK");
-  console.log(req.body);
   if (!isTest) {
     logAnalytics(ANALYTICS_EVENTS.INBOUND_WEBHOOK, db);
   }
@@ -145,26 +143,25 @@ function handleIncomingWebhook(req, res, isTest=false) {
    req.body.aspect_type === "update" && (req.body.updates === "title" || req.body.updates === "type");
   const isAccountDeauthorization = req.body.updates.authorized === "false";
 
+  const activityID = req.body.object_id;
+  const userStravaID = req.body.owner_id;
+
   if (!isTest) {
     StravaInterface.acknowledgeWebhook(res);
   }
 
   if (isActivityUpdate && isRelevantUpdateType) {
-    console.log(`Pulling activity for incoming webhook`);
-    const activityID = req.body.object_id;
-    const userStravaID = req.body.owner_id;
-
     getUserIDForStravaID(userStravaID, (userID) => {
       getStravaTokenForID(userID, (stravaToken) => {
         StravaInterface.getActivity(activityID, stravaToken, (activity) => {
           if (activity.type === "Run") {
-            console.log(`Activity is run, processing...`);
+            // console.log(`Activity is run, processing...`);
             if (!isTest) {
               logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
             }
             const output = parseWorkout(activity, false, false);
             if (output.isWorkout) {
-              console.log(`Activity ${activityID} is a workout. Title: [${output.summary.title}]`);
+              console.log(`ACTIVITY ${activityID} is a workout. Title: [${output.summary.title}] Description: [${output.summary.description.replace("\n", " || ")}]`);
               if (!isTest) {
                 logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
               }
@@ -177,9 +174,9 @@ function handleIncomingWebhook(req, res, isTest=false) {
                 if (!isTest) {
                   logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);
                 }
-              }, 5000);
+              }, 1000);
             } else {
-              console.log(`Activity ${activityID} is NOT a workout`);
+              console.log(`ACTIVITY ${activityID} is NOT a workout, no action taken.`);
             }
           }
         });
@@ -191,7 +188,7 @@ function handleIncomingWebhook(req, res, isTest=false) {
       logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_DEACTIVATION, db);
     });
   } else {
-    console.log(`Ignoring webhook contents`);
+    console.log(`ACTVITIY ${activityID} is not eligible.`);
   }
 }
 
@@ -297,7 +294,7 @@ function isUserCreated(userID, callback) {
 }
 
 function createNewUser(details) {
-  console.log(`CREATED USER: ${details.userID}`);
+  // console.log(`CREATED USER: ${details.userID}`);
   logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, db);
   db.ref(`users/${details.userID}`).update({
     stravaConnected: false,
@@ -382,7 +379,7 @@ function deleteUser(userID) {
     const stravaID = snapshot.val();
     db.ref(`stravaIDLookup/${stravaID}`).remove();
     db.ref(`users/${userID}`).remove();
-    console.log(`Deleted user ${userID}`);
+    // console.log(`Deleted user ${userID}`);
   });
 }
 

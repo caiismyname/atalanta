@@ -222,8 +222,31 @@ function tagWorkoutTypes(laps) {
     const distanceDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestDistanceDifference, 0) / correspondingLaps.length;
     const timeDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestTimeDifference, 0) / correspondingLaps.length;
 
+    let distanceStdDev = 999;
+    let timeStdDev = 999;
+
+    if (correspondingLaps.length > 1) {
+      distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
+      timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
+    }
+
+    // print(`timeAvg: ${timeDifferenceAverage}, distAvg: ${distanceDifferenceAverage}`);
+    // print(`timeStd: ${timeStdDev}, distStd: ${distanceStdDev}`);
+
     for (const lap of correspondingLaps) {
+      // First assign based on which guess is closest
       lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
+
+      // But because the guesses are inherantly limited because they're compared against a pre-defined list of valid distances/times, it's possible to see a new value that's not on the list. This is guarded for by checking the standard deviation and, if 0, taking that value instead.
+      if (lap.workoutBasis === "TIME" && distanceStdDev === 0) {
+        lap.workoutBasis = "DISTANCE";
+        lap.closestDistance = lap.distance;
+        // lap.closestDistanceUnit = 
+      } else if (timeStdDev === 0.0.toFixed(4)) { // TODO ideally, we don't need the first clause in the if
+        lap.workoutBasis = "TIME";
+        lap.closestTime = lap.moving_time;
+        // Don't need to assign unit because times will be auto formatted
+      }
     }
     // [end]
   }
@@ -408,23 +431,19 @@ function assignDistanceGuess(lap, distance, difference, unit) {
 }
 
 function assignNearestTime(lap) {
-  // In seconds
-  const validTimesSeconds = [
+  const validTimes = [
     15,
     20,
     30,
     45,
-  ];
-
-  const validTimesMinutes = [
     60,
     90,
     120, // 2
-    150,
+    // 150,
     180, // 3
-    210,
+    // 210,
     240, // 4
-    270,
+    // 270,
     300, // 5
     // 330,
     // 360, // 6
@@ -448,30 +467,22 @@ function assignNearestTime(lap) {
     1200, // 20
     1500, // 25
     1800, // 30
-  ];
+  ]
 
   const lapTime = lap.moving_time;
   lap.closestTime = 0;
   lap.closestTimeDifference = 1;
-
-  for (const time of validTimesSeconds) {
+  
+  for (const time of validTimes) {
     const difference = Math.abs(time - lapTime) / time;
     if (difference < lap.closestTimeDifference) {
-      assignTimeGuess(lap, time, difference, "sec");
-    }
-  }
-
-  for (const time of validTimesMinutes) {
-    const difference = Math.abs(time - lapTime) / time;
-    if (difference < lap.closestTimeDifference) {
-      assignTimeGuess(lap, Helpers.secondsToMinutes(time), difference, "min");
-    }
+      assignTimeGuess(lap, time, difference);
+    } 
   }
 }
 
-function assignTimeGuess(lap, time, difference, unit) {
+function assignTimeGuess(lap, time, difference) {
   lap.closestTime = time;
-  lap.closestTimeUnit = unit + (time > 1 ? "s" : "");
   lap.closestTimeDifference = difference;
 }
 
