@@ -241,7 +241,7 @@ function tagWorkoutTypes(laps) {
       if (lap.workoutBasis === "TIME" && distanceStdDev === 0) {
         lap.workoutBasis = "DISTANCE";
         lap.closestDistance = lap.distance;
-        // lap.closestDistanceUnit = 
+        // lap.closestDistanceUnit =
       } else if (timeStdDev === 0.0.toFixed(4)) { // TODO ideally, we don't need the first clause in the if
         lap.workoutBasis = "TIME";
         lap.closestTime = lap.moving_time;
@@ -467,17 +467,17 @@ function assignNearestTime(lap) {
     1200, // 20
     1500, // 25
     1800, // 30
-  ]
+  ];
 
   const lapTime = lap.moving_time;
   lap.closestTime = 0;
   lap.closestTimeDifference = 1;
-  
+
   for (const time of validTimes) {
     const difference = Math.abs(time - lapTime) / time;
     if (difference < lap.closestTimeDifference) {
       assignTimeGuess(lap, time, difference);
-    } 
+    }
   }
 }
 

@@ -9,7 +9,7 @@ function determineSetName(set, multiRepSetsShouldHaveParen = false) {
     const lapName = lap.workoutBasis === "DISTANCE" ?
         `${lap.closestDistance}${lap.closestDistanceUnit}` :
         // `${lap.closestTime} ${lap.closestTimeUnit}`;
-        `${Helpers.secondsToTimeFormatted(lap.closestTime, true)}`
+        `${Helpers.secondsToTimeFormatted(lap.closestTime, true)}`;
 
     setName += `${lapName}, `;
   }
@@ -141,8 +141,12 @@ line 5:   4. 1:00, 29
 }
 
 const defaultPrintConfig = {
-  "paceUnits": "MILE", // KM
-  "shortDistanceAverageUnit": "TIME", // "PACE", "NONE"
+  "paceUnits": "KM", // "KM"
+  "showMinForSub100Sec": true,
+  "subMileDistanceAverageUnit": "TIME", // "PACE"
+  "greaterThanMileDistanceAverageUnit": "PACE", // "TIME"
+  "condensedSplits": false, // true
+  "rangeOrAverage": "AVERAGE", // "AVERAGE"
 };
 
 function printSets(sets, printConfig=defaultPrintConfig) {

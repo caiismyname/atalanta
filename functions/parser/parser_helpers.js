@@ -185,7 +185,7 @@ function secondsToTimeFormatted(seconds, displayWholeMinutes = false) {
     return `${secondsRes.seconds}`;
   } else {
     if (secondsRes.seconds === "00" && displayWholeMinutes) {
-      return `${minutes} min${minutes === 1 ? "" : "s"}`
+      return `${minutes} min${minutes === 1 ? "" : "s"}`;
     } else {
       return `${minutes + secondsRes.minuteDiff}:${secondsRes.seconds}`;
     }
