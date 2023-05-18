@@ -61,6 +61,8 @@ line 5:   4. 1:00, 29
 
   /* Set average
 
+    Only show average for homogeneous sets.
+
     If each rep is >=1mi, show average per-mile pace
     If each rep is <1mi, show the average time unless config overrides (`shortDistanceAverageUnit`, options: "PACE", "TIME")
     Unless the basis is time, in which show average per-mile pace. I don't know that anyone really gauges time-based interval performance off distance...
@@ -68,21 +70,24 @@ line 5:   4. 1:00, 29
 */
 
   const tokenLap = set.laps[0];
-  if (tokenLap.distance >= Helpers.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
-    // Average per-mile pace
-    setAverage += `Avg: ${Helpers.averagePaceOfSet(set)}/mi`;
-  } else {
-    switch (printConfig.shortDistanceAverageUnit) {
-      case "TIME":
-        setAverage += `Avg: ${Helpers.averageTimeOfSetFormatted(set)}`;
-        break;
-      case "PACE":
-        setAverage += `Avg: ${Helpers.averagePaceOfSet(set)}/mi`;
-        break;
-      case "NONE":
-        break;
-      default:
-        break;
+  if (set.pattern.length === 1) {
+    setAverage += `— `;
+    if (tokenLap.distance >= Helpers.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
+      // Average per-mile pace
+      setAverage += `Avg: ${Helpers.averagePaceOfSet(set)}/mi`;
+    } else {
+      switch (printConfig.shortDistanceAverageUnit) {
+        case "TIME":
+          setAverage += `Avg: ${Helpers.averageTimeOfSetFormatted(set)}`;
+          break;
+        case "PACE":
+          setAverage += `Avg: ${Helpers.averagePaceOfSet(set)}/mi`;
+          break;
+        case "NONE":
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -94,12 +99,12 @@ line 5:   4. 1:00, 29
     let repDetails = ``;
     let lapCounter = 0;
     for (const lap of set.laps) {
-      if (tokenLap.closestDistanceUnit === "mile") {
+      if (lap.closestDistanceUnit === "mile") {
         repDetails += `${Helpers.pacePerMileFormatted(lap)}, `;
       } else {
-        if (tokenLap.workoutBasis === "DISTANCE") {
+        if (lap.workoutBasis === "DISTANCE") {
           repDetails += `${Helpers.secondsToTimeFormatted(lap.moving_time)}, `;
-        } else if (tokenLap.workoutBasis === "TIME") {
+        } else if (lap.workoutBasis === "TIME") {
           repDetails += `${Helpers.pacePerMileFormatted(lap)}/mi, `;
         }
       }
@@ -133,7 +138,7 @@ line 5:   4. 1:00, 29
     }
   }
 
-  let output = `⏱️ ${setName} — ${setAverage}`;
+  let output = `⏱️ ${setName} ${setAverage}`;
   if (splits !== ``) {
     output += `\n${splits}`;
   }
