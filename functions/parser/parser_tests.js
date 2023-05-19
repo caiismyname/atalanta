@@ -16,7 +16,7 @@ function runFormatTests(displayAll=false) {
   print(`\nTesting Workout Formats`);
 
   for (const run of workoutFormatTests["examples"]) {
-    // if (run.id !== 9933) {
+    // if (![1841697623, 8372271876, 8523943407].includes(run.id)) {
     //   continue
     // }
 

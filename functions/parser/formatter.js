@@ -73,15 +73,14 @@ line 5:   4. 1:00, 29
   if (set.pattern.length === 1) {
     setAverage += `— `;
     if (tokenLap.distance >= Helpers.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
-      // Average per-mile pace
-      setAverage += `Avg: ${Helpers.averagePaceOfSet(set)}/mi`;
+      setAverage += `Avg: ${Helpers.averagePaceOfSet(set, printConfig)}`;
     } else {
-      switch (printConfig.shortDistanceAverageUnit) {
+      switch (printConfig.subMileDistanceAverageUnit) {
         case "TIME":
           setAverage += `Avg: ${Helpers.averageTimeOfSetFormatted(set)}`;
           break;
         case "PACE":
-          setAverage += `Avg: ${Helpers.averagePaceOfSet(set)}/mi`;
+          setAverage += `Avg: ${Helpers.averagePaceOfSet(set, printConfig)}`;
           break;
         case "NONE":
           break;
@@ -100,12 +99,12 @@ line 5:   4. 1:00, 29
     let lapCounter = 0;
     for (const lap of set.laps) {
       if (lap.closestDistanceUnit === "mile") {
-        repDetails += `${Helpers.pacePerMileFormatted(lap)}, `;
+        repDetails += `${Helpers.lapPaceFormatted(lap, printConfig)}, `;
       } else {
         if (lap.workoutBasis === "DISTANCE") {
           repDetails += `${Helpers.secondsToTimeFormatted(lap.moving_time)}, `;
         } else if (lap.workoutBasis === "TIME") {
-          repDetails += `${Helpers.pacePerMileFormatted(lap)}/mi, `;
+          repDetails += `${Helpers.lapPaceFormatted(lap, printConfig)}, `;
         }
       }
 
@@ -130,8 +129,12 @@ line 5:   4. 1:00, 29
     const tokenLap = set.laps[0];
     if ("component_laps" in tokenLap) {
       for (const lap of tokenLap.component_laps) {
-        if (Helpers.metersToMiles(lap.distance) >= .5) {
-          splits += `${Helpers.pacePerMileFormatted(lap)}/mi, `;
+        if (Helpers.isKilometer(lap.distance)) {
+          splits += `${Helpers.lapPaceFormatted(lap, {"paceUnits": "KM"}).slice(0, -3)}, `; // force KM if the component laps are in KM. Slice off the `/km` pc splits are always a time, not pace
+        } else if (Helpers.isMile(lap.distance)) {
+          splits += `${Helpers.lapPaceFormatted(lap, {"paceUnits": "MILE"}).slice(0, -3)}, `; // Slice off the `/mi` pc splits are always a time, not pace
+        } else {
+          splits += `${Helpers.secondsToTimeFormatted(lap.moving_time)}, `;
         }
       }
       splits = splits.slice(0, -2);
@@ -146,12 +149,12 @@ line 5:   4. 1:00, 29
 }
 
 const defaultPrintConfig = {
-  "paceUnits": "KM", // "KM"
-  "showMinForSub100Sec": true,
-  "subMileDistanceAverageUnit": "TIME", // "PACE"
-  "greaterThanMileDistanceAverageUnit": "PACE", // "TIME"
-  "condensedSplits": false, // true
-  "rangeOrAverage": "AVERAGE", // "AVERAGE"
+  "paceUnits": "MILE", // "KM","MILE"
+  "showMinForSub100Sec": true, // "false"
+  "subMileDistanceAverageUnit": "TIME", // "PACE", "TIME"
+  "greaterThanMileDistanceAverageUnit": "PACE", // "TIME", "PACE"
+  "condensedSplits": false, // true, false
+  "summaryMode": "RANGE", // "AVERAGE", "RANGE"
 };
 
 function printSets(sets, printConfig=defaultPrintConfig) {

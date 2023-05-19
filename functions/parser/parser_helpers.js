@@ -66,6 +66,16 @@ function standardDeviation(items) {
   return stdDev;
 }
 
+function isKilometer(distance) {
+  const marginOfError = 20.0;
+  return Math.abs(distance - 1000) <= marginOfError;
+}
+
+function isMile(distance) {
+  const marginOfError = 0.02;
+  return Math.abs(metersToMiles(distance) - 1.0) <= marginOfError;
+}
+
 //
 // Running time/dist. helpers
 //
@@ -107,11 +117,22 @@ function secondsPerMile(lap) {
 }
 
 // eslint-disable-next-line no-unused-vars
-function averagePaceOfSet(set) {
-  const totalTime = set.laps.reduce((a, b) => a + b.moving_time, 0);
-  const totalDistance = set.laps.reduce((a, b) => a + b.distance, 0);
+function secondsPerKilometer(lap) {
+  const secondsPerKilometer = lap.moving_time / (lap.distance / 1000.0); // lap distance is in meters
 
-  return pacePerMileFormatted({"distance": totalDistance, "moving_time": totalTime});
+  return secondsPerKilometer;
+}
+
+// eslint-disable-next-line no-unused-vars
+function averagePaceOfSet(set, printConfig) {
+  const totalTime = set.laps.reduce((a, b) => a + b.moving_time, 0.0);
+  const totalDistance = set.laps.reduce((a, b) => a + b.distance, 0.0);
+
+  if (printConfig.paceUnits === "KM") {
+    return pacePerKilometerFormatted({"distance": totalDistance, "moving_time": totalTime});
+  } else if (printConfig.paceUnits === "MILE") {
+    return pacePerMileFormatted({"distance": totalDistance, "moving_time": totalTime});
+  }
 }
 
 //
@@ -120,13 +141,29 @@ function averagePaceOfSet(set) {
 
 // eslint-disable-next-line no-unused-vars
 function pacePerMileFormatted(lap) {
-  return secondsToTimeFormatted(secondsPerMile(lap));
+  return `${secondsToTimeFormatted(secondsPerMile(lap))}/mi`;
+}
+
+// eslint-disable-next-line no-unused-vars
+function pacePerKilometerFormatted(lap) {
+  return `${secondsToTimeFormatted(secondsPerKilometer(lap))}/km`;
+}
+
+// eslint-disable-next-line no-unused-vars
+function lapPaceFormatted(lap, printConfig) {
+  if (printConfig.paceUnits === "KM") {
+    return pacePerKilometerFormatted(lap);
+  } else if (printConfig.paceUnits === "MILE") {
+    return pacePerMileFormatted(lap);
+  } else {
+    return ``;
+  }
 }
 
 // eslint-disable-next-line no-unused-vars
 function averageTimeOfSetFormatted(set) {
-  const averageSeconds = set.laps.reduce((a, b) => a + b.moving_time, 0) / set.laps.length;
-  return secondsToTimeFormatted(averageSeconds);
+  const averageSeconds = set.laps.reduce((a, b) => a + b.moving_time, 0.0) / set.laps.length;
+  return secondsToTimeFormatted(averageSeconds, false, false); // second false is "roundSeconds", which we shouldn't do b/c the average is likely a decimal
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -177,12 +214,12 @@ function indented(input, indentLevel = 1) {
 }
 
 // eslint-disable-next-line no-unused-vars
-function secondsToTimeFormatted(seconds, displayWholeMinutes = false) {
+function secondsToTimeFormatted(seconds, displayWholeMinutes = false, roundSeconds = true) {
   const minutes = Math.floor(seconds / 60);
-  const secondsRes = secondsFormatter(seconds % 60, true); // shouldRound = true b/c strava doesn't give decimals for laps
+  const secondsRes = secondsFormatter(seconds % 60, roundSeconds); // shouldRound defaults to true b/c strava doesn't give decimals for laps
 
   if (minutes + secondsRes.minuteDiff === 0) {
-    return `${secondsRes.seconds}`;
+    return `${secondsRes.seconds}${displayWholeMinutes ? " sec" : ""}`;
   } else {
     if (secondsRes.seconds === "00" && displayWholeMinutes) {
       return `${minutes} min${minutes === 1 ? "" : "s"}`;
@@ -206,11 +243,13 @@ module.exports = {
   secondsToMinutes,
   secondsPerMile,
   averagePaceOfSet,
-  pacePerMileFormatted,
+  lapPaceFormatted,
   averageTimeOfSetFormatted,
   averageDistanceOfSetFormatted,
   secondsFormatter,
   indented,
   secondsToTimeFormatted,
   sixMinMileAsSpeed,
+  isMile,
+  isKilometer,
 };
