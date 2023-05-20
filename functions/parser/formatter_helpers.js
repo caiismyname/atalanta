@@ -88,8 +88,14 @@ class FormatPrinter {
 
   // eslint-disable-next-line no-unused-vars
   secondsToTimeFormatted(seconds, displayWholeMinutes = false, roundSeconds = true) {
+    const secondsCutoff = 90;
     const minutes = Math.floor(seconds / 60);
     const secondsRes = this.secondsFormatter(seconds % 60, roundSeconds); // shouldRound defaults to true b/c strava doesn't give decimals for laps
+
+    // First check if we want to format as only seconds
+    if (seconds <= secondsCutoff && !this.showMinForSub90Sec) {
+      return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}`;
+    }
 
     if (minutes + secondsRes.minuteDiff === 0) {
       return `${secondsRes.seconds}${displayWholeMinutes ? " sec" : ""}`;

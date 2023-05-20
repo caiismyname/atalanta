@@ -1,6 +1,16 @@
 // const Helpers = require("./parser_helpers.js");
 const {FormatPrinter} = require("./formatter_helpers.js");
 
+const defaultPrintConfig = {
+  "paceUnits": "MILE", // "KM","MILE"
+  "showMinForSub90Sec": true, // true, false
+  "subMileDistanceAverageUnit": "TIME", // "PACE", "TIME"
+  "greaterThanMileDistanceAverageUnit": "PACE", // "TIME", "PACE"
+  "condensedSplits": false, // true, false
+  "summaryMode": "AVERAGE", // "AVERAGE", "RANGE"
+};
+
+
 function isKilometer(distance) {
   const marginOfError = 20.0;
   return Math.abs(distance - 1000) <= marginOfError;
@@ -159,15 +169,6 @@ line 5:   4. 1:00, 29
   }
   return output;
 }
-
-const defaultPrintConfig = {
-  "paceUnits": "MILE", // "KM","MILE"
-  "showMinForSub90Sec": true, // "false"
-  "subMileDistanceAverageUnit": "TIME", // "PACE", "TIME"
-  "greaterThanMileDistanceAverageUnit": "PACE", // "TIME", "PACE"
-  "condensedSplits": false, // true, false
-  "summaryMode": "AVERAGE", // "AVERAGE", "RANGE"
-};
 
 function printSets(sets, printConfig=defaultPrintConfig) {
   const formatPrinter = new FormatPrinter(printConfig.paceUnits, printConfig.showMinForSub90Sec);
