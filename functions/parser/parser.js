@@ -128,7 +128,7 @@ function determineRunIsWorkout(laps, debug=false) {
 function tagWorkoutLaps(laps) {
   const maxSlowness = Helpers.milesToMeters(3.0) / (60.0 * 60.0); // 20 minute mile, in m/s
   // Discard super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
-  for (let lap of laps) {
+  for (const lap of laps) {
     lap.average_speed = Math.max(lap.average_speed, maxSlowness);
   }
   const isWorkoutAssignments = runKnn(laps.map((lap) => {

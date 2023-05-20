@@ -17,7 +17,7 @@ function runFormatTests(displayAll=false) {
 
   for (const run of workoutFormatTests["examples"]) {
     // if (![1841697623, 8372271876, 8523943407].includes(run.id)) {
-    //   continue
+    //   continue[]
     // }
 
     // Run it through workout detection just in case. It'd be a real bad false neg if it fails here

@@ -1,6 +1,17 @@
-const Helpers = require("./parser_helpers.js");
+// const Helpers = require("./parser_helpers.js");
+const {FormatPrinter} = require("./formatter_helpers.js");
 
-function determineSetName(set, multiRepSetsShouldHaveParen = false) {
+function isKilometer(distance) {
+  const marginOfError = 20.0;
+  return Math.abs(distance - 1000) <= marginOfError;
+}
+
+function isMile(distance) {
+  const marginOfError = 0.02;
+  return Math.abs((distance * 0.000621371) - 1.0) <= marginOfError;
+}
+
+function determineSetName(set, printer, multiRepSetsShouldHaveParen = false) {
   let setName = "";
 
   // List out each component of the set
@@ -8,8 +19,7 @@ function determineSetName(set, multiRepSetsShouldHaveParen = false) {
     const lap = set.laps.filter((lap) => lap.workoutType === workoutType)[0];
     const lapName = lap.workoutBasis === "DISTANCE" ?
         `${lap.closestDistance}${lap.closestDistanceUnit}` :
-        // `${lap.closestTime} ${lap.closestTimeUnit}`;
-        `${Helpers.secondsToTimeFormatted(lap.closestTime, true)}`;
+        `${printer.secondsToTimeFormatted(lap.closestTime, true)}`;
 
     setName += `${lapName}, `;
   }
@@ -32,7 +42,42 @@ function determineSetName(set, multiRepSetsShouldHaveParen = false) {
   return setName;
 }
 
-function determineSetSplits(set, printConfig=defaultPrintConfig) {
+function determineSetAverage(set, printer, printConfig) {
+  /* Set average
+
+    If each rep is >=1mi, show average per-mile pace
+    If each rep is <1mi, show the average time unless config overrides (`shortDistanceAverageUnit`, options: "PACE", "TIME")
+    Unless the basis is time, in which show average per-mile pace. I don't know that anyone really gauges time-based interval performance off distance...
+
+  */
+
+  let setAverage = ``;
+
+  const tokenLap = set.laps[0];
+  if (set.pattern.length === 1) { // Only show average for homogeneous sets.
+    setAverage += ` — `;
+    if (tokenLap.distance >= printer.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
+      setAverage += `Avg: ${printer.averagePaceOfSet(set)}`;
+    } else {
+      switch (printConfig.subMileDistanceAverageUnit) {
+        case "TIME":
+          setAverage += `Avg: ${printer.averageTimeOfSetFormatted(set)}`;
+          break;
+        case "PACE":
+          setAverage += `Avg: ${printer.averagePaceOfSet(set)}`;
+          break;
+        case "NONE":
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return setAverage;
+}
+
+function determineSetSplits(set, printer, printConfig) {
 /* Set splits are generally formatted as:
 
 line 1: workout (4 x 1 mile) — Avg: 5:12
@@ -55,40 +100,9 @@ line 5:   4. 1:00, 29
 */
 
   // First line (workout format)
-  const setName = determineSetName(set, false);
-  let setAverage = ``;
+  const setName = determineSetName(set, printer, false);
+  let setAverage = determineSetAverage(set, printer, printConfig);
   let splits = ``;
-
-  /* Set average
-
-    Only show average for homogeneous sets.
-
-    If each rep is >=1mi, show average per-mile pace
-    If each rep is <1mi, show the average time unless config overrides (`shortDistanceAverageUnit`, options: "PACE", "TIME")
-    Unless the basis is time, in which show average per-mile pace. I don't know that anyone really gauges time-based interval performance off distance...
-
-*/
-
-  const tokenLap = set.laps[0];
-  if (set.pattern.length === 1) {
-    setAverage += `— `;
-    if (tokenLap.distance >= Helpers.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
-      setAverage += `Avg: ${Helpers.averagePaceOfSet(set, printConfig)}`;
-    } else {
-      switch (printConfig.subMileDistanceAverageUnit) {
-        case "TIME":
-          setAverage += `Avg: ${Helpers.averageTimeOfSetFormatted(set)}`;
-          break;
-        case "PACE":
-          setAverage += `Avg: ${Helpers.averagePaceOfSet(set, printConfig)}`;
-          break;
-        case "NONE":
-          break;
-        default:
-          break;
-      }
-    }
-  }
 
   // Individual rep details
   if (set.laps.length > 1) {
@@ -99,12 +113,12 @@ line 5:   4. 1:00, 29
     let lapCounter = 0;
     for (const lap of set.laps) {
       if (lap.closestDistanceUnit === "mile") {
-        repDetails += `${Helpers.lapPaceFormatted(lap, printConfig)}, `;
+        repDetails += `${printer.lapPaceFormatted(lap)}, `;
       } else {
         if (lap.workoutBasis === "DISTANCE") {
-          repDetails += `${Helpers.secondsToTimeFormatted(lap.moving_time)}, `;
+          repDetails += `${printer.secondsToTimeFormatted(lap.moving_time)}, `;
         } else if (lap.workoutBasis === "TIME") {
-          repDetails += `${Helpers.lapPaceFormatted(lap, printConfig)}, `;
+          repDetails += `${printer.lapPaceFormatted(lap)}, `;
         }
       }
 
@@ -125,23 +139,21 @@ line 5:   4. 1:00, 29
 
       lapCounter++;
     }
-  } else if (set.laps.length === 1 && Helpers.metersToMiles(set.laps[0].distance) > 1) { // List the splits if the lap is multiple miles
+  } else if (set.laps.length === 1 && printer.metersToMiles(set.laps[0].distance) > 1) { // List the splits if the lap is multiple miles
     const tokenLap = set.laps[0];
     if ("component_laps" in tokenLap) {
       for (const lap of tokenLap.component_laps) {
-        if (Helpers.isKilometer(lap.distance)) {
-          splits += `${Helpers.lapPaceFormatted(lap, {"paceUnits": "KM"}).slice(0, -3)}, `; // force KM if the component laps are in KM. Slice off the `/km` pc splits are always a time, not pace
-        } else if (Helpers.isMile(lap.distance)) {
-          splits += `${Helpers.lapPaceFormatted(lap, {"paceUnits": "MILE"}).slice(0, -3)}, `; // Slice off the `/mi` pc splits are always a time, not pace
+        if (isKilometer(lap.distance) || isMile(lap.distance)) {
+          splits += `${printer.secondsToTimeFormatted(lap.moving_time)}, `; // force KM  / mile as the split if the component laps are in KM / mile
         } else {
-          splits += `${Helpers.secondsToTimeFormatted(lap.moving_time)}, `;
+          splits += `${printer.secondsToTimeFormatted(lap.moving_time)}, `;
         }
       }
       splits = splits.slice(0, -2);
     }
   }
 
-  let output = `⏱️ ${setName} ${setAverage}`;
+  let output = `⏱️ ${setName}${setAverage}`;
   if (splits !== ``) {
     output += `\n${splits}`;
   }
@@ -150,22 +162,24 @@ line 5:   4. 1:00, 29
 
 const defaultPrintConfig = {
   "paceUnits": "MILE", // "KM","MILE"
-  "showMinForSub100Sec": true, // "false"
+  "showMinForSub90Sec": true, // "false"
   "subMileDistanceAverageUnit": "TIME", // "PACE", "TIME"
   "greaterThanMileDistanceAverageUnit": "PACE", // "TIME", "PACE"
   "condensedSplits": false, // true, false
-  "summaryMode": "RANGE", // "AVERAGE", "RANGE"
+  "summaryMode": "AVERAGE", // "AVERAGE", "RANGE"
 };
 
 function printSets(sets, printConfig=defaultPrintConfig) {
+  const formatPrinter = new FormatPrinter(printConfig.paceUnits, printConfig.showMinForSub90Sec);
+  
   let fullTitle = ""; // For the strava activity title, only contains the structure
   let fullDescription = ""; // Contains details, for the activity description
 
   for (const set of sets) {
-    const setName = determineSetName(set, sets.length > 1);
+    const setName = determineSetName(set, formatPrinter, sets.length > 1);
     fullTitle += `${setName} + `;
 
-    const setSplits = determineSetSplits(set);
+    const setSplits = determineSetSplits(set, formatPrinter, printConfig);
     fullDescription += `${setSplits}\n\n`;
   }
 
@@ -179,5 +193,5 @@ function printSets(sets, printConfig=defaultPrintConfig) {
 }
 
 module.exports = {
-  printSets,
+  printSets
 };
