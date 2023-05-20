@@ -163,7 +163,6 @@ class FormatPrinter {
   indented(input, indentLevel = 1) {
     return `${"  ".repeat(indentLevel)}${input}\n`;
   }
-
 }
 
 module.exports = {FormatPrinter};

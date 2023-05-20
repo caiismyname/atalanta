@@ -116,7 +116,10 @@ app.get("/explorer_parse", (req, res) => {
     getStravaTokenForID(userID, (accessToken) => {
       StravaInterface.getActivity(activityID, accessToken, (activity) => {
         if (activity.type === "Run") {
-          const output = parseWorkout(activity, false, false);
+          const output = parseWorkout({
+            run: activity,
+            verbose: false,
+          });
           if (output.isWorkout) {
             StravaInterface.writeSummaryToStrava(activityID, output.summary, accessToken);
           }
@@ -159,7 +162,10 @@ function handleIncomingWebhook(req, res, isTest=false) {
             if (!isTest) {
               logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
             }
-            const output = parseWorkout(activity, false, false);
+            const output = parseWorkout({
+              run: activity,
+              verbose: false,
+            });
             if (output.isWorkout) {
               console.log(`ACTIVITY ${activityID} is a workout. Title: [${output.summary.title}] Description: [${output.summary.description.replace("\n", " || ")}]`);
               if (!isTest) {
@@ -432,7 +438,7 @@ function saveActivityForUser(userID, activityID) {
 //   for (const runId of runs) {
 //     getActivity(runId, stravaToken, (runDetails) => {
 //       allRuns.push(runDetails);
-//       // parseWorkout(runDetails);
+//       // parseWorkout({run: runDetails, verbose: true});
 //     });
 //   }
 

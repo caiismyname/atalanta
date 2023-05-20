@@ -1,9 +1,10 @@
 const Helpers = require("./parser_helpers.js");
 const {printSets} = require("./formatter.js");
+const {defaultParserConfig} = require("./defaultConfigs.js");
 
 // This is the entrypoint
 // eslint-disable-next-line no-unused-vars
-function parseWorkout(run, htmlMode=false, verbose=true, returnSets=false, forceParse=false) {
+function parseWorkout({run, parserConfig=defaultParserConfig, verbose=true, returnSets=false, forceParse=false}) {
   const runIsWorkout = determineRunIsWorkout(run.laps) || forceParse;
 
   if (!runIsWorkout) {
@@ -24,13 +25,9 @@ function parseWorkout(run, htmlMode=false, verbose=true, returnSets=false, force
 
   const workoutsIdentifiedLaps = tagWorkoutLaps(laps);
   const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
-  tagWorkoutTypes(mergedLaps); // Mutates in place
+  tagWorkoutTypes(mergedLaps, parserConfig); // Mutates in place
   const sets = extractPatterns(mergedLaps.filter((lap) => lap.isWorkout));
   const summary = printSets(sets);
-
-  if (htmlMode) {
-    summary.description.replace("\n", "<br>");
-  }
 
   if (verbose) {
     console.log(`PARSING: ${run.name} (${run.id})`);
@@ -155,7 +152,7 @@ function tagWorkoutLaps(laps) {
   return (laps);
 }
 
-function tagWorkoutTypes(laps) {
+function tagWorkoutTypes(laps, parserConfig) {
   const workouts = laps.filter((lap) => lap.isWorkout);
 
   // [start] K Means Clustering -based method
@@ -209,13 +206,6 @@ function tagWorkoutTypes(laps) {
   for (let workoutType = 0; workoutType <= workoutTypeCounter; workoutType++) {
     const correspondingLaps = laps.filter((lap) => lap.workoutType === workoutType);
 
-    // [start] Standard Deviation based basis determination
-    // let basis = computeBasis(correspondingLaps)
-    // for (lap of correspondingLaps) {
-    //     lap.workoutBasis = basis
-    // }
-    // [end]
-
     // [start] Closest known distance/time basis determination
     for (const lap of correspondingLaps) {
       assignNearestDistance(lap);
@@ -225,10 +215,11 @@ function tagWorkoutTypes(laps) {
     const distanceDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestDistanceDifference, 0) / correspondingLaps.length;
     const timeDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestTimeDifference, 0) / correspondingLaps.length;
 
+    // Initialize StdDevs to a very large value so they don't override the difference averages by default
     let distanceStdDev = 999;
     let timeStdDev = 999;
 
-    if (correspondingLaps.length > 1) {
+    if (correspondingLaps.length > 1) { // StdDev of 1 lap is always 0, which would be pointless
       distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
       timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
     }
@@ -236,9 +227,26 @@ function tagWorkoutTypes(laps) {
     // print(`timeAvg: ${timeDifferenceAverage}, distAvg: ${distanceDifferenceAverage}`);
     // print(`timeStd: ${timeStdDev}, distStd: ${distanceStdDev}`);
 
+    // If we know one format is more common, apply the biasFactor to make for a higher threshold before we categorize a workout's basis as the un-common format.
+    // The differences are normalized (essentially percentages) so the scale is equivalent across time and distance
+    const biasFactor = 2.0;
+
     for (const lap of correspondingLaps) {
       // First assign based on which guess is closest
-      lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
+      switch (parserConfig.dominantWorkoutType) {
+        case "DISTANCE":
+          lap.workoutBasis = (distanceDifferenceAverage <= (biasFactor * timeDifferenceAverage) ? "DISTANCE" : "TIME");
+          break;
+        case "TIME":
+          lap.workoutBasis = (timeDifferenceAverage <= (biasFactor * distanceDifferenceAverage) ? "TIME" : "DISTANCE");
+          break;
+        case "BALANCED":
+          lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
+          break;
+        default: // Same as balanced
+          lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
+          break;
+      }
 
       // But because the guesses are inherantly limited because they're compared against a pre-defined list of valid distances/times, it's possible to see a new value that's not on the list. This is guarded for by checking the standard deviation and, if 0, taking that value instead.
       if (lap.workoutBasis === "TIME" && distanceStdDev === 0) {

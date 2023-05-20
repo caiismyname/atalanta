@@ -1,15 +1,6 @@
 // const Helpers = require("./parser_helpers.js");
 const {FormatPrinter} = require("./formatter_helpers.js");
-
-const defaultPrintConfig = {
-  "paceUnits": "MILE", // "KM","MILE"
-  "showMinForSub90Sec": true, // true, false
-  "subMileDistanceAverageUnit": "TIME", // "PACE", "TIME"
-  "greaterThanMileDistanceAverageUnit": "PACE", // "TIME", "PACE"
-  "condensedSplits": false, // true, false
-  "summaryMode": "AVERAGE", // "AVERAGE", "RANGE"
-};
-
+const {defaultPrintConfig} = require("./defaultConfigs.js");
 
 function isKilometer(distance) {
   const marginOfError = 20.0;
@@ -62,10 +53,10 @@ function determineSetAverage(set, printer, printConfig) {
   */
 
   let setAverage = ``;
-
   const tokenLap = set.laps[0];
+
   if (set.pattern.length === 1) { // Only show average for homogeneous sets.
-    setAverage += ` — `;
+    setAverage += ` — `;
     if (tokenLap.distance >= printer.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
       setAverage += `Avg: ${printer.averagePaceOfSet(set)}`;
     } else {
@@ -111,7 +102,7 @@ line 5:   4. 1:00, 29
 
   // First line (workout format)
   const setName = determineSetName(set, printer, false);
-  let setAverage = determineSetAverage(set, printer, printConfig);
+  const setAverage = determineSetAverage(set, printer, printConfig);
   let splits = ``;
 
   // Individual rep details
@@ -172,7 +163,7 @@ line 5:   4. 1:00, 29
 
 function printSets(sets, printConfig=defaultPrintConfig) {
   const formatPrinter = new FormatPrinter(printConfig.paceUnits, printConfig.showMinForSub90Sec);
-  
+
   let fullTitle = ""; // For the strava activity title, only contains the structure
   let fullDescription = ""; // Contains details, for the activity description
 
@@ -194,5 +185,5 @@ function printSets(sets, printConfig=defaultPrintConfig) {
 }
 
 module.exports = {
-  printSets
+  printSets,
 };

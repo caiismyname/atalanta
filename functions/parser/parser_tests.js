@@ -8,7 +8,8 @@ const workoutDetectionFalseNegative = require("./parser_testing_examples/workout
 // const mixedExamples = require("./parser_testing_examples/mixed_nonworkouts.json");
 
 // eslint-disable-next-line no-unused-vars
-function runFormatTests(displayAll=false) {
+
+function runFormatTests(verbose=false) {
   let correctCount = 0;
   const wrongExamples = [];
   const falseNegatives = [];
@@ -16,9 +17,9 @@ function runFormatTests(displayAll=false) {
   print(`\nTesting Workout Formats`);
 
   for (const run of workoutFormatTests["examples"]) {
-    // if (![1841697623, 8372271876, 8523943407].includes(run.id)) {
-    //   continue[]
-    // }t
+    // if (![9085003431].includes(run.id)) {
+    //   continue;
+    // }
 
     // Run it through workout detection just in case. It'd be a real bad false neg if it fails here
     if (!determineRunIsWorkout(run.laps)) {
@@ -27,7 +28,13 @@ function runFormatTests(displayAll=false) {
     }
 
     // NOTE because we might be reparsing the same run, we create a copy using json parse/stringify because running parseWorkout on the same run object is not idempotent
-    const testRes = parseWorkout(JSON.parse(JSON.stringify(run)), false, displayAll, true); // Last param set `returnSets` to true
+    const testRes = parseWorkout({
+      run: JSON.parse(JSON.stringify(run)),
+      verbose: verbose,
+      returnSets: true,
+    });
+
+    // const testRes = parseWorkout(JSON.parse(JSON.stringify(run)), verbose, true)
     let groundTruthSets;
 
     if (run.id in workoutFormatGroundTruth) {
@@ -35,7 +42,11 @@ function runFormatTests(displayAll=false) {
     } else {
       print(`================================`);
       print(`${run.id} DOES NOT HAVE GROUND TRUTH`);
-      parseWorkout(JSON.parse(JSON.stringify(run)), false, true, false);
+      parseWorkout({
+        run: JSON.parse(JSON.stringify(run)),
+        verbose: true,
+        returnSets: false,
+      });
       print(`================================`);
       continue;
     }
@@ -49,7 +60,11 @@ function runFormatTests(displayAll=false) {
 
   for (const run of wrongExamples) {
     print(`================================`);
-    parseWorkout(JSON.parse(JSON.stringify(run)), false, true, false);
+    parseWorkout({
+      run: JSON.parse(JSON.stringify(run)),
+      verbose: true,
+      returnSets: false,
+    });
     print(`================================`);
   }
 
@@ -116,7 +131,12 @@ function runDetectionTests() {
 function generateFormatGroundTruth() {
   const groundTruth = {};
   for (const run of workoutFormatTests["examples"]) {
-    const res = parseWorkout(run, false, true, true); // Last param set `returnSets` to true
+    const res = parseWorkout({
+      run: run,
+      verbose: false,
+      returnSets: true,
+      forceParse: true,
+    });
     groundTruth[run.id] = res.sets;
   }
 
@@ -142,7 +162,7 @@ function saveJSON(content, fileName="output.json") {
 
 
 // runDetectionTests();
-runFormatTests(true);
+runFormatTests(false);
 
 // generateFormatGroundTruth()
 
