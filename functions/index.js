@@ -212,7 +212,7 @@ app.get("/_mock_strava_webhook", (req, res) => {
 
   req.body = fakeReqBody;
   handleIncomingWebhook(req, res, true);
-  res.send("Mocked");
+  res.send('<html>Mocked — <a href="https://www.strava.com/activities/8973556870">https://www.strava.com/activities/8973556870</a></html>');
 });
 
 app.get("/delete_account", (req, res) => {
