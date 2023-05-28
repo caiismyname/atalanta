@@ -1,20 +1,21 @@
+// Default value is first in the options comment on each line
 
 const defaultFormatConfig = {
-  "paceUnits": "MILE", // "KM","MILE"
+  "paceUnits": "MILE", // "MILE", "KM"
   "sub90SecFormat": "MINUTE", // "MINUTE", "SECONDS"
-  "subMileDistanceAverageUnit": "TIME", // "PACE", "TIME"
-  "greaterThanMileDistanceAverageUnit": "PACE", // "TIME", "PACE"
+  "subMileDistanceValue": "TIME", // "TIME", "PACE"
+  "greaterThanMileDistanceValue": "PACE", // "PACE", "TIME"
   // "splitsFormat": "FULL", // "FULL", "CONDENSED"
   // "summaryMode": "AVERAGE", // "AVERAGE", "RANGE"
 };
 
 const defaultParserConfig = {
-  "dominantWorkoutType": "BALANCED", // "DISTANCE", "TIME", "BALANCED"
+  "dominantWorkoutType": "BALANCED", //  "BALANCED", "DISTANCE", "TIME"
 };
 
 const defaultAccountSettingsConfig = {
-  "dataUsageOptIn": true,
-  "emailOptIn": true,
+  "dataUsageOptIn": true, // true, false
+  "emailOptIn": true, // true, false
 };
 
 module.exports = {

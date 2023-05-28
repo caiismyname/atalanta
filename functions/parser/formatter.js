@@ -3,13 +3,31 @@ const {FormatPrinter} = require("./formatter_helpers.js");
 const {defaultFormatConfig} = require("./defaultConfigs.js");
 
 function isKilometer(distance) {
-  const marginOfError = 20.0;
+  const marginOfError = 20.0; // meters
   return Math.abs(distance - 1000) <= marginOfError;
 }
 
 function isMile(distance) {
-  const marginOfError = 0.02;
+  const marginOfError = 0.02; // miles
   return Math.abs((distance * 0.000621371) - 1.0) <= marginOfError;
+}
+
+function isLongerThanMile(distance) {
+  const marginOfError = 0.02; // miles
+  return (distance * 0.000621371) - (1.0 - marginOfError) >= 0;
+}
+
+// Returns "LESS", "EQUALS", "MORE"
+function compareToMile(distanceMeters) {
+  if (isMile(distanceMeters)) {
+    return "EQUALS";
+  } else {
+    if (isLongerThanMile(distanceMeters)) {
+      return "MORE";
+    } else {
+      return "LESS";
+    }
+  }
 }
 
 function determineSetName(set, printer, multiRepSetsShouldHaveParen = false) {
@@ -46,8 +64,8 @@ function determineSetName(set, printer, multiRepSetsShouldHaveParen = false) {
 function determineSetAverage(set, printer, printConfig) {
   /* Set average
 
-    If each rep is >=1mi, show average per-mile pace
-    If each rep is <1mi, show the average time unless config overrides (`shortDistanceAverageUnit`, options: "PACE", "TIME")
+    If each rep is >=1mi, show average per-mile pace unless config overrides (`greaterThanMileDistanceValue`, options: "PACE" (default), "TIME")
+    If each rep is <1mi, show the average time unless config overrides (`shortDistanceAverageUnit`, options: "PACE", "TIME" (default))
     Unless the basis is time, in which show average per-mile pace. I don't know that anyone really gauges time-based interval performance off distance...
 
   */
@@ -60,7 +78,7 @@ function determineSetAverage(set, printer, printConfig) {
     if (tokenLap.distance >= printer.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
       setAverage += `Avg: ${printer.averagePaceOfSet(set)}`;
     } else {
-      switch (printConfig.subMileDistanceAverageUnit) {
+      switch (printConfig.subMileDistanceValue) {
         case "TIME":
           setAverage += `Avg: ${printer.averageTimeOfSetFormatted(set)}`;
           break;
@@ -81,7 +99,7 @@ function determineSetAverage(set, printer, printConfig) {
 function determineSetSplits(set, printer, printConfig) {
 /* Set splits are generally formatted as:
 
-line 1: workout (4 x 1 mile) — Avg: 5:12
+line 1: workout + average (4 x 1 mile) — Avg: 5:12
 line 2: splits for each rep (e.g. 5:23/mi, 5:12/mi, 5:00/mi, 4:59/mi)
 
 
@@ -113,15 +131,51 @@ line 5:   4. 1:00, 29
     let repDetails = ``;
     let lapCounter = 0;
     for (const lap of set.laps) {
-      if (lap.closestDistanceUnit === "mile") {
-        repDetails += `${printer.lapPaceFormatted(lap)}, `;
-      } else {
-        if (lap.workoutBasis === "DISTANCE") {
-          repDetails += `${printer.secondsToTimeFormatted(lap.moving_time)}, `;
-        } else if (lap.workoutBasis === "TIME") {
-          repDetails += `${printer.lapPaceFormatted(lap)}, `;
+      // if (lap.closestDistanceUnit === "mile") {
+      //   repDetails += `${printer.lapPaceFormatted(lap)}, `;
+      // } else {
+      if (lap.workoutBasis === "DISTANCE") {
+        switch (compareToMile(lap.distance)) {
+          case "LESS":
+            switch (printConfig.subMileDistanceValue) {
+              case "TIME":
+                repDetails += `${printer.secondsToTimeFormatted(lap.moving_time)}, `;
+                break;
+              case "PACE":
+                repDetails += `${printer.lapPaceFormatted(lap)}, `;
+                break;
+              case "NONE":
+                break;
+              default:
+                repDetails += `${printer.lapPaceFormatted(lap)}, `;
+                break;
+            }
+            break;
+          case "EQUALS":
+            repDetails += `${printer.secondsToTimeFormatted(lap.moving_time)}, `; // Just show the time, not lapPaceFormatted to avoid the `/mi` suffix
+            break;
+          case "MORE":
+            switch (printConfig.greaterThanMileDistanceValue) {
+              case "TIME":
+                repDetails += `${printer.secondsToTimeFormatted(lap.moving_time)}, `;
+                break;
+              case "PACE":
+                repDetails += `${printer.lapPaceFormatted(lap)}, `;
+                break;
+              case "NONE":
+                break;
+              default:
+                repDetails += `${printer.lapPaceFormatted(lap)}, `;
+                break;
+            }
+            break;
+          default:
+            break;
         }
+      } else if (lap.workoutBasis === "TIME") { // Ignore config on time b/c showing total time on a time-based rep is pointless
+        repDetails += `${printer.lapPaceFormatted(lap)}, `;
       }
+      // }
 
       // If each rep consists of more than one component (e.g. 3 x 1,2,3,2,1), then list each rep on its own line
 
@@ -147,6 +201,7 @@ line 5:   4. 1:00, 29
         if (isKilometer(lap.distance) || isMile(lap.distance)) {
           splits += `${printer.secondsToTimeFormatted(lap.moving_time)}, `; // force KM  / mile as the split if the component laps are in KM / mile
         } else {
+          // TODO look at config for this
           splits += `${printer.secondsToTimeFormatted(lap.moving_time)}, `;
         }
       }

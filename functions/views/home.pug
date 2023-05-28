@@ -56,6 +56,7 @@ html(lang="en")
 
           h2 Summary Display Format
           p Configure how your summaries and splits are formatted.
+          br
           p 
            b Display all paces in minutes per:
           label.radio-label
@@ -76,6 +77,29 @@ html(lang="en")
           label.radio-label
             input(type="radio", name="sub90SecFormat", value="SECONDS", checked=(preferences.format.sub90SecFormat === "SECONDS"))
             | seconds only (e.g. "72")
+          br
+          br
+          p 
+            b For laps under a mile, show: 
+          label.radio-label
+            input(type="radio", name="subMileDistanceValue", value="PACE", checked=(preferences.format.subMileDistanceValue === "PACE"))
+            | pace
+          br
+          label.radio-label
+            input(type="radio", name="subMileDistanceValue", value="TIME", checked=(preferences.format.subMileDistanceValue === "TIME"))
+            | total time
+          br
+          br
+          p 
+            b For laps over a mile, show:
+          label.radio-label
+            input(type="radio", name="greaterThanMileDistanceValue", value="PACE", checked=(preferences.format.greaterThanMileDistanceValue === "PACE"))
+            | pace
+          br
+          label.radio-label
+            input(type="radio", name="greaterThanMileDistanceValue", value="TIME", checked=(preferences.format.greaterThanMileDistanceValue === "TIME"))
+            | total time
+          br
           br
           br
 

@@ -17,7 +17,7 @@ function runFormatTests(verbose=false) {
   print(`\nTesting Workout Formats`);
 
   for (const run of workoutFormatTests["examples"]) {
-    // if (![9085003431].includes(run.id)) {
+    // if (![9001897933].includes(run.id)) {
     //   continue;
     // }
 
@@ -162,7 +162,7 @@ function saveJSON(content, fileName="output.json") {
 
 
 // runDetectionTests();
-runFormatTests(false);
+runFormatTests(true);
 
 // generateFormatGroundTruth()
 
