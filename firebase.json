@@ -24,10 +24,12 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [{
-      "source": "**",
-      "function": "app"
-    }]
+    "rewrites": [
+      {
+        "source": "**",
+        "function": "app"
+      }
+    ]
   },
   "emulators": {
     "functions": {
@@ -42,6 +44,9 @@
     "ui": {
       "enabled": true
     },
-    "singleProjectMode": false
+    "singleProjectMode": false,
+    "auth": {
+      "port": 9099
+    }
   }
 }

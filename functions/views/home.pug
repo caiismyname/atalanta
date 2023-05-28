@@ -12,38 +12,106 @@ html(lang="en")
       .text-section 
         h2 Welcome #{name}
       section.fixed-width
+        h2.section-title Strava Connection
         if stravaConnected
-          h2
-            | Strava Connection Status: 
+          h2 Status: 
             span.status(style={color: '#00CC00'})
               | Connected
-          h3 Splitz is connected and watching for new workouts. 
-          h3 Nothing left for you to do except ... run 👟
-          br
+          p Splitz is connected and watching for new workouts. Nothing left for you to do except ... run 👟
           p 
             | To disconnect your Strava account, remove Splitz from your installed apps within your 
-            a(href="https://www.strava.com/settings/apps") Strava settings          
+            a(href="https://www.strava.com/settings/apps") Strava settings.          
         else
-          h2
-            | Strava Connection Status: 
+          h2 Status: 
             span.status(style={color: '#FF0000'})
               | Unconnected
-            h3 Connect your Strava account to generate workout summaries automatically.
-            a(href=`https://www.strava.com/oauth/authorize?client_id=101816&redirect_uri=https://stravaworkout.com/strava_oauth_redirect&response_type=code&scope=activity:read_all,activity:write`)
-              img(src="/connect_with_strava.svg")
-            br
-            br
-            p Splitz does not keep or share any of your activity data once the summary has been updated on Strava.
+          p Connect your Strava account to generate workout summaries automatically.
+          a(href=`https://www.strava.com/oauth/authorize?client_id=101816&redirect_uri=https://stravaworkout.com/strava_oauth_redirect&response_type=code&scope=activity:read_all,activity:write`)
+            img(src="/connect_with_strava.svg" style="max-width: 500px;")
+          br
+          br
+          p Splitz does not keep or share any of your activity data once the summary has been updated on Strava.
     
       section.fixed-width
-        h2 Account Settings
-        if stravaConnected 
+        h2.section-title Preferences
+        form(action="/update_preferences", method="POST")
+          h2 Primary Workout Style
+          p This will help Splitz determine how to interpret your workout structure.
+          label.radio-label
+            input(type="radio", name="dominantWorkoutType", value="DISTANCE", checked=(preferences.parser.dominantWorkoutType === "DISTANCE"))
+            | Usually distance based
+          br
+          label.radio-label
+            input(type="radio", name="dominantWorkoutType", value="TIME", checked=(preferences.parser.dominantWorkoutType === "TIME"))
+            | Usually time based
+          br
+          label.radio-label
+            input(type="radio", name="dominantWorkoutType", value="BALANCED", checked=(preferences.parser.dominantWorkoutType === "BALANCED"))
+            | Mix of both
+          br
+          
+          br
+          hr
+          br
+
+          h2 Summary Display Format
+          p Configure how your summaries and splits are formatted.
+          p 
+           b Display all paces in minutes per:
+          label.radio-label
+            input(type="radio", name="paceUnits", value="MILE", checked=(preferences.format.paceUnits === "MILE"))
+            | Mile
+          br
+          label.radio-label
+            input(type="radio", name="paceUnits", value="KM", checked=(preferences.format.paceUnits === "KM"))
+            | Kilometer
+          br
+          br
+          p 
+            b For times under 90 seconds, show as: 
+          label.radio-label
+            input(type="radio", name="sub90SecFormat", value="MINUTE", checked=(preferences.format.sub90SecFormat === "MINUTE"))
+            | minute:second (e.g. "1:12")
+          br
+          label.radio-label
+            input(type="radio", name="sub90SecFormat", value="SECONDS", checked=(preferences.format.sub90SecFormat === "SECONDS"))
+            | seconds only (e.g. "72")
+          br
+          br
+
+          button(type="submit") Save
+  
+      section.fixed-width
+        h2.section-title Account Settings
+        form(action="/update_account_settings", method="POST")
+          p 
+            b Data Usage and Communication
+          label.radio-label
+            input(type="checkbox", name="accountSettings", value="dataUsageOptIn", checked=(preferences.account.dataUsageOptIn))
+            | Allow my workout data to occasionally be used to improve Splitz's accuracy
+          br
+          label.radio-label
+            input(type="checkbox", name="accountSettings", value="emailOptIn", checked=(preferences.account.emailOptIn))
+            | Receive email announcements when Splitz has new features
+          br
+
+          button(type="submit") Save
+        
+        br
+        hr
+        br
+
+        div(style="text-align: left;")
+          p
+            b Account Deletion
+          if stravaConnected 
             p 
-                | To delete your Splitz account, first remove Splitz in your 
-                a(href="https://www.strava.com/settings/apps") Strava Settings
-        else
-            a.button(href="/delete_account") Delete Account
-    footer
+              | To delete your Splitz account, first remove Splitz in your 
+              a(href="https://www.strava.com/settings/apps") Strava Settings
+          else
+            p Your Splitz account is already disconnected from Strava
+            a.button.delete(href="/delete_account") Delete Account
+  footer
       p Copyright © 2023 Splitz
       img(src="/powered_by_strava.svg" height='24px')
 

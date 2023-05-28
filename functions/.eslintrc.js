@@ -17,6 +17,7 @@ module.exports = {
     "prefer-arrow-callback": "error",
     "max-len": ["warn", {code: 160}],
     "require-jsdoc": 0,
+    "no-control-regex": 0,
     "quotes": ["error", "double", {"allowTemplateLiterals": true}],
   },
   overrides: [

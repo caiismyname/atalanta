@@ -1,18 +1,24 @@
 
-const defaultPrintConfig = {
+const defaultFormatConfig = {
   "paceUnits": "MILE", // "KM","MILE"
-  "showMinForSub90Sec": true, // true, false
+  "sub90SecFormat": "MINUTE", // "MINUTE", "SECONDS"
   "subMileDistanceAverageUnit": "TIME", // "PACE", "TIME"
   "greaterThanMileDistanceAverageUnit": "PACE", // "TIME", "PACE"
-  "condensedSplits": false, // true, false
-  "summaryMode": "AVERAGE", // "AVERAGE", "RANGE"
+  // "splitsFormat": "FULL", // "FULL", "CONDENSED"
+  // "summaryMode": "AVERAGE", // "AVERAGE", "RANGE"
 };
 
 const defaultParserConfig = {
   "dominantWorkoutType": "BALANCED", // "DISTANCE", "TIME", "BALANCED"
 };
 
+const defaultAccountSettingsConfig = {
+  "dataUsageOptIn": true,
+  "emailOptIn": true,
+};
+
 module.exports = {
-  defaultPrintConfig,
+  defaultFormatConfig,
   defaultParserConfig,
+  defaultAccountSettingsConfig,
 };

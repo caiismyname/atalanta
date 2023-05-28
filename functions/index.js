@@ -9,6 +9,7 @@ const favicon = require("serve-favicon");
 const {parseWorkout} = require("./parser/parser.js");
 const {StravaInterface} = require("./strava_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics} = require("./analytics.js");
+const {defaultParserConfig, defaultFormatConfig, defaultAccountSettingsConfig} = require("./parser/defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -77,10 +78,6 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/home", (req, res) => {
-  // res.render("home", {
-  //   name: "David Cai",
-  //   stravaConnected: true,
-  // });
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
   validateUserToken(userToken, res, (userID) => {
     if (userID !== null) {
@@ -92,10 +89,7 @@ app.get("/home", (req, res) => {
         }
 
         getUserDetails(userID, (details) => {
-          res.render("home", {
-            stravaConnected: details["stravaConnected"],
-            name: details["name"],
-          });
+          res.render("home", details);
         });
       });
     }
@@ -158,32 +152,35 @@ function handleIncomingWebhook(req, res, isTest=false) {
       getStravaTokenForID(userID, (stravaToken) => {
         StravaInterface.getActivity(activityID, stravaToken, (activity) => {
           if (activity.type === "Run") {
-            // console.log(`Activity is run, processing...`);
             if (!isTest) {
               logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
             }
-            const output = parseWorkout({
-              run: activity,
-              verbose: false,
-            });
-            if (output.isWorkout) {
-              console.log(`ACTIVITY ${activityID} is a workout. Title: [${output.summary.title}] Description: [${output.summary.description.replace("\n", " || ")}]`);
-              if (!isTest) {
-                logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
-              }
-              setTimeout(() => {
-                if (isTest) {
-                  output.summary.title += ` ${new Date()}`;
-                  output.summary.description += `\n${new Date()}`;
-                }
-                StravaInterface.writeSummaryToStrava(activityID, output.summary, stravaToken);
+
+            getPreferencesForUser(userID, (config) => {
+              const output = parseWorkout({
+                run: activity,
+                config: config,
+                verbose: false,
+              });
+              if (output.isWorkout) {
+                console.log(`ACTIVITY ${activityID} is a workout. Title: [${output.summary.title}] Description: [${output.summary.description.replace(new RegExp("\n", "g"), " || ")}]`);
                 if (!isTest) {
-                  logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);
+                  logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
                 }
-              }, 1000);
-            } else {
-              console.log(`ACTIVITY ${activityID} is NOT a workout, no action taken.`);
-            }
+                setTimeout(() => {
+                  if (isTest) {
+                    output.summary.title += ` ${new Date()}`;
+                    output.summary.description += `\n${new Date()}`;
+                  }
+                  StravaInterface.writeSummaryToStrava(activityID, output.summary, stravaToken);
+                  if (!isTest) {
+                    logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);
+                  }
+                }, 1000);
+              } else {
+                console.log(`ACTIVITY ${activityID} is NOT a workout, no action taken.`);
+              }
+            });
           }
         });
       }, isTest); // Force a refresh for code-exercise purposes if in test mode
@@ -227,6 +224,41 @@ app.get("/delete_account", (req, res) => {
   });
 });
 
+app.post("/update_preferences", (req, res) => {
+  const userToken = req.cookies["__session"];
+  validateUserToken(userToken, res, (userID) => {
+    const data = req.body;
+    const updatedPreferences = {
+      parser: {
+        dominantWorkoutType: data.dominantWorkoutType,
+      },
+      format: {
+        paceUnits: data.paceUnits,
+        sub90SecFormat: data.sub90SecFormat,
+      },
+    };
+
+    updateUserPreferences(userID, updatedPreferences);
+    res.redirect("/home");
+  });
+});
+
+app.post("/update_account_settings", (req, res) => {
+  const userToken = req.cookies["__session"];
+  validateUserToken(userToken, res, (userID) => {
+    const enabledSettings = req.body.accountSettings !== undefined ? req.body.accountSettings : []; // The object is undefined if no items were checked
+
+    const updatedSettings = {...defaultAccountSettingsConfig};
+    Object.keys(updatedSettings).forEach((setting) => {
+      updatedSettings[setting] = enabledSettings.includes(setting);
+    });
+
+    updateAccountSettings(userID, updatedSettings);
+  });
+
+  res.redirect("/home");
+});
+
 
 //
 //
@@ -243,13 +275,6 @@ function validateUserToken(idToken, res, callback) {
         .then((decodedToken) => {
           const uid = decodedToken.uid;
           callback(uid);
-          // const name = decodedToken.name;
-          // const email = decodedToken.email;
-          // callback({
-          //   'uid': uid,
-          //   'name': name,
-          //   'email': email
-          // });
         })
         .catch((error) => {
           console.error(`Invalid user authentication: ${error}`);
@@ -262,6 +287,7 @@ function validateUserToken(idToken, res, callback) {
 }
 
 function getPersonalDetailsFromUserToken(idToken, callback) {
+  console.log("GETTING DETAILS");
   try {
     firebase.auth()
         .verifyIdToken(idToken)
@@ -269,6 +295,8 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
           const uid = decodedToken.uid;
           const name = decodedToken.name;
           const email = decodedToken.email;
+
+          console.log(`EMAIL: ${email}`);
           callback({
             "userID": uid,
             "name": name,
@@ -300,12 +328,16 @@ function isUserCreated(userID, callback) {
 }
 
 function createNewUser(details) {
-  // console.log(`CREATED USER: ${details.userID}`);
   logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, db);
   db.ref(`users/${details.userID}`).update({
     stravaConnected: false,
     name: details.name,
     email: details.email,
+    preferences: {
+      parser: defaultParserConfig,
+      format: defaultFormatConfig,
+      account: defaultAccountSettingsConfig,
+    },
   }, (error) => {
     console.log(error);
   });
@@ -372,11 +404,25 @@ function getUserDetails(userID, callback) {
   db.ref(`users/${userID}`).once("value", (snapshot) => {
     const details = snapshot.val();
     callback(
+        // Construct a new object so we control exactly what's being sent
+        // i.e. omitting access tokens etc.
         {
           stravaConnected: details["stravaConnected"],
           name: details["name"],
-        },
-    );
+          preferences: details.preferences,
+        });
+  });
+}
+
+
+// Excludes account settings
+function getPreferencesForUser(userID, callback) {
+  db.ref(`users/${userID}/preferences`).once("value", (snapshot) => {
+    const prefs = snapshot.val();
+    callback({
+      parser: prefs.parser,
+      format: prefs.format,
+    });
   });
 }
 
@@ -387,6 +433,31 @@ function deleteUser(userID) {
     db.ref(`users/${userID}`).remove();
     // console.log(`Deleted user ${userID}`);
   });
+}
+
+function updateUserPreferences(userID, updatedPreferences) {
+  db.ref(`users/${userID}/preferences/parser`).update(
+      updatedPreferences.parser,
+      (error) => {
+        console.error(error);
+      },
+  );
+
+  db.ref(`users/${userID}/preferences/format`).update(
+      updatedPreferences.format,
+      (error) => {
+        console.error(error);
+      },
+  );
+}
+
+function updateAccountSettings(userID, updatedSettings) {
+  db.ref(`users/${userID}/preferences/account`).update(
+      updatedSettings,
+      (error) => {
+        console.error(error);
+      },
+  );
 }
 
 //
@@ -418,10 +489,17 @@ function saveJSON(content, fileName="output.json") {
 
 // eslint-disable-next-line no-unused-vars
 function saveActivityForUser(userID, activityID) {
-  getStravaTokenForID(userID, (stravaToken) => {
-    StravaInterface.getActivity(activityID, stravaToken, (activity) => {
-      saveJSON(activity);
-    });
+  db.ref(`users/${userID}/preferences/account/dataUsageOptIn`).once("value", (snapshot) => {
+    const allowed = snapshot.val();
+    if (allowed) {
+      getStravaTokenForID(userID, (stravaToken) => {
+        StravaInterface.getActivity(activityID, stravaToken, (activity) => {
+          saveJSON(activity);
+        });
+      });
+    } else {
+      console.error(`User ${userID} opted out of data usage.`);
+    }
   });
 }
 

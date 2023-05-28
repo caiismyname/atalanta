@@ -1,7 +1,7 @@
 class FormatPrinter {
-  constructor(paceUnits, showMinForSub90Sec) {
+  constructor(paceUnits, sub90SecFormat) {
     this.paceUnits = paceUnits;
-    this.showMinForSub90Sec = showMinForSub90Sec;
+    this.sub90SecFormat = sub90SecFormat;
     this.sixMinMileAsSpeed = 4.47;
   }
 
@@ -93,7 +93,7 @@ class FormatPrinter {
     const secondsRes = this.secondsFormatter(seconds % 60, roundSeconds); // shouldRound defaults to true b/c strava doesn't give decimals for laps
 
     // First check if we want to format as only seconds
-    if (seconds <= secondsCutoff && !this.showMinForSub90Sec) {
+    if (seconds <= secondsCutoff && this.sub90SecFormat === "SECONDS") {
       return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}`;
     }
 

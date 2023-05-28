@@ -1,6 +1,4 @@
 import {initializeApp} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-// import {getAuth, signInWithPopup, GoogleAuthProvider} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
-// import {getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
 import {getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -16,6 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+// connectAuthEmulator(auth, "http://localhost:9099");
 
 function login() {
   const provider = new GoogleAuthProvider();
@@ -28,6 +27,7 @@ onAuthStateChanged(auth, (user) => {
         (token) => {
           document.cookie = `__session=${token}`; // Firebase functions' caching will strip any tokens not named `__session`
           window.location.replace("https://stravaworkout.com/home");
+          // window.location.replace("http://localhost:5002/home");
         },
         (error) => {
           console.error(error);

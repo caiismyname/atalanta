@@ -1,6 +1,6 @@
 // const Helpers = require("./parser_helpers.js");
 const {FormatPrinter} = require("./formatter_helpers.js");
-const {defaultPrintConfig} = require("./defaultConfigs.js");
+const {defaultFormatConfig} = require("./defaultConfigs.js");
 
 function isKilometer(distance) {
   const marginOfError = 20.0;
@@ -161,8 +161,8 @@ line 5:   4. 1:00, 29
   return output;
 }
 
-function printSets(sets, printConfig=defaultPrintConfig) {
-  const formatPrinter = new FormatPrinter(printConfig.paceUnits, printConfig.showMinForSub90Sec);
+function printSets(sets, printConfig=defaultFormatConfig) {
+  const formatPrinter = new FormatPrinter(printConfig.paceUnits, printConfig.sub90SecFormat);
 
   let fullTitle = ""; // For the strava activity title, only contains the structure
   let fullDescription = ""; // Contains details, for the activity description

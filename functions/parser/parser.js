@@ -1,10 +1,10 @@
 const Helpers = require("./parser_helpers.js");
 const {printSets} = require("./formatter.js");
-const {defaultParserConfig} = require("./defaultConfigs.js");
+const {defaultParserConfig, defaultFormatConfig} = require("./defaultConfigs.js");
 
 // This is the entrypoint
 // eslint-disable-next-line no-unused-vars
-function parseWorkout({run, parserConfig=defaultParserConfig, verbose=true, returnSets=false, forceParse=false}) {
+function parseWorkout({run, config={parser: defaultParserConfig, format: defaultFormatConfig}, verbose=true, returnSets=false, forceParse=false}) {
   const runIsWorkout = determineRunIsWorkout(run.laps) || forceParse;
 
   if (!runIsWorkout) {
@@ -25,9 +25,9 @@ function parseWorkout({run, parserConfig=defaultParserConfig, verbose=true, retu
 
   const workoutsIdentifiedLaps = tagWorkoutLaps(laps);
   const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
-  tagWorkoutTypes(mergedLaps, parserConfig); // Mutates in place
+  tagWorkoutTypes(mergedLaps, config.parser); // Mutates in place
   const sets = extractPatterns(mergedLaps.filter((lap) => lap.isWorkout));
-  const summary = printSets(sets);
+  const summary = printSets(sets, config.format);
 
   if (verbose) {
     console.log(`PARSING: ${run.name} (${run.id})`);

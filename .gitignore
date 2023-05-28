@@ -7,13 +7,14 @@ yarn-error.log*
 firebase-debug.log*
 firebase-debug.*.log*
 *output.json
+*backup.json
 
 # Filesystem
 *.DS_Store
 
 # Creds
 *serviceAccountKey.json
-functions/.runtimeconfig.json
+*functions/.runtimeconfig.json
 
 # Firebase cache
 .firebase/

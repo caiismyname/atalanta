@@ -1268,7 +1268,7 @@
             "pattern": [
                 0
             ],
-            "count": 5,
+            "count": 6,
             "laps": [
                 {
                     "id": 5917463011,
@@ -1444,15 +1444,7 @@
                     "closestTime": 45,
                     "closestTimeDifference": 0.1111111111111111,
                     "workoutBasis": "DISTANCE"
-                }
-            ]
-        },
-        {
-            "pattern": [
-                1
-            ],
-            "count": 1,
-            "laps": [
+                },
                 {
                     "id": 5917463023,
                     "resource_state": 2,
@@ -1465,85 +1457,27 @@
                         "id": 7786466,
                         "resource_state": 1
                     },
-                    "elapsed_time": 747,
-                    "moving_time": 502,
+                    "elapsed_time": 41,
+                    "moving_time": 41,
                     "start_date": "2018-09-12T16:19:09Z",
                     "start_date_local": "2018-09-12T11:19:09Z",
-                    "distance": 1630.39,
+                    "distance": 183.46,
                     "start_index": 639,
-                    "end_index": 726,
+                    "end_index": 651,
                     "total_elevation_gain": 0,
-                    "average_speed": 3.247788844621514,
+                    "average_speed": 4.47,
                     "max_speed": 5,
                     "device_watts": false,
                     "lap_index": 23,
                     "split": 23,
                     "pace_zone": 4,
                     "isWorkout": true,
-                    "component_laps": [
-                        {
-                            "id": 5917463023,
-                            "resource_state": 2,
-                            "name": "Lap 23",
-                            "activity": {
-                                "id": 1841697623,
-                                "resource_state": 1
-                            },
-                            "athlete": {
-                                "id": 7786466,
-                                "resource_state": 1
-                            },
-                            "elapsed_time": 41,
-                            "moving_time": 41,
-                            "start_date": "2018-09-12T16:19:09Z",
-                            "start_date_local": "2018-09-12T11:19:09Z",
-                            "distance": 183.46,
-                            "start_index": 639,
-                            "end_index": 651,
-                            "total_elevation_gain": 0,
-                            "average_speed": 4.47,
-                            "max_speed": 5,
-                            "device_watts": false,
-                            "lap_index": 23,
-                            "split": 23,
-                            "pace_zone": 4,
-                            "isWorkout": true
-                        },
-                        {
-                            "id": 5917463024,
-                            "resource_state": 2,
-                            "name": "Lap 24",
-                            "activity": {
-                                "id": 1841697623,
-                                "resource_state": 1
-                            },
-                            "athlete": {
-                                "id": 7786466,
-                                "resource_state": 1
-                            },
-                            "elapsed_time": 706,
-                            "moving_time": 461,
-                            "start_date": "2018-09-12T16:19:49Z",
-                            "start_date_local": "2018-09-12T11:19:49Z",
-                            "distance": 1446.93,
-                            "start_index": 652,
-                            "end_index": 726,
-                            "total_elevation_gain": 0,
-                            "average_speed": 3.14,
-                            "max_speed": 3.7,
-                            "device_watts": false,
-                            "lap_index": 24,
-                            "split": 24,
-                            "pace_zone": 1,
-                            "isWorkout": true
-                        }
-                    ],
-                    "workoutType": 1,
-                    "closestDistance": 1,
-                    "closestDistanceDifference": 0.013105076741440468,
-                    "closestDistanceUnit": "mi",
-                    "closestTime": 600,
-                    "closestTimeDifference": 0.16333333333333333,
+                    "workoutType": 0,
+                    "closestDistance": 200,
+                    "closestDistanceDifference": 0.08269999999999995,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 45,
+                    "closestTimeDifference": 0.08888888888888889,
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -1568,16 +1502,16 @@
                         "id": 7786466,
                         "resource_state": 1
                     },
-                    "elapsed_time": 3989,
-                    "moving_time": 3885,
+                    "elapsed_time": 3213,
+                    "moving_time": 3206,
                     "start_date": "2020-02-18T00:51:06Z",
                     "start_date_local": "2020-02-17T16:51:06Z",
-                    "distance": 13829.260000000002,
+                    "distance": 11265.45,
                     "start_index": 0,
-                    "end_index": 691,
+                    "end_index": 549,
                     "total_elevation_gain": 18.5,
-                    "average_speed": 3.559655083655084,
-                    "max_speed": 5.5,
+                    "average_speed": 3.513864628820961,
+                    "max_speed": 4,
                     "device_watts": false,
                     "lap_index": 1,
                     "split": 1,
@@ -1779,70 +1713,14 @@
                             "split": 7,
                             "pace_zone": 1,
                             "isWorkout": true
-                        },
-                        {
-                            "id": 10356376573,
-                            "resource_state": 2,
-                            "name": "Lap 8",
-                            "activity": {
-                                "id": 3109527923,
-                                "resource_state": 1
-                            },
-                            "athlete": {
-                                "id": 7786466,
-                                "resource_state": 1
-                            },
-                            "elapsed_time": 574,
-                            "moving_time": 477,
-                            "start_date": "2020-02-18T01:44:47Z",
-                            "start_date_local": "2020-02-17T17:44:47Z",
-                            "distance": 1560.13,
-                            "start_index": 550,
-                            "end_index": 629,
-                            "total_elevation_gain": 0,
-                            "average_speed": 3.27,
-                            "max_speed": 3.6,
-                            "device_watts": false,
-                            "lap_index": 8,
-                            "split": 8,
-                            "pace_zone": 1,
-                            "isWorkout": true
-                        },
-                        {
-                            "id": 10356376574,
-                            "resource_state": 2,
-                            "name": "Lap 9",
-                            "activity": {
-                                "id": 3109527923,
-                                "resource_state": 1
-                            },
-                            "athlete": {
-                                "id": 7786466,
-                                "resource_state": 1
-                            },
-                            "elapsed_time": 202,
-                            "moving_time": 202,
-                            "start_date": "2020-02-18T01:54:20Z",
-                            "start_date_local": "2020-02-17T17:54:20Z",
-                            "distance": 1003.68,
-                            "start_index": 630,
-                            "end_index": 691,
-                            "total_elevation_gain": 0,
-                            "average_speed": 4.97,
-                            "max_speed": 5.5,
-                            "device_watts": false,
-                            "lap_index": 9,
-                            "split": 9,
-                            "pace_zone": 4,
-                            "isWorkout": true
                         }
                     ],
                     "workoutType": 2,
-                    "closestDistance": 9,
-                    "closestDistanceDifference": 0.04521095546150595,
+                    "closestDistance": 7,
+                    "closestDistanceDifference": 0.000004438368810791574,
                     "closestDistanceUnit": "mi",
-                    "closestTime": 0,
-                    "closestTimeDifference": 1,
+                    "closestTime": 1800,
+                    "closestTimeDifference": 0.7811111111111111,
                     "workoutBasis": "DISTANCE"
                 }
             ]
@@ -1851,8 +1729,43 @@
             "pattern": [
                 1
             ],
-            "count": 5,
+            "count": 6,
             "laps": [
+                {
+                    "id": 10356376574,
+                    "resource_state": 2,
+                    "name": "Lap 9",
+                    "activity": {
+                        "id": 3109527923,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 202,
+                    "moving_time": 202,
+                    "start_date": "2020-02-18T01:54:20Z",
+                    "start_date_local": "2020-02-17T17:54:20Z",
+                    "distance": 1003.68,
+                    "start_index": 630,
+                    "end_index": 691,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.97,
+                    "max_speed": 5.5,
+                    "device_watts": false,
+                    "lap_index": 9,
+                    "split": 9,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "workoutType": 1,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.00367999999999995,
+                    "closestDistanceUnit": "km",
+                    "closestTime": 180,
+                    "closestTimeDifference": 0.12222222222222222,
+                    "workoutBasis": "DISTANCE"
+                },
                 {
                     "id": 10356376576,
                     "resource_state": 2,
@@ -9169,6 +9082,1534 @@
                     "closestTime": 120,
                     "closestTimeDifference": 0,
                     "workoutBasis": "TIME"
+                }
+            ]
+        }
+    ],
+    "9085003431": [
+        {
+            "pattern": [
+                2,
+                1,
+                0
+            ],
+            "count": 2,
+            "laps": [
+                {
+                    "id": 30931374395,
+                    "resource_state": 2,
+                    "name": "Lap 4",
+                    "activity": {
+                        "id": 9085003431,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 17248332,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 174,
+                    "moving_time": 174,
+                    "start_date": "2023-05-16T22:50:43Z",
+                    "start_date_local": "2023-05-16T18:50:43Z",
+                    "distance": 1013.17,
+                    "start_index": 256,
+                    "end_index": 338,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.82,
+                    "max_speed": 7,
+                    "average_cadence": 99.4,
+                    "device_watts": false,
+                    "average_heartrate": 143.1,
+                    "max_heartrate": 159,
+                    "lap_index": 4,
+                    "split": 4,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 2,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.01316999999999996,
+                    "closestDistanceUnit": "km",
+                    "closestTime": 180,
+                    "closestTimeDifference": 0.03333333333333333,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30931374401,
+                    "resource_state": 2,
+                    "name": "Lap 6",
+                    "activity": {
+                        "id": 9085003431,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 17248332,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 140,
+                    "moving_time": 140,
+                    "start_date": "2023-05-16T22:54:46Z",
+                    "start_date_local": "2023-05-16T18:54:46Z",
+                    "distance": 826.58,
+                    "start_index": 356,
+                    "end_index": 422,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.9,
+                    "max_speed": 6.716,
+                    "average_cadence": 99.8,
+                    "device_watts": false,
+                    "average_heartrate": 158.5,
+                    "max_heartrate": 163,
+                    "lap_index": 6,
+                    "split": 6,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 1,
+                    "closestDistance": 800,
+                    "closestDistanceDifference": 0.03322500000000005,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 120,
+                    "closestTimeDifference": 0.16666666666666666,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 30931374407,
+                    "resource_state": 2,
+                    "name": "Lap 8",
+                    "activity": {
+                        "id": 9085003431,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 17248332,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 65,
+                    "moving_time": 65,
+                    "start_date": "2023-05-16T22:58:22Z",
+                    "start_date_local": "2023-05-16T18:58:22Z",
+                    "distance": 408.14,
+                    "start_index": 453,
+                    "end_index": 482,
+                    "total_elevation_gain": 0,
+                    "average_speed": 6.28,
+                    "max_speed": 6.907,
+                    "average_cadence": 101.7,
+                    "device_watts": false,
+                    "average_heartrate": 138.2,
+                    "max_heartrate": 146,
+                    "lap_index": 8,
+                    "split": 8,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 400,
+                    "closestDistanceDifference": 0.020349999999999965,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 60,
+                    "closestTimeDifference": 0.08333333333333333,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 30931374417,
+                    "resource_state": 2,
+                    "name": "Lap 10",
+                    "activity": {
+                        "id": 9085003431,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 17248332,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 180,
+                    "moving_time": 180,
+                    "start_date": "2023-05-16T23:01:41Z",
+                    "start_date_local": "2023-05-16T19:01:41Z",
+                    "distance": 1030.83,
+                    "start_index": 508,
+                    "end_index": 592,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.73,
+                    "max_speed": 6.42,
+                    "average_cadence": 98.8,
+                    "device_watts": false,
+                    "average_heartrate": 171.3,
+                    "max_heartrate": 178,
+                    "lap_index": 10,
+                    "split": 10,
+                    "pace_zone": 5,
+                    "isWorkout": true,
+                    "workoutType": 2,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.030829999999999927,
+                    "closestDistanceUnit": "km",
+                    "closestTime": 180,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30931374422,
+                    "resource_state": 2,
+                    "name": "Lap 12",
+                    "activity": {
+                        "id": 9085003431,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 17248332,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 143,
+                    "moving_time": 143,
+                    "start_date": "2023-05-16T23:05:57Z",
+                    "start_date_local": "2023-05-16T19:05:57Z",
+                    "distance": 816.53,
+                    "start_index": 612,
+                    "end_index": 677,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.71,
+                    "max_speed": 6.231,
+                    "average_cadence": 98.6,
+                    "device_watts": false,
+                    "average_heartrate": 170.4,
+                    "max_heartrate": 176,
+                    "lap_index": 12,
+                    "split": 12,
+                    "pace_zone": 5,
+                    "isWorkout": true,
+                    "workoutType": 1,
+                    "closestDistance": 800,
+                    "closestDistanceDifference": 0.020662499999999966,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 120,
+                    "closestTimeDifference": 0.19166666666666668,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 30931374429,
+                    "resource_state": 2,
+                    "name": "Lap 14",
+                    "activity": {
+                        "id": 9085003431,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 17248332,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 65,
+                    "moving_time": 65,
+                    "start_date": "2023-05-16T23:10:01Z",
+                    "start_date_local": "2023-05-16T19:10:01Z",
+                    "distance": 406.41,
+                    "start_index": 710,
+                    "end_index": 745,
+                    "total_elevation_gain": 0,
+                    "average_speed": 6.25,
+                    "max_speed": 6.898,
+                    "average_cadence": 102.8,
+                    "device_watts": false,
+                    "average_heartrate": 131.6,
+                    "max_heartrate": 143,
+                    "lap_index": 14,
+                    "split": 14,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 400,
+                    "closestDistanceDifference": 0.016025000000000063,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 60,
+                    "closestTimeDifference": 0.08333333333333333,
+                    "workoutBasis": "DISTANCE"
+                }
+            ]
+        },
+        {
+            "pattern": [
+                0
+            ],
+            "count": 1,
+            "laps": [
+                {
+                    "id": 30931374434,
+                    "resource_state": 2,
+                    "name": "Lap 16",
+                    "activity": {
+                        "id": 9085003431,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 17248332,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 70,
+                    "moving_time": 70,
+                    "start_date": "2023-05-16T23:13:50Z",
+                    "start_date_local": "2023-05-16T19:13:50Z",
+                    "distance": 400.44,
+                    "start_index": 784,
+                    "end_index": 815,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.72,
+                    "max_speed": 6.649,
+                    "average_cadence": 100.2,
+                    "device_watts": false,
+                    "average_heartrate": 160.9,
+                    "max_heartrate": 182,
+                    "lap_index": 16,
+                    "split": 16,
+                    "pace_zone": 5,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 400,
+                    "closestDistanceDifference": 0.0010999999999999942,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 60,
+                    "closestTimeDifference": 0.16666666666666666,
+                    "workoutBasis": "DISTANCE"
+                }
+            ]
+        }
+    ],
+    "9057516204": [
+        {
+            "pattern": [
+                1
+            ],
+            "count": 1,
+            "laps": [
+                {
+                    "id": 30828464389,
+                    "resource_state": 2,
+                    "name": "Lap 2",
+                    "activity": {
+                        "id": 9057516204,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 2188,
+                    "moving_time": 2188,
+                    "start_date": "2023-05-12T11:47:20Z",
+                    "start_date_local": "2023-05-12T07:47:20Z",
+                    "distance": 10000,
+                    "start_index": 333,
+                    "end_index": 1095,
+                    "total_elevation_gain": 41.400000000000006,
+                    "average_speed": 4.570383912248629,
+                    "max_speed": 5.02,
+                    "average_cadence": 91.5,
+                    "device_watts": false,
+                    "average_heartrate": 150.3,
+                    "max_heartrate": 164,
+                    "lap_index": 2,
+                    "split": 2,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "component_laps": [
+                        {
+                            "id": 30828464389,
+                            "resource_state": 2,
+                            "name": "Lap 2",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 221,
+                            "moving_time": 221,
+                            "start_date": "2023-05-12T11:47:20Z",
+                            "start_date_local": "2023-05-12T07:47:20Z",
+                            "distance": 1000,
+                            "start_index": 333,
+                            "end_index": 399,
+                            "total_elevation_gain": 2.6,
+                            "average_speed": 4.52,
+                            "max_speed": 4.82,
+                            "average_cadence": 91.5,
+                            "device_watts": false,
+                            "average_heartrate": 150.3,
+                            "max_heartrate": 164,
+                            "lap_index": 2,
+                            "split": 2,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 30828464390,
+                            "resource_state": 2,
+                            "name": "Lap 3",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 219,
+                            "moving_time": 219,
+                            "start_date": "2023-05-12T11:50:59Z",
+                            "start_date_local": "2023-05-12T07:50:59Z",
+                            "distance": 1000,
+                            "start_index": 400,
+                            "end_index": 468,
+                            "total_elevation_gain": 8,
+                            "average_speed": 4.57,
+                            "max_speed": 4.922,
+                            "average_cadence": 96.2,
+                            "device_watts": false,
+                            "average_heartrate": 165.5,
+                            "max_heartrate": 168,
+                            "lap_index": 3,
+                            "split": 3,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 30828464393,
+                            "resource_state": 2,
+                            "name": "Lap 4",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 219,
+                            "moving_time": 219,
+                            "start_date": "2023-05-12T11:54:40Z",
+                            "start_date_local": "2023-05-12T07:54:40Z",
+                            "distance": 1000,
+                            "start_index": 469,
+                            "end_index": 543,
+                            "total_elevation_gain": 2.2,
+                            "average_speed": 4.57,
+                            "max_speed": 4.905,
+                            "average_cadence": 96.5,
+                            "device_watts": false,
+                            "average_heartrate": 166.4,
+                            "max_heartrate": 168,
+                            "lap_index": 4,
+                            "split": 4,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 30828464396,
+                            "resource_state": 2,
+                            "name": "Lap 5",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 218,
+                            "moving_time": 218,
+                            "start_date": "2023-05-12T11:58:19Z",
+                            "start_date_local": "2023-05-12T07:58:19Z",
+                            "distance": 1000,
+                            "start_index": 544,
+                            "end_index": 628,
+                            "total_elevation_gain": 3.2,
+                            "average_speed": 4.59,
+                            "max_speed": 4.844,
+                            "average_cadence": 96.5,
+                            "device_watts": false,
+                            "average_heartrate": 167.4,
+                            "max_heartrate": 169,
+                            "lap_index": 5,
+                            "split": 5,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 30828464398,
+                            "resource_state": 2,
+                            "name": "Lap 6",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 220,
+                            "moving_time": 220,
+                            "start_date": "2023-05-12T12:02:00Z",
+                            "start_date_local": "2023-05-12T08:02:00Z",
+                            "distance": 1000,
+                            "start_index": 629,
+                            "end_index": 704,
+                            "total_elevation_gain": 5,
+                            "average_speed": 4.55,
+                            "max_speed": 4.788,
+                            "average_cadence": 96.6,
+                            "device_watts": false,
+                            "average_heartrate": 169.1,
+                            "max_heartrate": 171,
+                            "lap_index": 6,
+                            "split": 6,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 30828464399,
+                            "resource_state": 2,
+                            "name": "Lap 7",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 220,
+                            "moving_time": 220,
+                            "start_date": "2023-05-12T12:05:41Z",
+                            "start_date_local": "2023-05-12T08:05:41Z",
+                            "distance": 1000,
+                            "start_index": 705,
+                            "end_index": 770,
+                            "total_elevation_gain": 6.8,
+                            "average_speed": 4.55,
+                            "max_speed": 5.02,
+                            "average_cadence": 96.3,
+                            "device_watts": false,
+                            "average_heartrate": 168.3,
+                            "max_heartrate": 170,
+                            "lap_index": 7,
+                            "split": 7,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 30828464401,
+                            "resource_state": 2,
+                            "name": "Lap 8",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 217,
+                            "moving_time": 217,
+                            "start_date": "2023-05-12T12:09:18Z",
+                            "start_date_local": "2023-05-12T08:09:18Z",
+                            "distance": 1000,
+                            "start_index": 771,
+                            "end_index": 847,
+                            "total_elevation_gain": 3.4,
+                            "average_speed": 4.61,
+                            "max_speed": 4.896,
+                            "average_cadence": 96.9,
+                            "device_watts": false,
+                            "average_heartrate": 167.1,
+                            "max_heartrate": 169,
+                            "lap_index": 8,
+                            "split": 8,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 30828464402,
+                            "resource_state": 2,
+                            "name": "Lap 9",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 219,
+                            "moving_time": 219,
+                            "start_date": "2023-05-12T12:12:56Z",
+                            "start_date_local": "2023-05-12T08:12:56Z",
+                            "distance": 1000,
+                            "start_index": 848,
+                            "end_index": 928,
+                            "total_elevation_gain": 5,
+                            "average_speed": 4.57,
+                            "max_speed": 4.786,
+                            "average_cadence": 96.9,
+                            "device_watts": false,
+                            "average_heartrate": 168.6,
+                            "max_heartrate": 170,
+                            "lap_index": 9,
+                            "split": 9,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 30828464404,
+                            "resource_state": 2,
+                            "name": "Lap 10",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 216,
+                            "moving_time": 216,
+                            "start_date": "2023-05-12T12:16:36Z",
+                            "start_date_local": "2023-05-12T08:16:36Z",
+                            "distance": 1000,
+                            "start_index": 929,
+                            "end_index": 1026,
+                            "total_elevation_gain": 5.2,
+                            "average_speed": 4.63,
+                            "max_speed": 5.016,
+                            "average_cadence": 97.1,
+                            "device_watts": false,
+                            "average_heartrate": 168.5,
+                            "max_heartrate": 171,
+                            "lap_index": 10,
+                            "split": 10,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 30828464406,
+                            "resource_state": 2,
+                            "name": "Lap 11",
+                            "activity": {
+                                "id": 9057516204,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 18375789,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 219,
+                            "moving_time": 219,
+                            "start_date": "2023-05-12T12:20:12Z",
+                            "start_date_local": "2023-05-12T08:20:12Z",
+                            "distance": 1000,
+                            "start_index": 1027,
+                            "end_index": 1095,
+                            "total_elevation_gain": 0,
+                            "average_speed": 4.57,
+                            "max_speed": 5.006,
+                            "average_cadence": 97,
+                            "device_watts": false,
+                            "average_heartrate": 169,
+                            "max_heartrate": 170,
+                            "lap_index": 11,
+                            "split": 11,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        }
+                    ],
+                    "workoutType": 1,
+                    "closestDistance": 10,
+                    "closestDistanceDifference": 0,
+                    "closestDistanceUnit": "km",
+                    "closestTime": 1800,
+                    "closestTimeDifference": 0.21555555555555556,
+                    "workoutBasis": "DISTANCE"
+                }
+            ]
+        },
+        {
+            "pattern": [
+                0
+            ],
+            "count": 6,
+            "laps": [
+                {
+                    "id": 30828464412,
+                    "resource_state": 2,
+                    "name": "Lap 13",
+                    "activity": {
+                        "id": 9057516204,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 30,
+                    "moving_time": 30,
+                    "start_date": "2023-05-12T12:27:26Z",
+                    "start_date_local": "2023-05-12T08:27:26Z",
+                    "distance": 173.22,
+                    "start_index": 1142,
+                    "end_index": 1152,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.77,
+                    "max_speed": 6.217,
+                    "average_cadence": 109,
+                    "device_watts": false,
+                    "average_heartrate": 116.1,
+                    "max_heartrate": 118,
+                    "lap_index": 13,
+                    "split": 13,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 200,
+                    "closestDistanceDifference": 0.13390000000000002,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 30,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30828464415,
+                    "resource_state": 2,
+                    "name": "Lap 15",
+                    "activity": {
+                        "id": 9057516204,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 30,
+                    "moving_time": 30,
+                    "start_date": "2023-05-12T12:29:29Z",
+                    "start_date_local": "2023-05-12T08:29:29Z",
+                    "distance": 166.32,
+                    "start_index": 1175,
+                    "end_index": 1186,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.54,
+                    "max_speed": 6.13,
+                    "average_cadence": 106.7,
+                    "device_watts": false,
+                    "average_heartrate": 131.8,
+                    "max_heartrate": 137,
+                    "lap_index": 15,
+                    "split": 15,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 200,
+                    "closestDistanceDifference": 0.16840000000000002,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 30,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30828464418,
+                    "resource_state": 2,
+                    "name": "Lap 17",
+                    "activity": {
+                        "id": 9057516204,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 30,
+                    "moving_time": 30,
+                    "start_date": "2023-05-12T12:31:32Z",
+                    "start_date_local": "2023-05-12T08:31:32Z",
+                    "distance": 168.24,
+                    "start_index": 1210,
+                    "end_index": 1220,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.61,
+                    "max_speed": 6.118,
+                    "average_cadence": 98.1,
+                    "device_watts": false,
+                    "average_heartrate": 127.6,
+                    "max_heartrate": 132,
+                    "lap_index": 17,
+                    "split": 17,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 200,
+                    "closestDistanceDifference": 0.15879999999999994,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 30,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30828464422,
+                    "resource_state": 2,
+                    "name": "Lap 19",
+                    "activity": {
+                        "id": 9057516204,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 30,
+                    "moving_time": 30,
+                    "start_date": "2023-05-12T12:33:39Z",
+                    "start_date_local": "2023-05-12T08:33:39Z",
+                    "distance": 173.66,
+                    "start_index": 1247,
+                    "end_index": 1257,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.79,
+                    "max_speed": 6.2,
+                    "average_cadence": 109.3,
+                    "device_watts": false,
+                    "average_heartrate": 125.2,
+                    "max_heartrate": 132,
+                    "lap_index": 19,
+                    "split": 19,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 200,
+                    "closestDistanceDifference": 0.1317,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 30,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30828464425,
+                    "resource_state": 2,
+                    "name": "Lap 21",
+                    "activity": {
+                        "id": 9057516204,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 30,
+                    "moving_time": 30,
+                    "start_date": "2023-05-12T12:35:48Z",
+                    "start_date_local": "2023-05-12T08:35:48Z",
+                    "distance": 173.64,
+                    "start_index": 1287,
+                    "end_index": 1298,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.79,
+                    "max_speed": 6.278,
+                    "average_cadence": 108.8,
+                    "device_watts": false,
+                    "average_heartrate": 117.3,
+                    "max_heartrate": 123,
+                    "lap_index": 21,
+                    "split": 21,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 200,
+                    "closestDistanceDifference": 0.13180000000000006,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 30,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                },
+                {
+                    "id": 30828464429,
+                    "resource_state": 2,
+                    "name": "Lap 23",
+                    "activity": {
+                        "id": 9057516204,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 18375789,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 30,
+                    "moving_time": 30,
+                    "start_date": "2023-05-12T12:37:59Z",
+                    "start_date_local": "2023-05-12T08:37:59Z",
+                    "distance": 169.23,
+                    "start_index": 1328,
+                    "end_index": 1340,
+                    "total_elevation_gain": 0,
+                    "average_speed": 5.64,
+                    "max_speed": 6.317,
+                    "average_cadence": 109.4,
+                    "device_watts": false,
+                    "average_heartrate": 116.7,
+                    "max_heartrate": 124,
+                    "lap_index": 23,
+                    "split": 23,
+                    "pace_zone": 6,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 200,
+                    "closestDistanceDifference": 0.15385000000000004,
+                    "closestDistanceUnit": "m",
+                    "closestTime": 30,
+                    "closestTimeDifference": 0,
+                    "workoutBasis": "TIME"
+                }
+            ]
+        }
+    ],
+    "8523943407": [
+        {
+            "pattern": [
+                0
+            ],
+            "count": 10,
+            "laps": [
+                {
+                    "id": 28758206333,
+                    "resource_state": 2,
+                    "name": "Lap 3",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 339,
+                    "moving_time": 339,
+                    "start_date": "2023-02-07T23:34:03Z",
+                    "start_date_local": "2023-02-07T18:34:03Z",
+                    "distance": 1638.8899999999999,
+                    "start_index": 187,
+                    "end_index": 328,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.834483775811209,
+                    "max_speed": 5.526,
+                    "average_cadence": 90.9,
+                    "device_watts": false,
+                    "average_heartrate": 146.9,
+                    "max_heartrate": 167,
+                    "lap_index": 3,
+                    "split": 3,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "component_laps": [
+                        {
+                            "id": 28758206333,
+                            "resource_state": 2,
+                            "name": "Lap 3",
+                            "activity": {
+                                "id": 8523943407,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 7786466,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 333,
+                            "moving_time": 333,
+                            "start_date": "2023-02-07T23:34:03Z",
+                            "start_date_local": "2023-02-07T18:34:03Z",
+                            "distance": 1609.34,
+                            "start_index": 187,
+                            "end_index": 326,
+                            "total_elevation_gain": 0,
+                            "average_speed": 4.83,
+                            "max_speed": 5.526,
+                            "average_cadence": 90.9,
+                            "device_watts": false,
+                            "average_heartrate": 146.9,
+                            "max_heartrate": 167,
+                            "lap_index": 3,
+                            "split": 3,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 28758206334,
+                            "resource_state": 2,
+                            "name": "Lap 4",
+                            "activity": {
+                                "id": 8523943407,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 7786466,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 6,
+                            "moving_time": 6,
+                            "start_date": "2023-02-07T23:39:37Z",
+                            "start_date_local": "2023-02-07T18:39:37Z",
+                            "distance": 29.55,
+                            "start_index": 327,
+                            "end_index": 328,
+                            "total_elevation_gain": 0,
+                            "average_speed": 4.93,
+                            "max_speed": 4.949,
+                            "average_cadence": 91,
+                            "device_watts": false,
+                            "average_heartrate": 164,
+                            "max_heartrate": 164,
+                            "lap_index": 4,
+                            "split": 4,
+                            "pace_zone": 4,
+                            "isWorkout": true
+                        }
+                    ],
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.018386876281613073,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.13,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 28758206337,
+                    "resource_state": 2,
+                    "name": "Lap 6",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 327,
+                    "moving_time": 327,
+                    "start_date": "2023-02-07T23:40:42Z",
+                    "start_date_local": "2023-02-07T18:40:42Z",
+                    "distance": 1609.34,
+                    "start_index": 349,
+                    "end_index": 506,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.92,
+                    "max_speed": 5.878,
+                    "average_cadence": 92.1,
+                    "device_watts": false,
+                    "average_heartrate": 162.2,
+                    "max_heartrate": 171,
+                    "lap_index": 6,
+                    "split": 6,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.000024855527247849142,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.09,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 28758206339,
+                    "resource_state": 2,
+                    "name": "Lap 8",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 338,
+                    "moving_time": 338,
+                    "start_date": "2023-02-07T23:47:15Z",
+                    "start_date_local": "2023-02-07T18:47:15Z",
+                    "distance": 1609.34,
+                    "start_index": 529,
+                    "end_index": 679,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.76,
+                    "max_speed": 5.742,
+                    "average_cadence": 91,
+                    "device_watts": false,
+                    "average_heartrate": 157.9,
+                    "max_heartrate": 164,
+                    "lap_index": 8,
+                    "split": 8,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.000024855527247849142,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.12666666666666668,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 28758206342,
+                    "resource_state": 2,
+                    "name": "Lap 10",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 328,
+                    "moving_time": 328,
+                    "start_date": "2023-02-07T23:53:58Z",
+                    "start_date_local": "2023-02-07T18:53:58Z",
+                    "distance": 1609.34,
+                    "start_index": 695,
+                    "end_index": 836,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.91,
+                    "max_speed": 6.118,
+                    "average_cadence": 92.1,
+                    "device_watts": false,
+                    "average_heartrate": 159.1,
+                    "max_heartrate": 168,
+                    "lap_index": 10,
+                    "split": 10,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.000024855527247849142,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.09333333333333334,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 28758206344,
+                    "resource_state": 2,
+                    "name": "Lap 12",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 333,
+                    "moving_time": 333,
+                    "start_date": "2023-02-08T00:00:30Z",
+                    "start_date_local": "2023-02-07T19:00:30Z",
+                    "distance": 1609.34,
+                    "start_index": 854,
+                    "end_index": 1001,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.83,
+                    "max_speed": 5.894,
+                    "average_cadence": 91.1,
+                    "device_watts": false,
+                    "average_heartrate": 157.8,
+                    "max_heartrate": 164,
+                    "lap_index": 12,
+                    "split": 12,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.000024855527247849142,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.11,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 28758206347,
+                    "resource_state": 2,
+                    "name": "Lap 14",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 332,
+                    "moving_time": 332,
+                    "start_date": "2023-02-08T00:07:08Z",
+                    "start_date_local": "2023-02-07T19:07:08Z",
+                    "distance": 1629.12,
+                    "start_index": 1019,
+                    "end_index": 1173,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.906987951807229,
+                    "max_speed": 5.61,
+                    "average_cadence": 91.8,
+                    "device_watts": false,
+                    "average_heartrate": 161.4,
+                    "max_heartrate": 167,
+                    "lap_index": 14,
+                    "split": 14,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "component_laps": [
+                        {
+                            "id": 28758206347,
+                            "resource_state": 2,
+                            "name": "Lap 14",
+                            "activity": {
+                                "id": 8523943407,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 7786466,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 329,
+                            "moving_time": 329,
+                            "start_date": "2023-02-08T00:07:08Z",
+                            "start_date_local": "2023-02-07T19:07:08Z",
+                            "distance": 1609.34,
+                            "start_index": 1019,
+                            "end_index": 1171,
+                            "total_elevation_gain": 0,
+                            "average_speed": 4.89,
+                            "max_speed": 5.61,
+                            "average_cadence": 91.8,
+                            "device_watts": false,
+                            "average_heartrate": 161.4,
+                            "max_heartrate": 167,
+                            "lap_index": 14,
+                            "split": 14,
+                            "pace_zone": 4,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 28758206348,
+                            "resource_state": 2,
+                            "name": "Lap 15",
+                            "activity": {
+                                "id": 8523943407,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 7786466,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 3,
+                            "moving_time": 3,
+                            "start_date": "2023-02-08T00:12:40Z",
+                            "start_date_local": "2023-02-07T19:12:40Z",
+                            "distance": 19.78,
+                            "start_index": 1172,
+                            "end_index": 1173,
+                            "total_elevation_gain": 0,
+                            "average_speed": 6.59,
+                            "max_speed": 5.22,
+                            "average_cadence": 93,
+                            "device_watts": false,
+                            "average_heartrate": 159,
+                            "max_heartrate": 159,
+                            "lap_index": 15,
+                            "split": 15,
+                            "pace_zone": 6,
+                            "isWorkout": true
+                        }
+                    ],
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.01231591375132041,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.10666666666666667,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 28758206350,
+                    "resource_state": 2,
+                    "name": "Lap 17",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 338,
+                    "moving_time": 338,
+                    "start_date": "2023-02-08T00:13:44Z",
+                    "start_date_local": "2023-02-07T19:13:44Z",
+                    "distance": 1617.53,
+                    "start_index": 1189,
+                    "end_index": 1344,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.785591715976332,
+                    "max_speed": 5.712,
+                    "average_cadence": 91.5,
+                    "device_watts": false,
+                    "average_heartrate": 159.3,
+                    "max_heartrate": 166,
+                    "lap_index": 17,
+                    "split": 17,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "component_laps": [
+                        {
+                            "id": 28758206350,
+                            "resource_state": 2,
+                            "name": "Lap 17",
+                            "activity": {
+                                "id": 8523943407,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 7786466,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 336,
+                            "moving_time": 336,
+                            "start_date": "2023-02-08T00:13:44Z",
+                            "start_date_local": "2023-02-07T19:13:44Z",
+                            "distance": 1609.34,
+                            "start_index": 1189,
+                            "end_index": 1342,
+                            "total_elevation_gain": 0,
+                            "average_speed": 4.79,
+                            "max_speed": 5.712,
+                            "average_cadence": 91.5,
+                            "device_watts": false,
+                            "average_heartrate": 159.3,
+                            "max_heartrate": 166,
+                            "lap_index": 17,
+                            "split": 17,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 28758206351,
+                            "resource_state": 2,
+                            "name": "Lap 18",
+                            "activity": {
+                                "id": 8523943407,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 7786466,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 2,
+                            "moving_time": 2,
+                            "start_date": "2023-02-08T00:19:19Z",
+                            "start_date_local": "2023-02-07T19:19:19Z",
+                            "distance": 8.19,
+                            "start_index": 1343,
+                            "end_index": 1344,
+                            "total_elevation_gain": 0,
+                            "average_speed": 4.1,
+                            "max_speed": 4.767,
+                            "average_cadence": 90,
+                            "device_watts": false,
+                            "average_heartrate": 160,
+                            "max_heartrate": 160,
+                            "lap_index": 18,
+                            "split": 18,
+                            "pace_zone": 2,
+                            "isWorkout": true
+                        }
+                    ],
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.005114024731249623,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.12666666666666668,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 28758206355,
+                    "resource_state": 2,
+                    "name": "Lap 20",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 330,
+                    "moving_time": 330,
+                    "start_date": "2023-02-08T00:20:25Z",
+                    "start_date_local": "2023-02-07T19:20:25Z",
+                    "distance": 1628.62,
+                    "start_index": 1357,
+                    "end_index": 1505,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.935212121212121,
+                    "max_speed": 6.122,
+                    "average_cadence": 92.4,
+                    "device_watts": false,
+                    "average_heartrate": 162.6,
+                    "max_heartrate": 169,
+                    "lap_index": 20,
+                    "split": 20,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "component_laps": [
+                        {
+                            "id": 28758206355,
+                            "resource_state": 2,
+                            "name": "Lap 20",
+                            "activity": {
+                                "id": 8523943407,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 7786466,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 326,
+                            "moving_time": 326,
+                            "start_date": "2023-02-08T00:20:25Z",
+                            "start_date_local": "2023-02-07T19:20:25Z",
+                            "distance": 1609.34,
+                            "start_index": 1357,
+                            "end_index": 1503,
+                            "total_elevation_gain": 0,
+                            "average_speed": 4.94,
+                            "max_speed": 6.122,
+                            "average_cadence": 92.4,
+                            "device_watts": false,
+                            "average_heartrate": 162.6,
+                            "max_heartrate": 169,
+                            "lap_index": 20,
+                            "split": 20,
+                            "pace_zone": 4,
+                            "isWorkout": true
+                        },
+                        {
+                            "id": 28758206356,
+                            "resource_state": 2,
+                            "name": "Lap 21",
+                            "activity": {
+                                "id": 8523943407,
+                                "resource_state": 1
+                            },
+                            "athlete": {
+                                "id": 7786466,
+                                "resource_state": 1
+                            },
+                            "elapsed_time": 4,
+                            "moving_time": 4,
+                            "start_date": "2023-02-08T00:25:51Z",
+                            "start_date_local": "2023-02-07T19:25:51Z",
+                            "distance": 19.28,
+                            "start_index": 1504,
+                            "end_index": 1505,
+                            "total_elevation_gain": 0,
+                            "average_speed": 4.82,
+                            "max_speed": 5.1,
+                            "average_cadence": 91,
+                            "device_watts": false,
+                            "average_heartrate": 165,
+                            "max_heartrate": 166,
+                            "lap_index": 21,
+                            "split": 21,
+                            "pace_zone": 3,
+                            "isWorkout": true
+                        }
+                    ],
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.012005219660722015,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.1,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 28758206361,
+                    "resource_state": 2,
+                    "name": "Lap 23",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 335,
+                    "moving_time": 335,
+                    "start_date": "2023-02-08T00:28:46Z",
+                    "start_date_local": "2023-02-07T19:28:46Z",
+                    "distance": 1609.34,
+                    "start_index": 1520,
+                    "end_index": 1671,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.8,
+                    "max_speed": 5.672,
+                    "average_cadence": 92,
+                    "device_watts": false,
+                    "average_heartrate": 160.3,
+                    "max_heartrate": 165,
+                    "lap_index": 23,
+                    "split": 23,
+                    "pace_zone": 3,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.000024855527247849142,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.11666666666666667,
+                    "workoutBasis": "DISTANCE"
+                },
+                {
+                    "id": 28758206363,
+                    "resource_state": 2,
+                    "name": "Lap 25",
+                    "activity": {
+                        "id": 8523943407,
+                        "resource_state": 1
+                    },
+                    "athlete": {
+                        "id": 7786466,
+                        "resource_state": 1
+                    },
+                    "elapsed_time": 325,
+                    "moving_time": 325,
+                    "start_date": "2023-02-08T00:35:24Z",
+                    "start_date_local": "2023-02-07T19:35:24Z",
+                    "distance": 1609.34,
+                    "start_index": 1690,
+                    "end_index": 1837,
+                    "total_elevation_gain": 0,
+                    "average_speed": 4.95,
+                    "max_speed": 6.024,
+                    "average_cadence": 92.5,
+                    "device_watts": false,
+                    "average_heartrate": 165.9,
+                    "max_heartrate": 171,
+                    "lap_index": 25,
+                    "split": 25,
+                    "pace_zone": 4,
+                    "isWorkout": true,
+                    "workoutType": 0,
+                    "closestDistance": 1,
+                    "closestDistanceDifference": 0.000024855527247849142,
+                    "closestDistanceUnit": "mi",
+                    "closestTime": 300,
+                    "closestTimeDifference": 0.08333333333333333,
+                    "workoutBasis": "DISTANCE"
                 }
             ]
         }
