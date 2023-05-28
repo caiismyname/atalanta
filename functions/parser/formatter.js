@@ -70,20 +70,24 @@ function determineSetAverage(set, printer, printConfig) {
 
   */
 
-  let setAverage = ``;
+  let setAverage = `— Avg: `;
+  if (set.pattern.length === 1 && set.count === 1 && set.laps[0].component_laps === undefined) {
+    setAverage = `— `; // Remove the `Avg: ` if the set has no splits
+  }
+
+  
   const tokenLap = set.laps[0];
 
   if (set.pattern.length === 1) { // Only show average for homogeneous sets.
-    setAverage += ` — `;
     if (tokenLap.distance >= printer.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
-      setAverage += `Avg: ${printer.averagePaceOfSet(set)}`;
+      setAverage += `${printer.averagePaceOfSet(set)}`;
     } else {
       switch (printConfig.subMileDistanceValue) {
         case "TIME":
-          setAverage += `Avg: ${printer.averageTimeOfSetFormatted(set)}`;
+          setAverage += `${printer.averageTimeOfSetFormatted(set)}`;
           break;
         case "PACE":
-          setAverage += `Avg: ${printer.averagePaceOfSet(set)}`;
+          setAverage += `${printer.averagePaceOfSet(set)}`;
           break;
         case "NONE":
           break;
@@ -209,7 +213,7 @@ line 5:   4. 1:00, 29
     }
   }
 
-  let output = `⏱️ ${setName}${setAverage}`;
+  let output = `⏱️ ${setName} ${setAverage}`;
   if (splits !== ``) {
     output += `\n${splits}`;
   }
