@@ -71,30 +71,66 @@ function determineSetAverage(set, printer, printConfig) {
   */
 
   let setAverage = `— Avg: `;
-  if (set.pattern.length === 1 && set.count === 1 && set.laps[0].component_laps === undefined) {
+  if (set.count === 1  && set.laps[0].component_laps === undefined) {
     setAverage = `— `; // Remove the `Avg: ` if the set has no splits
   }
 
-  
-  const tokenLap = set.laps[0];
-
   if (set.pattern.length === 1) { // Only show average for homogeneous sets.
-    if (tokenLap.distance >= printer.milesToMeters(1.0) || tokenLap.workoutBasis === "TIME") {
-      setAverage += `${printer.averagePaceOfSet(set)}`;
-    } else {
-      switch (printConfig.subMileDistanceValue) {
-        case "TIME":
-          setAverage += `${printer.averageTimeOfSetFormatted(set)}`;
-          break;
-        case "PACE":
-          setAverage += `${printer.averagePaceOfSet(set)}`;
-          break;
-        case "NONE":
-          break;
-        default:
-          break;
+    const tokenLap = set.laps[0]; // For ease of reference, since the set is homogenous
+
+    if (tokenLap.workoutBasis === "DISTANCE") {
+      if (isKilometer(tokenLap.distance)) { // Hard coded override for km repeats
+        setAverage += `${printer.averageTimeOfSetFormatted(set)}`; // Just show the time, not lapPaceFormatted to avoid the `/km` suffix
+      } else {
+        switch (compareToMile(tokenLap.distance)) {
+          case "LESS":
+            switch (printConfig.subMileDistanceValue) {
+              case "TIME":
+                if (set.count === 1) {
+                  setAverage = `— `;
+                }
+                setAverage += `${printer.averageTimeOfSetFormatted(set)}`;
+                break;
+              case "PACE":
+                setAverage += `${printer.averagePaceOfSet(set)}`;
+                break;
+              case "NONE":
+                break;
+              default:
+                setAverage += `${printer.averageTimeOfSetFormatted(set)}`;
+                break;
+            }
+            break;
+          case "EQUALS":
+            setAverage += `${printer.averageTimeOfSetFormatted(set)}`; // Just show the time, not lapPaceFormatted to avoid the `/mi` suffix
+            break;
+          case "MORE":
+            switch (printConfig.greaterThanMileDistanceValue) {
+              case "TIME":
+                if (set.count === 1) {
+                  setAverage = `— `;
+                }
+                setAverage += `${printer.averageTimeOfSetFormatted(set)}`;
+                break;
+              case "PACE":
+                setAverage += `${printer.averagePaceOfSet(set)}`;
+                break;
+              case "NONE":
+                break;
+              default:
+                setAverage += `${printer.averagePaceOfSet(set)}`;
+                break;
+            }
+            break;
+          default:
+            break;
+        }
       }
+    } else if (tokenLap.workoutBasis === "TIME") { // Ignore config on time b/c showing total time on a time-based rep is pointless
+      setAverage += `${printer.averagePaceOfSet(set)}`;
     }
+  } else {
+    setAverage = ``; // If not a single-split lap or homogenous laps, remove since there's no average for heterogenous sets
   }
 
   return setAverage;
