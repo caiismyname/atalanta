@@ -84,6 +84,37 @@ function milesToMeters(miles) {
   return miles * 1609.34;
 }
 
+function isKilometer(distance) {
+  const marginOfError = 20.0; // meters
+  return Math.abs(distance - 1000) <= marginOfError;
+}
+
+function isMile(distance) {
+  const marginOfError = 0.02; // miles
+  return Math.abs((distance * 0.000621371) - 1.0) <= marginOfError;
+}
+
+function isLongerThanMile(distance) {
+  const marginOfError = 0.02; // miles
+  return (distance * 0.000621371) - (1.0 - marginOfError) >= 0;
+}
+
+// Returns "LESS", "EQUALS", "MORE"
+function compareToMile(distanceMeters) {
+  if (isMile(distanceMeters)) {
+    return "EQUALS";
+  } else {
+    if (isLongerThanMile(distanceMeters)) {
+      return "MORE";
+    } else {
+      return "LESS";
+    }
+  }
+}
+
+function isAutolap(lap) {
+  return isMile(lap.distance) || isKilometer(lap.distance);
+}
 
 module.exports = {
   arraysAreEqual,
@@ -94,16 +125,8 @@ module.exports = {
   metersToMiles,
   metersToMilesRounded,
   milesToMeters,
-  // secondsToMinutes,
-  // secondsPerMile,
-  // averagePaceOfSet,
-  // lapPaceFormatted,
-  // averageTimeOfSetFormatted,
-  // averageDistanceOfSetFormatted,
-  // secondsFormatter,
-  // indented,
-  // secondsToTimeFormatted,
-  // sixMinMileAsSpeed,
-  // isMile,
-  // isKilometer,
+  isMile,
+  isKilometer,
+  compareToMile,
+  isAutolap,
 };

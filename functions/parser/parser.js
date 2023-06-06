@@ -328,6 +328,51 @@ function mergeAbutingLaps(laps) {
 
 // Combines the 'addition' lap into the base lap, preserves all component laps in a property called `component_laps`
 function mergeLaps(base, addition) {
+  // Determine if the addition is actually a track vs. GPS error, by the heuristic:
+  // If the addition is < 4% of the previous lap's distance, and that distance is an auto-lapped distance (km or mile)
+
+  const trackMargin = 0.038;
+  const baseLapDistance = ("component_laps" in base) ? base.component_laps[base.component_laps.length - 1].distance : base.distance;
+  const autolapCount = ("component_laps" in base) ?
+    base.component_laps.reduce((a, b) => {
+      if (!b.trackErrorAdjusted && Helpers.isAutolap(b)) {
+        return a + 1;
+      }
+      return a;
+    }, 0) :
+    1;
+  const isTrackError = Helpers.isAutolap({distance: baseLapDistance}) && addition.distance <= baseLapDistance * autolapCount * trackMargin;
+
+  // console.log(isTrackError, addition.distance, (baseLapDistance * autolapCount) * trackMargin)
+
+  if (isTrackError) {
+    // Split the error across all previous auto-lappable-distance laps.
+    // Note that we only need to check the base since we're moving forward through the list, so if auto-lap triggered multiple times without being corrected (e.g. track 5k with km mode), the previous auto-lap laps will have already been merged into base by the time we reach the track addition
+
+    // Deterine if there are multiple laps to split the addition across
+    if ("component_laps" in base) {
+      base.component_laps.forEach((lap) => {
+        if (!lap.trackErrorAdjusted) {
+          lap.elapsed_time += addition.elapsed_time / autolapCount;
+          lap.moving_time += addition.moving_time / autolapCount;
+          lap.total_elevation_gain += addition.total_elevation_gain / autolapCount;
+          lap.trackErrorAdjusted = true; // Only adjust for error once, in case of a [lap, trackerror, lap, trackerror, rest] pattern
+
+          // Note, don't the addition to the distance, since the premise is that the GPS is under-reporting the distance, so by adding in the time, we'll make it an accurate distance-time match (since distance presumably is based on the track).
+        }
+      });
+    } else {
+      base.trackErrorAdjusted = true;
+      // Noop on splitting the addition because we only need to combine the addition into base stats, which happens outside the isTrackError block
+    }
+  } else { // Do not add the track error lap as its own component, otherwise the splits for the combined lap will look wrong
+    if ("component_laps" in base) {
+      base.component_laps.push({...addition});
+    } else {
+      base.component_laps = [{...base}, {...addition}]; // Spread notation prevents a circular reference
+    }
+  }
+
   const combinedElapsedTime = base.elapsed_time + addition.elapsed_time;
   const combinedMovingTime = base.moving_time + addition.moving_time;
   const combinedDistance = base.distance + addition.distance;
@@ -336,15 +381,11 @@ function mergeLaps(base, addition) {
   const combinedAverageSpeed = (base.distance + addition.distance) / (combinedMovingTime);
   const combinedMaxSpeed = Math.max(base.max_speed, addition.max_speed);
 
-  if ("component_laps" in base) {
-    base.component_laps.push({...addition});
-  } else {
-    base.component_laps = [{...base}, {...addition}]; // Spread notation prevents a circular reference
-  }
-
   base.elapsed_time = combinedElapsedTime;
   base.moving_time = combinedMovingTime;
-  base.distance = combinedDistance;
+  if (!isTrackError) {
+    base.distance = combinedDistance;
+  }
   base.end_index = combinedEndIndex;
   base.total_elevation_gain = combinedTotalElevationGain;
   base.average_speed = combinedAverageSpeed;

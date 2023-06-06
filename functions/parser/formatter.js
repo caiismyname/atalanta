@@ -1,34 +1,8 @@
 // const Helpers = require("./parser_helpers.js");
 const {FormatPrinter} = require("./formatter_helpers.js");
 const {defaultFormatConfig} = require("./defaultConfigs.js");
+const {isMile, isKilometer, compareToMile} = require("./parser_helpers.js");
 
-function isKilometer(distance) {
-  const marginOfError = 20.0; // meters
-  return Math.abs(distance - 1000) <= marginOfError;
-}
-
-function isMile(distance) {
-  const marginOfError = 0.02; // miles
-  return Math.abs((distance * 0.000621371) - 1.0) <= marginOfError;
-}
-
-function isLongerThanMile(distance) {
-  const marginOfError = 0.02; // miles
-  return (distance * 0.000621371) - (1.0 - marginOfError) >= 0;
-}
-
-// Returns "LESS", "EQUALS", "MORE"
-function compareToMile(distanceMeters) {
-  if (isMile(distanceMeters)) {
-    return "EQUALS";
-  } else {
-    if (isLongerThanMile(distanceMeters)) {
-      return "MORE";
-    } else {
-      return "LESS";
-    }
-  }
-}
 
 function determineSetName(set, printer, multiRepSetsShouldHaveParen = false) {
   let setName = "";
@@ -70,8 +44,8 @@ function determineSetAverage(set, printer, printConfig) {
 
   */
 
-  let setAverage = `— Avg: `;
-  if (set.count === 1  && set.laps[0].component_laps === undefined) {
+  let setAverage = `— Avg: `;
+  if (set.count === 1 && set.laps[0].component_laps === undefined) {
     setAverage = `— `; // Remove the `Avg: ` if the set has no splits
   }
 
