@@ -12,7 +12,7 @@ function determineSetName(set, printer, multiRepSetsShouldHaveParen = false) {
     const lap = set.laps.filter((lap) => lap.workoutType === workoutType)[0];
     const lapName = lap.workoutBasis === "DISTANCE" ?
         `${lap.closestDistance}${lap.closestDistanceUnit}` :
-        `${printer.secondsToTimeFormatted(lap.closestTime, true)}`;
+        `${printer.secondsToTimeFormatted(lap.closestTime, true, true)}`;
 
     setName += `${lapName}, `;
   }
@@ -229,11 +229,11 @@ line 5:   4. 1:00, 29
 
 function condenseSetSplits(nonCondensedSplits) {
   const lines = nonCondensedSplits.split("\n");
-  let outputLines = [];
+  const outputLines = [];
 
   for (const line of lines) {
     const components = line.split(",");
-    
+
     if (components.length <= 1) {
       outputLines.push(line);
       continue;
@@ -252,7 +252,7 @@ function condenseSetSplits(nonCondensedSplits) {
     if (components[0].includes("/mi") || components[0].includes("/km")) {
       // Paces
       const unit = components[0].split("/")[1];
-      let condensed = condenserHelper(components.map(time => time.slice(0, -3))); // remove the pace suffix
+      const condensed = condenserHelper(components.map((time) => time.slice(0, -3))); // remove the pace suffix
       outputLines.push(`${condensed} /${unit}`);
     } else {
       // Times
@@ -274,8 +274,8 @@ function condenserHelper(components) {
   }
 
   for (let time of components.slice(1)) { // Start from second element since we print the first one in full
-    time = time.replace(/\s/g, "") // remove whitespace
-    let minuteBasis = time.split(":")[0];
+    time = time.replace(/\s/g, ""); // remove whitespace
+    const minuteBasis = time.split(":")[0];
 
     if (prevMinuteBasis === minuteBasis) {
       if (time.includes(":")) {
@@ -294,6 +294,48 @@ function condenserHelper(components) {
   return condensed;
 }
 
+function setEligibleForRange(set) {
+  return set.pattern.length === 1;
+}
+
+function determineSetRange(set, formatPrinter, printConfig) {
+  // For now, we only do ranges if the set is homogeneous
+  const lap = set.laps[0];
+
+  if (lap.workoutBasis === "DISTANCE") {
+    switch (compareToMile(lap.distance)) {
+      case "LESS":
+        switch (printConfig.subMileDistanceValue) {
+          case "TIME":
+            return formatPrinter.setTimeRangeFormatted(set);
+          case "PACE":
+            return formatPrinter.setPaceRangeFormatted(set);
+          case "NONE":
+            return "";
+          default:
+            return formatPrinter.setTimeRangeFormatted(set);
+        }
+      case "EQUALS":
+        return formatPrinter.setTimeRangeFormatted(set);
+      case "MORE":
+        switch (printConfig.greaterThanMileDistanceValue) {
+          case "TIME":
+            return formatPrinter.setTimeRangeFormatted(set);
+          case "PACE":
+            return formatPrinter.setPaceRangeFormatted(set);
+          case "NONE":
+            return "";
+          default:
+            return formatPrinter.setPaceRangeFormatted(set);
+        }
+      default:
+        return "";
+    }
+  } else if (lap.workoutBasis === "TIME") { // Ignore config on time b/c showing total time on a time-based rep is pointless
+    return formatPrinter.setPaceRangeFormatted(set);
+  }
+}
+
 function printSets(sets, printConfig=defaultFormatConfig) {
   const formatPrinter = new FormatPrinter(printConfig.paceUnits, printConfig.sub90SecFormat);
 
@@ -304,11 +346,22 @@ function printSets(sets, printConfig=defaultFormatConfig) {
     const setName = determineSetName(set, formatPrinter, sets.length > 1);
     fullTitle += `${setName} + `;
 
-
-    // First line (workout format)
     const setNameForAverage = determineSetName(set, formatPrinter, false); // don't include parens
-    const setAverage = determineSetAverage(set, formatPrinter, printConfig)
-    let setSplits = determineSetSplits(set, formatPrinter, printConfig);
+    const setAverage = determineSetAverage(set, formatPrinter, printConfig);
+    let setSplits;
+
+    switch (printConfig.detailsMode) {
+      case "SPLITS":
+        setSplits = determineSetSplits(set, formatPrinter, printConfig);
+        break;
+      case "RANGE":
+        if (setEligibleForRange(set)) {
+          setSplits = determineSetRange(set, formatPrinter, printConfig);
+        } else {
+          setSplits = determineSetSplits(set, formatPrinter, printConfig);
+        }
+    }
+
     fullDescription += `⏱️ ${setNameForAverage} ${setAverage}${setSplits === `` ? "" : "\n"}${setSplits}\n\n`;
   }
 

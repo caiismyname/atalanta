@@ -18,7 +18,7 @@ function runFormatTests(verbose=false) {
 
   for (const run of workoutFormatTests["examples"]) {
     // FOCUS: track lap miles and removing the extra dingus
-    // if (![8523943407, 8372271876, 9137685200, 6563].includes(run.id)) {
+    // if (![347652898].includes(run.id)) {
     //   continue;
     // }
 

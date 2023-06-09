@@ -94,7 +94,7 @@ class FormatPrinter {
 
     // First check if we want to format as only seconds
     if (seconds <= secondsCutoff && this.sub90SecFormat === "SECONDS") {
-      return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}`;
+      return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}${displayWholeMinutes ? " sec" : ""}`;
     }
 
     if (minutes + secondsRes.minuteDiff === 0) {
@@ -157,6 +157,64 @@ class FormatPrinter {
     const roundedMiles = this.metersToMiles(averageDistance).toFixed(2);
 
     return roundedMiles;
+  }
+
+  setTimeRangeFormatted(set) {
+    let laps = set.laps;
+
+    if (laps.length === 1) {
+      if ("component_laps" in laps[0]) {
+        laps = laps[0].component_laps;
+      } else {
+        return this.secondsToTimeFormatted(set.laps[0].moving_time);
+      }
+    }
+
+    let min = 99999999999;
+    let max = 0;
+
+    for (const lap of laps) {
+      min = Math.min(lap.moving_time, min);
+      max = Math.max(lap.moving_time, max);
+    }
+
+    return `${this.secondsToTimeFormatted(min)} — ${this.secondsToTimeFormatted(max)}`;
+  }
+
+  setPaceRangeFormatted(set) {
+    const laps = set.laps;
+
+    if (laps.length === 1) {
+      if ("component_laps" in laps[0]) {
+        // If we're iterating over components of a single-lap set, treat as a time range.
+        return this.setTimeRangeFormatted(set);
+      } else {
+        return this.lapPaceFormatted(set.laps[0]);
+      }
+    }
+
+    let min = 99999999999;
+    let max = 0;
+
+    if (this.paceUnits === "MILE") {
+      for (const lap of laps) {
+        min = Math.min(this.secondsPerMile(lap), min);
+        max = Math.max(this.secondsPerMile(lap), max);
+      }
+    } else if (this.paceUnits === "KM") {
+      for (const lap of laps) {
+        min = Math.min(this.secondsPerKilometer(lap), min);
+        max = Math.max(this.secondsPerKilometer(lap), max);
+      }
+    }
+
+    const paceUnitAbbrv = this.paceUnits === "KM" ? "/km" : "/mi";
+
+    return `${this.secondsToTimeFormatted(min)}${paceUnitAbbrv} — ${this.secondsToTimeFormatted(max)}${paceUnitAbbrv}`;
+  }
+
+  setDistanceRangeFormatted(set) {
+
   }
 
   // eslint-disable-next-line no-unused-vars
