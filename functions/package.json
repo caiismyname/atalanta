@@ -7,6 +7,7 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
+    "test": "mocha",
     "logs": "firebase functions:log"
   },
   "engines": {
@@ -19,6 +20,7 @@
     "firebase-admin": "^11.5.0",
     "firebase-functions": "^4.2.0",
     "js-cookie": "^3.0.1",
+    "mocha": "^10.2.0",
     "pug": "^3.0.2",
     "serve-favicon": "^2.5.0"
   },

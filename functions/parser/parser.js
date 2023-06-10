@@ -206,6 +206,10 @@ function tagWorkoutTypes(laps, parserConfig) {
   for (let workoutType = 0; workoutType <= workoutTypeCounter; workoutType++) {
     const correspondingLaps = laps.filter((lap) => lap.workoutType === workoutType);
 
+    // If we know one format is more common, apply the biasFactor to make for a higher threshold before we categorize a workout's basis as the un-common format.
+    // The differences are normalized (essentially percentages) so the scale is equivalent across time and distance
+    const biasFactor = 2.0;
+
     // [start] Closest known distance/time basis determination
     for (const lap of correspondingLaps) {
       assignNearestDistance(lap);
@@ -213,52 +217,68 @@ function tagWorkoutTypes(laps, parserConfig) {
     }
 
     const distanceDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestDistanceDifference, 0) / correspondingLaps.length;
-    const timeDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestTimeDifference, 0) / correspondingLaps.length;
-
-    // Initialize StdDevs to a very large value so they don't override the difference averages by default
-    let distanceStdDev = 999;
-    let timeStdDev = 999;
+      const timeDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestTimeDifference, 0) / correspondingLaps.length;
 
     if (correspondingLaps.length > 1) { // StdDev of 1 lap is always 0, which would be pointless
+      
+      // Initialize StdDevs to a very large value so they don't override the difference averages by default
+      let distanceStdDev = 999;
+      let timeStdDev = 999;
+
       distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
       timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
+      
+      for (const lap of correspondingLaps) {
+        // First assign based on which guess is closest
+        switch (parserConfig.dominantWorkoutType) {
+          case "DISTANCE":
+            lap.workoutBasis = (distanceStdDev <= (biasFactor * timeStdDev) ? "DISTANCE" : "TIME");
+            break;
+          case "TIME":
+            lap.workoutBasis = (timeStdDev <= (biasFactor * distanceStdDev) ? "TIME" : "DISTANCE");
+            break;
+          case "BALANCED":
+            lap.workoutBasis = (distanceStdDev <= timeStdDev ? "DISTANCE" : "TIME");
+            break;
+          default: // Same as balanced
+            lap.workoutBasis = (distanceStdDev <= timeStdDev ? "DISTANCE" : "TIME");
+            break;
+        }
+
+        // But because the guesses are inherantly limited because they're compared against a pre-defined list of valid distances/times, it's possible to see a new value that's not on the list. This is guarded for by checking the standard deviation and, if 0, taking that value instead.
+        if (lap.workoutBasis === "TIME" && distanceStdDev === 0) {
+          lap.workoutBasis = "DISTANCE";
+          lap.closestDistance = lap.distance;
+          // lap.closestDistanceUnit =
+        } else if (timeStdDev === 0.0.toFixed(4)) { // TODO ideally, we don't need the first clause in the if
+          lap.workoutBasis = "TIME";
+          lap.closestTime = lap.moving_time;
+          // Don't need to assign unit because times will be auto formatted
+        }
+      }
+    } else {
+      for (const lap of correspondingLaps) {
+        // First assign based on which guess is closest
+        switch (parserConfig.dominantWorkoutType) {
+          case "DISTANCE":
+            lap.workoutBasis = (distanceDifferenceAverage <= (biasFactor * timeDifferenceAverage) ? "DISTANCE" : "TIME");
+            break;
+          case "TIME":
+            lap.workoutBasis = (timeDifferenceAverage <= (biasFactor * distanceDifferenceAverage) ? "TIME" : "DISTANCE");
+            break;
+          case "BALANCED":
+            lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
+            break;
+          default: // Same as balanced
+            lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
+            break;
+        }
+      }
     }
 
     // print(`timeAvg: ${timeDifferenceAverage}, distAvg: ${distanceDifferenceAverage}`);
     // print(`timeStd: ${timeStdDev}, distStd: ${distanceStdDev}`);
 
-    // If we know one format is more common, apply the biasFactor to make for a higher threshold before we categorize a workout's basis as the un-common format.
-    // The differences are normalized (essentially percentages) so the scale is equivalent across time and distance
-    const biasFactor = 2.0;
-
-    for (const lap of correspondingLaps) {
-      // First assign based on which guess is closest
-      switch (parserConfig.dominantWorkoutType) {
-        case "DISTANCE":
-          lap.workoutBasis = (distanceDifferenceAverage <= (biasFactor * timeDifferenceAverage) ? "DISTANCE" : "TIME");
-          break;
-        case "TIME":
-          lap.workoutBasis = (timeDifferenceAverage <= (biasFactor * distanceDifferenceAverage) ? "TIME" : "DISTANCE");
-          break;
-        case "BALANCED":
-          lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
-          break;
-        default: // Same as balanced
-          lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
-          break;
-      }
-
-      // But because the guesses are inherantly limited because they're compared against a pre-defined list of valid distances/times, it's possible to see a new value that's not on the list. This is guarded for by checking the standard deviation and, if 0, taking that value instead.
-      if (lap.workoutBasis === "TIME" && distanceStdDev === 0) {
-        lap.workoutBasis = "DISTANCE";
-        lap.closestDistance = lap.distance;
-        // lap.closestDistanceUnit =
-      } else if (timeStdDev === 0.0.toFixed(4)) { // TODO ideally, we don't need the first clause in the if
-        lap.workoutBasis = "TIME";
-        lap.closestTime = lap.moving_time;
-        // Don't need to assign unit because times will be auto formatted
-      }
-    }
     // [end]
   }
 
