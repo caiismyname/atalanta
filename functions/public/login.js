@@ -3,7 +3,7 @@ import {getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged} fro
 
 const firebaseConfig = {
   apiKey: "AIzaSyDcNplg3hUv_ulTSUFVc-2RcJFE1WW1gFE",
-  authDomain: "stravaworkout.com",
+  authDomain: "workoutsplitz.com",
   databaseURL: "https://atalanta-12c63-default-rtdb.firebaseio.com",
   projectId: "atalanta-12c63",
   storageBucket: "atalanta-12c63.appspot.com",
@@ -26,7 +26,7 @@ onAuthStateChanged(auth, (user) => {
     auth.currentUser.getIdToken().then(
         (token) => {
           document.cookie = `__session=${token}`; // Firebase functions' caching will strip any tokens not named `__session`
-          window.location.replace("https://stravaworkout.com/home");
+          window.location.replace("https://workoutsplitz.com/home");
           // window.location.replace("http://localhost:5002/home");
         },
         (error) => {

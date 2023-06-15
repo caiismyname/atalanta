@@ -217,19 +217,18 @@ function tagWorkoutTypes(laps, parserConfig) {
     }
 
     const distanceDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestDistanceDifference, 0) / correspondingLaps.length;
-      const timeDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestTimeDifference, 0) / correspondingLaps.length;
+    const timeDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestTimeDifference, 0) / correspondingLaps.length;
 
     if (correspondingLaps.length > 1) { // StdDev of 1 lap is always 0, which would be pointless
-      
       // Initialize StdDevs to a very large value so they don't override the difference averages by default
       let distanceStdDev = 999;
       let timeStdDev = 999;
 
       distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
       timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
-      
+
       for (const lap of correspondingLaps) {
-        // First assign based on which guess is closest
+        // Assign based on lowest std dev.
         switch (parserConfig.dominantWorkoutType) {
           case "DISTANCE":
             lap.workoutBasis = (distanceStdDev <= (biasFactor * timeStdDev) ? "DISTANCE" : "TIME");

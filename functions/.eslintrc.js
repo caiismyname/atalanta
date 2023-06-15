@@ -2,6 +2,7 @@ module.exports = {
   env: {
     es6: true,
     browser: true,
+    mocha: true,
     node: true,
   },
   parserOptions: {
