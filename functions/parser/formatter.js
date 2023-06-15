@@ -360,6 +360,10 @@ function printSets(sets, printConfig=defaultFormatConfig) {
         } else {
           setSplits = determineSetSplits(set, formatPrinter, printConfig);
         }
+      default:
+        setSplits = determineSetSplits(set, formatPrinter, printConfig);
+        break;
+
     }
 
     fullDescription += `⏱️ ${setNameForAverage} ${setAverage}${setSplits === `` ? "" : "\n"}${setSplits}\n\n`;
