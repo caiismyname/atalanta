@@ -101,6 +101,30 @@ html(lang="en")
             | total time
           br
           br
+          p 
+            b Display all splits or just show the range:
+          label.radio-label
+            input(type="radio", name="detailsMode", value="SPLITS", checked=(preferences.format.detailsMode === "SPLITS"))
+            | All splits (e.g. "5:38, 5:41, 5:42, 5:39")
+          br
+          label.radio-label
+            input(type="radio", name="detailsMode", value="RANGE", checked=(preferences.format.detailsMode === "RANGE"))
+            | Range (e.g. "5:38 — 5:42")
+          br
+          br
+          p 
+            b Display splits in full or condensed:
+          label.radio-label
+            input(type="radio", name="splitsFormat", value="FULL", checked=(preferences.format.splitsFormat === "FULL"))
+            | Full (e.g. "5:38, 5:41, 5:42, 5:39")
+          br
+          label.radio-label
+            input(type="radio", name="splitsFormat", value="CONDENSED", checked=(preferences.format.splitsFormat === "CONDENSED"))
+            | Condensed (e.g. "5:38,41,42,39")
+          
+          
+          br
+          br
           br
 
           button(type="submit") Save
