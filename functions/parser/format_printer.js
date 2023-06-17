@@ -1,7 +1,8 @@
 class FormatPrinter {
-  constructor(paceUnits, sub90SecFormat) {
-    this.paceUnits = paceUnits;
-    this.sub90SecFormat = sub90SecFormat;
+  constructor(formatConfig) {
+    // Extract just the configs used by this class for slightly easier referencing in code
+    this.paceUnits = formatConfig.paceUnits;
+    this.sub90SecFormat = formatConfig.sub90SecFormat;
     this.sixMinMileAsSpeed = 4.47;
   }
 

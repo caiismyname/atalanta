@@ -1,5 +1,5 @@
 const Helpers = require("./parser_helpers.js");
-const {printSets} = require("./formatter.js");
+const {Formatter} = require("./formatter.js");
 const {defaultParserConfig, defaultFormatConfig} = require("./defaultConfigs.js");
 
 // This is the entrypoint
@@ -27,7 +27,9 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
   tagWorkoutTypes(mergedLaps, config.parser); // Mutates in place
   const sets = extractPatterns(mergedLaps.filter((lap) => lap.isWorkout));
-  const summary = printSets(sets, config.format);
+
+  const formatter = new Formatter(config.format);
+  const summary = formatter.printSets(sets);
 
   if (verbose) {
     console.log(`PARSING: ${run.name} (${run.id})`);
