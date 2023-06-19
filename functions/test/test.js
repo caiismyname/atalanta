@@ -45,7 +45,7 @@ function countOccurances(search, whole) {
 describe("Formatter", () => {
   describe("SET NAMING", () => {
     describe("Distance Intervals", () => {
-      it("Basic Interval — 4 x 1mi", () => {
+      it("Basic Interval — 4 x 1mi", () => {
         resetConfigs();
         const run = testRuns["4 x 1mi"];
         const title = parseWorkout({
@@ -362,6 +362,73 @@ describe("Formatter", () => {
   });
 
   describe("SPLITS FORMATTING", () => {
+    describe("Splits", () => {
+      it("Single-split laps without components should not show splits", () => {
+        resetConfigs();
+        const run = testRuns["800m"];
+
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(formatter.determineSetDetails(res.sets[0]), "");
+      });
+
+      it("Single-split laps with components should show splits", () => {
+        resetConfigs();
+        const run = testRuns["4mi"];
+
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+
+        console.log(splits);
+        assert.notEqual(splits, "");
+        assert.ok(countOccurances(", ", splits), 3);
+      });
+
+      it("Heterogeneous rep splits formatting", () => {
+        resetConfigs();
+        const run = testRuns["4 x (400m, 200m, 100m)"];
+
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+
+        ["1.", "2.", "3.", "4."].forEach((x) => {
+          assert.ok(splits.includes(x));
+        });
+        assert.ok(countOccurances("\n", splits), 3);
+        assert.ok(splits.includes("1. 1:20, 42, 20\n"));
+      });
+    });
+
+
     describe("Seconds", () => {
       it("Default — minute:second", () => {
         resetConfigs();
@@ -914,6 +981,121 @@ describe("Formatter", () => {
         assert.equal(countOccurances(" ", condensedSplits), 12);
         assert.ok(outputIsTime(condensedSplits));
       });
+    });
+  });
+
+  describe("DEFAULTS FALLTHROUGH", () => {
+    const testRunNames = ["4 x 2mi", "4 x 400m", "(4 x (400m, 200m, 100m)) + 4mi", "4 x 2:30"];
+    Object.keys(defaultFormatConfig).forEach((configOption) => {
+      describe(`${configOption}`, () => {
+        testRunNames.forEach((runName) => {
+          it(`${runName}`, () => {
+            resetConfigs();
+
+            let run = testRuns[runName];
+            const defaultRes = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            });
+
+
+            resetConfigs();
+            run = testRuns[runName];
+            delete formatConfig[configOption];
+
+            const removeRes = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            });
+
+            assert.equal(defaultRes.summary.title, removeRes.summary.title);
+            assert.equal(defaultRes.summary.description, removeRes.summary.description);
+          });
+
+          it(`${runName} — range`, () => {
+            resetConfigs();
+
+            let run = testRuns[runName];
+            formatConfig.detailsMode = "RANGE";
+            const defaultRes = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            });
+
+
+            resetConfigs();
+            run = testRuns[runName];
+            delete formatConfig[configOption];
+            formatConfig.detailsMode = "RANGE";
+
+            const removeRes = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            });
+
+            assert.equal(defaultRes.summary.title, removeRes.summary.title);
+            assert.equal(defaultRes.summary.description, removeRes.summary.description);
+          });
+        });
+      });
+    });
+  });
+});
+
+
+describe("Parser", () => {
+  describe("DEFAULTS FALLTHROUGH", () => {
+    it("dominantWorkoutType", () => {
+      resetConfigs();
+
+      let run = testRuns["4 x 2mi"];
+      const defaultRes = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+
+      resetConfigs();
+      run = testRuns["4 x 2mi"];
+      delete parserConfig["dominantWorkoutType"];
+
+      const removeRes = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(defaultRes.summary.title, removeRes.summary.title);
+      assert.equal(defaultRes.summary.description, removeRes.summary.description);
     });
   });
 });
