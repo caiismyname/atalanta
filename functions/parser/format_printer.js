@@ -114,10 +114,13 @@ class FormatPrinter {
     const totalTime = set.laps.reduce((a, b) => a + b.moving_time, 0.0);
     const totalDistance = set.laps.reduce((a, b) => a + b.distance, 0.0);
 
-    if (this.paceUnits === "KM") {
-      return this.pacePerKilometerFormatted({"distance": totalDistance, "moving_time": totalTime});
-    } else if (this.paceUnits === "MILE") {
-      return this.pacePerMileFormatted({"distance": totalDistance, "moving_time": totalTime});
+    switch (this.paceUnits) {
+      case "KM":
+        return this.pacePerKilometerFormatted({"distance": totalDistance, "moving_time": totalTime});
+      case "MILE":
+        return this.pacePerMileFormatted({"distance": totalDistance, "moving_time": totalTime});
+      default:
+        return this.pacePerMileFormatted({"distance": totalDistance, "moving_time": totalTime});
     }
   }
 
@@ -137,12 +140,13 @@ class FormatPrinter {
 
   // eslint-disable-next-line no-unused-vars
   lapPaceFormatted(lap) {
-    if (this.paceUnits === "KM") {
-      return this.pacePerKilometerFormatted(lap);
-    } else if (this.paceUnits === "MILE") {
-      return this.pacePerMileFormatted(lap);
-    } else {
-      return ``;
+    switch (this.paceUnits) {
+      case "KM":
+        return this.pacePerKilometerFormatted(lap);
+      case "MILE":
+        return this.pacePerMileFormatted(lap);
+      default:
+        return this.pacePerMileFormatted(lap);
     }
   }
 
@@ -197,19 +201,28 @@ class FormatPrinter {
     let min = 99999999999;
     let max = 0;
 
-    if (this.paceUnits === "MILE") {
-      for (const lap of laps) {
-        min = Math.min(this.secondsPerMile(lap), min);
-        max = Math.max(this.secondsPerMile(lap), max);
-      }
-    } else if (this.paceUnits === "KM") {
-      for (const lap of laps) {
-        min = Math.min(this.secondsPerKilometer(lap), min);
-        max = Math.max(this.secondsPerKilometer(lap), max);
-      }
+    switch (this.paceUnits) {
+      case "MILE":
+        for (const lap of laps) {
+          min = Math.min(this.secondsPerMile(lap), min);
+          max = Math.max(this.secondsPerMile(lap), max);
+        }
+        break;
+      case "KM":
+        for (const lap of laps) {
+          min = Math.min(this.secondsPerKilometer(lap), min);
+          max = Math.max(this.secondsPerKilometer(lap), max);
+        }
+        break;
+      default:
+        for (const lap of laps) {
+          min = Math.min(this.secondsPerMile(lap), min);
+          max = Math.max(this.secondsPerMile(lap), max);
+        }
+        break;
     }
 
-    const paceUnitAbbrv = this.paceUnits === "KM" ? "/km" : "/mi";
+    const paceUnitAbbrv = this.paceUnits === "KM" ? "/km" : "/mi"; // matches the switch default of miles
 
     return `${this.secondsToTimeFormatted(min)}${paceUnitAbbrv} — ${this.secondsToTimeFormatted(max)}${paceUnitAbbrv}`;
   }

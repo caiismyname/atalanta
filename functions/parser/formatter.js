@@ -73,8 +73,6 @@ class Formatter {
                 case "PACE":
                   setAverage += `${this.printer.averagePaceOfSet(set)}`;
                   break;
-                case "NONE":
-                  break;
                 default:
                   setAverage += `${this.printer.averageTimeOfSetFormatted(set)}`;
                   break;
@@ -93,8 +91,6 @@ class Formatter {
                   break;
                 case "PACE":
                   setAverage += `${this.printer.averagePaceOfSet(set)}`;
-                  break;
-                case "NONE":
                   break;
                 default:
                   setAverage += `${this.printer.averagePaceOfSet(set)}`;
@@ -158,10 +154,8 @@ class Formatter {
                 case "PACE":
                   repDetails += `${this.printer.lapPaceFormatted(lap)}, `;
                   break;
-                case "NONE":
-                  break;
                 default:
-                  repDetails += `${this.printer.lapPaceFormatted(lap)}, `;
+                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `;
                   break;
               }
               break;
@@ -175,8 +169,6 @@ class Formatter {
                   break;
                 case "PACE":
                   repDetails += `${this.printer.lapPaceFormatted(lap)}, `;
-                  break;
-                case "NONE":
                   break;
                 default:
                   repDetails += `${this.printer.lapPaceFormatted(lap)}, `;
@@ -226,6 +218,7 @@ class Formatter {
     if (this.formatConfig.splitsFormat === "CONDENSED" && !isHeterogeneous) {
       return this.condenseSetSplits(splits);
     }
+
     return splits;
     // if (splits !== ``) {
     //   output += `\n${splits}`;
@@ -316,8 +309,6 @@ class Formatter {
               return this.printer.setTimeRangeFormatted(set);
             case "PACE":
               return this.printer.setPaceRangeFormatted(set);
-            case "NONE":
-              return "";
             default:
               return this.printer.setTimeRangeFormatted(set);
           }
@@ -329,8 +320,6 @@ class Formatter {
               return this.printer.setTimeRangeFormatted(set);
             case "PACE":
               return this.printer.setPaceRangeFormatted(set);
-            case "NONE":
-              return "";
             default:
               return this.printer.setPaceRangeFormatted(set);
           }
