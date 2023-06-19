@@ -362,6 +362,73 @@ describe("Formatter", () => {
   });
 
   describe("SPLITS FORMATTING", () => {
+    describe("Splits", () => {
+      it("Single-split laps without components should not show splits", () => {
+        resetConfigs();
+        const run = testRuns["800m"];
+
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(formatter.determineSetDetails(res.sets[0]), "");
+      });
+
+      it("Single-split laps with components should show splits", () => {
+        resetConfigs();
+        const run = testRuns["4mi"];
+
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+
+        console.log(splits);
+        assert.notEqual(splits, "");
+        assert.ok(countOccurances(", ", splits), 3);
+      });
+
+      it("Heterogeneous rep splits formatting", () => {
+        resetConfigs();
+        const run = testRuns["4 x (400m, 200m, 100m)"];
+
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+
+        ["1.", "2.", "3.", "4."].forEach((x) => {
+          assert.ok(splits.includes(x));
+        });
+        assert.ok(countOccurances("\n", splits), 3);
+        assert.ok(splits.includes("1. 1:20, 42, 20\n"));
+      });
+    });
+
+
     describe("Seconds", () => {
       it("Default — minute:second", () => {
         resetConfigs();
@@ -926,7 +993,6 @@ describe("Formatter", () => {
             resetConfigs();
 
             let run = testRuns[runName];
-            // formatConfig.detailsMode = "RANGE";
             const defaultRes = parseWorkout({
               run: run,
               config: {
@@ -941,7 +1007,6 @@ describe("Formatter", () => {
             resetConfigs();
             run = testRuns[runName];
             delete formatConfig[configOption];
-            // formatConfig.detailsMode = "RANGE";
 
             const removeRes = parseWorkout({
               run: run,

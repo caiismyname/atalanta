@@ -2,17 +2,14 @@ const fs = require("fs");
 const Helpers = require("../parser_helpers.js");
 const testRuns = require("../../test/test_runs.json");
 
-const name = "4mi";
+const name = "800m";
 const workoutSecondsPerMile = 330;
 const restSecondsPerMile = 480;
 
 // Structure: [(value, "METERS" or "SECONDS", isWorkout), ...]
 const desiredLaps = [
   [1609.3, "METERS", false],
-  [1609.3, "METERS", true],
-  [1609.3, "METERS", true],
-  [1609.3, "METERS", true],
-  [1609.3, "METERS", true],
+  [800, "METERS", true],
   [1609.3, "METERS", false],
 ];
 
