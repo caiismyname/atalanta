@@ -1,11 +1,9 @@
 const assert = require("assert");
 const {parseWorkout} = require("../parser/parser.js");
 const {Formatter} = require("../parser/formatter.js");
-// const {FormatPrinter} = require("../parser/format_printer.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
 
 const defaultTestRuns = require("./test_runs.json");
-
 
 // Set these as global
 let parserConfig = {...defaultParserConfig};
@@ -29,9 +27,24 @@ function outputIsPace(output) {
   return output.includes("/mi") || output.includes("/km");
 }
 
+function countOccurances(search, whole) {
+  let count = 0;
+  let lastSeen = -2;
+
+  while (lastSeen !== -1) {
+    lastSeen = whole.indexOf(search);
+    if (lastSeen !== -1 ) {
+      count += 1;
+      whole = whole.slice(lastSeen + 1);
+    }
+  }
+
+  return (count);
+}
+
 describe("Formatter", () => {
-  describe("Set Name Formatting", () => {
-    describe("Intervals", () => {
+  describe("SET NAMING", () => {
+    describe("Distance Intervals", () => {
       it("Basic Interval — 4 x 1mi", () => {
         resetConfigs();
         const run = testRuns["4 x 1mi"];
@@ -148,7 +161,7 @@ describe("Formatter", () => {
     });
   });
 
-  describe("Average Formatting", () => {
+  describe("AVERAGE FORMATTING", () => {
     it("Heterogeneous Intervals — No average", () => {
       resetConfigs();
       const run = testRuns["4 x (400m, 200m, 100m)"];
@@ -345,6 +358,562 @@ describe("Formatter", () => {
       const averageOutput = formatter.determineSetAverage(res.sets[0]);
       assert.ok(outputIsTime(averageOutput));
       assert.ok(averageOutput.includes("21:"));
+    });
+  });
+
+  describe("SPLITS FORMATTING", () => {
+    describe("Seconds", () => {
+      it("Default — minute:second", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetSplits(res.sets[0]);
+        assert.ok(splits.includes("1:"));
+      });
+
+      it("Seconds for times under 90", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        formatConfig.sub90SecFormat = "SECONDS";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetSplits(res.sets[0]);
+        assert.ok(!splits.includes("1:"));
+        assert.ok(splits.includes(80));
+      });
+
+      it("Times over 90 are unaffected", () => {
+        resetConfigs();
+
+        let run = testRuns["4 x 2mi"];
+        let formatter = new Formatter(formatConfig);
+        const defaultRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const defaultSplits = formatter.determineSetSplits(defaultRes.sets[0]);
+
+        resetConfigs();
+        run = testRuns["4 x 2mi"];
+        formatConfig.sub90SecFormat = "SECONDS";
+        formatter = new Formatter(formatConfig);
+        const secondsRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const secondsSplits = formatter.determineSetSplits(secondsRes.sets[0]);
+        assert.equal(defaultSplits, secondsSplits);
+      });
+    });
+
+    describe("Condensed", () => {
+      it("4 x 2mi default (non-condensed)", () => {
+        resetConfigs();
+
+        let run = testRuns["4 x 2mi"];
+        let formatter = new Formatter(formatConfig);
+        const defaultRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const defaultSplits = formatter.determineSetSplits(defaultRes.sets[0]);
+
+        resetConfigs();
+
+        run = testRuns["4 x 2mi"];
+        formatConfig.splitsFormat = "CONDENSED";
+        formatter = new Formatter(formatConfig);
+        const condensedRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const condensedSplits = formatter.determineSetSplits(condensedRes.sets[0]);
+
+        assert.notEqual(condensedSplits, defaultSplits);
+        assert.equal(countOccurances(":", defaultSplits), 4);
+        assert.ok(outputIsPace(defaultSplits));
+      });
+
+      it("4 x 2mi condensed (paces)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 2mi"];
+        formatConfig.splitsFormat = "CONDENSED";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetSplits(res.sets[0]);
+        assert.equal(countOccurances(":", splits), 1);
+        assert.ok(outputIsPace(splits));
+      });
+
+      it("4 x 2mi condensed (times)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 2mi"];
+        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.greaterThanMileDistanceValue = "TIME";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetSplits(res.sets[0]);
+        assert.equal(countOccurances(":", splits), 3);
+        assert.equal(splits, "11:08,00,10:47,11:22");
+        assert.ok(outputIsTime(splits));
+      });
+
+      it("4 x 400m default (non-condensed)", () => {
+        resetConfigs();
+
+        let run = testRuns["4 x 400m"];
+        let formatter = new Formatter(formatConfig);
+        const defaultRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const defaultSplits = formatter.determineSetSplits(defaultRes.sets[0]);
+
+
+        resetConfigs();
+
+        run = testRuns["4 x 400m"];
+        formatConfig.splitsFormat = "CONDENSED";
+        formatter = new Formatter(formatConfig);
+        const condensedRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const condensedSplits = formatter.determineSetSplits(condensedRes.sets[0]);
+
+        assert.notEqual(defaultSplits, condensedSplits);
+        assert.equal(countOccurances(":", defaultSplits), 4);
+        assert.ok(outputIsTime(defaultSplits));
+      });
+
+      it("4 x 400m condensed", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        formatConfig.splitsFormat = "CONDENSED";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetSplits(res.sets[0]);
+        assert.equal(countOccurances(":", splits), 1);
+        assert.ok(outputIsTime(splits));
+      });
+
+      it("4 x 400m condensed (seconds)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.sub90SecFormat = "SECONDS";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetSplits(res.sets[0]);
+        assert.equal(countOccurances(" ", splits), 0);
+        assert.equal(splits, "86,84,80,85");
+      });
+
+      it("4 x 400m condensed (pace)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.subMileDistanceValue = "PACE";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetSplits(res.sets[0]);
+        assert.equal(countOccurances(":", splits), 1);
+        assert.ok(outputIsPace(splits));
+      });
+
+      it("Heterogenous sets shouldn't condense", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x (400m, 200m, 100m)"];
+        formatConfig.splitsFormat = "CONDENSED";
+        let formatter = new Formatter(formatConfig);
+        const condensedRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const condensedSplits = formatter.determineSetSplits(condensedRes.sets[0]);
+
+
+        // Compare it against the default config to show nothing's changed
+        resetConfigs();
+        formatter = new Formatter(formatConfig);
+        const defaultRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const defaultSplits = formatter.determineSetSplits(defaultRes.sets[0]);
+
+        assert.equal(defaultSplits, condensedSplits);
+
+        // Other heuristics
+        assert.equal(countOccurances(":", condensedSplits), 4);
+        assert.equal(countOccurances(" ", condensedSplits), 12);
+        assert.ok(outputIsTime(condensedSplits));
+      });
+    });
+
+    describe("Ranges", () => {
+      it("4 x 2mi default (splits, not ranges)", () => {
+        resetConfigs();
+
+        let run = testRuns["4 x 2mi"];
+        let formatter = new Formatter(formatConfig);
+        const defaultRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const defaultSplits = formatter.determineSetDetails(defaultRes.sets[0]);
+
+        resetConfigs();
+        run = testRuns["4 x 2mi"];
+        formatConfig.detailsMode = "RANGE";
+        formatter = new Formatter(formatConfig);
+        const rangeRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const rangeSplits = formatter.determineSetDetails(rangeRes.sets[0]);
+
+        assert.notEqual(rangeSplits, defaultSplits);
+        assert.equal(countOccurances(":", defaultSplits), 4);
+        assert.equal(countOccurances(", ", defaultSplits), 3);
+        assert.equal(countOccurances("—", defaultSplits), 0);
+        assert.ok(outputIsPace(defaultSplits));
+      });
+
+      it("4 x 2mi range (paces)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 2mi"];
+        formatConfig.detailsMode = "RANGE";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+        assert.equal(countOccurances(":", splits), 2);
+        assert.equal(countOccurances("—", splits), 1);
+        assert.ok(outputIsPace(splits));
+      });
+
+      it("4 x 2mi range (time)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 2mi"];
+        formatConfig.detailsMode = "RANGE";
+        formatConfig.greaterThanMileDistanceValue = "TIME";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+        assert.equal(countOccurances(":", splits), 2);
+        assert.equal(countOccurances("—", splits), 1);
+        assert.ok(splits.includes("10"));
+        assert.ok(splits.includes("11"));
+        assert.ok(outputIsTime(splits));
+      });
+
+      it("4 x 400m default (splits, not ranges)", () => {
+        resetConfigs();
+
+        let run = testRuns["4 x 400m"];
+        let formatter = new Formatter(formatConfig);
+        const defaultRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const defaultSplits = formatter.determineSetDetails(defaultRes.sets[0]);
+
+        resetConfigs();
+        run = testRuns["4 x 400m"];
+        formatConfig.detailsMode = "RANGE";
+        formatter = new Formatter(formatConfig);
+        const rangeRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const rangeSplits = formatter.determineSetDetails(rangeRes.sets[0]);
+
+        assert.notEqual(rangeSplits, defaultSplits);
+        assert.equal(countOccurances(":", defaultSplits), 4);
+        assert.equal(countOccurances(", ", defaultSplits), 3);
+        assert.equal(countOccurances("—", defaultSplits), 0);
+        assert.ok(outputIsTime(defaultSplits));
+      });
+
+      it("4 x 400m range (times)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        formatConfig.detailsMode = "RANGE";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+
+        assert.equal(countOccurances(":", splits), 2);
+        assert.equal(countOccurances(", ", splits), 0);
+        assert.equal(countOccurances("—", splits), 1);
+        assert.ok(outputIsTime(splits));
+      });
+
+      it("4 x 400m range (times, seconds)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        formatConfig.detailsMode = "RANGE";
+        formatConfig.sub90SecFormat = "SECONDS";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+
+        assert.equal(countOccurances(":", splits), 0);
+        assert.equal(countOccurances(", ", splits), 0);
+        assert.equal(countOccurances("—", splits), 1);
+      });
+
+      it("4 x 400m range (paces)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        formatConfig.detailsMode = "RANGE";
+        formatConfig.subMileDistanceValue = "PACE";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+
+        assert.equal(countOccurances(":", splits), 2);
+        assert.equal(countOccurances(", ", splits), 0);
+        assert.equal(countOccurances("—", splits), 1);
+        assert.ok(outputIsPace(splits));
+      });
+
+      it("Heterogenous sets shouldn't use range", () => {
+        resetConfigs();
+
+        let run = testRuns["4 x (400m, 200m, 100m)"];
+        formatConfig.detailsMode = "RANGE";
+        let formatter = new Formatter(formatConfig);
+        const condensedRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const condensedSplits = formatter.determineSetSplits(condensedRes.sets[0]);
+
+
+        // Compare it against the default config to show nothing's changed
+        resetConfigs();
+        run = testRuns["4 x (400m, 200m, 100m)"];
+        formatter = new Formatter(formatConfig);
+        const defaultRes = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const defaultSplits = formatter.determineSetSplits(defaultRes.sets[0]);
+
+        assert.equal(defaultSplits, condensedSplits);
+
+        // Other heuristics
+        assert.equal(countOccurances(":", condensedSplits), 4);
+        assert.equal(countOccurances(" ", condensedSplits), 12);
+        assert.ok(outputIsTime(condensedSplits));
+      });
     });
   });
 });

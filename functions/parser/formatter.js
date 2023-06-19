@@ -138,6 +138,7 @@ class Formatter {
   */
 
     let splits = ``;
+    const isHeterogeneous = set.pattern.length > 1;
 
     // Individual rep details
     if (set.laps.length > 1) {
@@ -193,7 +194,7 @@ class Formatter {
         // If each rep consists of more than one component (e.g. 3 x 1,2,3,2,1), then list each rep on its own line
 
         // Every time we hit the end of a rep...
-        if (set.pattern.length > 1 && (lapCounter % set.pattern.length) === set.pattern.length - 1) {
+        if (isHeterogeneous && (lapCounter % set.pattern.length) === set.pattern.length - 1) {
           // Prefix an indent and the rep number
           splits += `\t${Math.ceil(lapCounter / set.pattern.length)}. ${repDetails.slice(0, -2)}`; // slice to remove ending ", "
 
@@ -201,13 +202,13 @@ class Formatter {
             splits += `\n`; // Only add newline if not on the last rep, to avoid an extra linebreak
             repDetails = "";
           }
-        } else if (set.pattern.length === 1 && lapCounter === set.count - 1) { // Last rep, not a multi-component set
+        } else if (!isHeterogeneous && lapCounter === set.count - 1) { // Last rep, not a multi-component set
           splits += repDetails.slice(0, -2);
         }
 
         lapCounter++;
       }
-    } else if (set.laps.length === 1 &&this.printer.metersToMiles(set.laps[0].distance) > 1) { // List the splits if the lap is multiple miles
+    } else if (!isHeterogeneous &&this.printer.metersToMiles(set.laps[0].distance) > 1) { // List the splits if the lap is multiple miles
       const tokenLap = set.laps[0];
       if ("component_laps" in tokenLap) {
         for (const lap of tokenLap.component_laps) {
@@ -222,7 +223,7 @@ class Formatter {
       }
     }
 
-    if (this.formatConfig.splitsFormat === "CONDENSED") {
+    if (this.formatConfig.splitsFormat === "CONDENSED" && !isHeterogeneous) {
       return this.condenseSetSplits(splits);
     }
     return splits;
@@ -270,13 +271,13 @@ class Formatter {
 
   condenserHelper(components) {
     let condensed = `${components[0]}`;
-    let prevMinuteBasis;
+    let prevMinuteBasis = components[0].split(":")[0];
 
-    if (components[0].includes(". ")) { // It's part of a heterogenous set so we need to filter out the number-bullet prefix
-      prevMinuteBasis = components[0].split(". ")[1].split(":")[0];
-    } else {
-      prevMinuteBasis = components[0].split(":")[0];
-    }
+    // if (components[0].includes(". ")) { // It's part of a heterogenous set so we need to filter out the number-bullet prefix
+    //   prevMinuteBasis = components[0].split(". ")[1].split(":")[0];
+    // } else {
+    //   prevMinuteBasis = components[0].split(":")[0];
+    // }
 
     for (let time of components.slice(1)) { // Start from second element since we print the first one in full
       time = time.replace(/\s/g, ""); // remove whitespace
@@ -341,6 +342,21 @@ class Formatter {
     }
   }
 
+  determineSetDetails(set) {
+    switch (this.formatConfig.detailsMode) {
+      case "SPLITS":
+        return this.determineSetSplits(set);
+      case "RANGE":
+        if (this.setEligibleForRange(set)) {
+          return this.determineSetRange(set);
+        } else {
+          return this.determineSetSplits(set);
+        }
+      default:
+        return this.determineSetSplits(set);
+    }
+  }
+
   printSets(sets) {
     let fullTitle = ""; // For the strava activity title, only contains the structure
     let fullDescription = ""; // Contains details, for the activity description
@@ -351,23 +367,8 @@ class Formatter {
 
       const setNameForAverage = this.determineSetName(set, false); // don't include parens
       const setAverage = this.determineSetAverage(set);
-      let setSplits;
+      const setSplits = this.determineSetDetails(set);
 
-      switch (this.formatConfig.detailsMode) {
-        case "SPLITS":
-          setSplits = this.determineSetSplits(set);
-          break;
-        case "RANGE":
-          if (this.setEligibleForRange(set)) {
-            setSplits = this.determineSetRange(set);
-          } else {
-            setSplits = this.determineSetSplits(set);
-          }
-          break;
-        default:
-          setSplits = this.determineSetSplits(set);
-          break;
-      }
 
       fullDescription += `⏱️ ${setNameForAverage} ${setAverage}${setSplits === `` ? "" : "\n"}${setSplits}\n\n`;
     }

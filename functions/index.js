@@ -238,7 +238,7 @@ app.post("/update_preferences", (req, res) => {
         subMileDistanceValue: data.subMileDistanceValue,
         greaterThanMileDistanceValue: data.greaterThanMileDistanceValue,
         splitsFormat: data.splitsFormat,
-        detailsMode: data.detailsMode
+        detailsMode: data.detailsMode,
       },
     };
 
