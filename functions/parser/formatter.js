@@ -215,7 +215,7 @@ class Formatter {
       }
     }
 
-    if (this.formatConfig.splitsFormat === "CONDENSED" && !isHeterogeneous) {
+    if (this.formatConfig.detailsLength === "CONDENSED" && !isHeterogeneous) {
       return this.condenseSetSplits(splits);
     }
 
@@ -366,14 +366,14 @@ class Formatter {
       output = this.printer.setPaceRangeFormatted(set);
     }
 
-    if (this.formatConfig.splitsFormat === "CONDENSED") {
+    if (this.formatConfig.detailsLength === "CONDENSED") {
       return this.condenseSetRange(output);
     }
     return output;
   }
 
   determineSetDetails(set) {
-    switch (this.formatConfig.detailsMode) {
+    switch (this.formatConfig.detailsStructure) {
       case "SPLITS":
         return this.determineSetSplits(set);
       case "RANGE":

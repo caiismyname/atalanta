@@ -5,8 +5,8 @@ const defaultFormatConfig = {
   "sub90SecFormat": "MINUTE", // "MINUTE", "SECONDS"
   "subMileDistanceValue": "TIME", // "TIME", "PACE"
   "greaterThanMileDistanceValue": "PACE", // "PACE", "TIME"
-  "splitsFormat": "FULL", // "FULL", "CONDENSED"
-  "detailsMode": "SPLITS", // "SPLITS", "RANGE"
+  "detailsLength": "FULL", // "FULL", "CONDENSED"
+  "detailsStructure": "SPLITS", // "SPLITS", "RANGE"
 };
 
 const defaultParserConfig = {
