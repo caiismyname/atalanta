@@ -4,6 +4,7 @@ const {Formatter} = require("../parser/formatter.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
 
 const defaultTestRuns = require("./test_runs.json");
+const { count } = require("console");
 
 // Set these as global
 let parserConfig = {...defaultParserConfig};
@@ -398,7 +399,6 @@ describe("Formatter", () => {
 
         const splits = formatter.determineSetDetails(res.sets[0]);
 
-        console.log(splits);
         assert.notEqual(splits, "");
         assert.ok(countOccurances(", ", splits), 3);
       });
@@ -667,6 +667,27 @@ describe("Formatter", () => {
           returnSets: true,
           verbose: false,
         });
+        
+        const splits = formatter.determineSetSplits(res.sets[0]);
+        assert.equal(countOccurances(":", splits), 0);
+      });
+
+      it("4 x 400m condensed (seconds)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.sub90SecFormat = "SECONDS";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
 
         const splits = formatter.determineSetSplits(res.sets[0]);
         assert.equal(countOccurances(" ", splits), 0);
@@ -799,6 +820,7 @@ describe("Formatter", () => {
         assert.equal(countOccurances(":", splits), 2);
         assert.equal(countOccurances("—", splits), 1);
         assert.ok(outputIsPace(splits));
+        assert.equal(countOccurances("/mi", splits), 1); // We should only place the `/mi` on the second time
       });
 
       it("4 x 2mi range (time)", () => {
@@ -932,11 +954,59 @@ describe("Formatter", () => {
         });
 
         const splits = formatter.determineSetDetails(res.sets[0]);
-
         assert.equal(countOccurances(":", splits), 2);
         assert.equal(countOccurances(", ", splits), 0);
         assert.equal(countOccurances("—", splits), 1);
         assert.ok(outputIsPace(splits));
+        assert.equal(countOccurances("/mi", splits), 1);
+      });
+
+      it("Condensed range (paces)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 2mi"];
+        formatConfig.detailsMode = "RANGE";
+        formatConfig.splitsFormat = "CONDENSED";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+        assert.equal(countOccurances(":", splits), 1);
+        assert.equal(countOccurances("—", splits), 1);
+        assert.ok(outputIsPace(splits));
+        assert.equal(countOccurances("/mi", splits), 1);
+      });
+
+      it("Condensed range (seconds)", () => {
+        resetConfigs();
+
+        const run = testRuns["4 x 400m"];
+        formatConfig.detailsMode = "RANGE";
+        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.sub90SecFormat = "SECONDS";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+        assert.equal(countOccurances(":", splits), 0);
+        assert.equal(countOccurances("—", splits), 1);
+        // TODO outputIsSeconds
       });
 
       it("Heterogenous sets shouldn't use range", () => {

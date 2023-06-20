@@ -293,6 +293,30 @@ class Formatter {
     return condensed;
   }
 
+  condenseSetRange(nonCondensedRange) {
+    var times = nonCondensedRange.split(" — ");
+
+    // See if the minutes are the same (otherwise there's nothing to condense)
+    const firstMinute = times[0].split(":")[0];
+    const secondMinute = times[1].split(":")[0];
+
+    if (firstMinute === secondMinute && firstMinute !== undefined) {
+      var suffix = "";
+      if (nonCondensedRange.includes("/mi")) {
+        suffix = "/mi";
+      } else if (nonCondensedRange.includes("/km")) {
+        suffix = "/km";
+      }
+
+      // Remove the pace suffixes, if any are present
+      times = times.map(time => time.replace("/mi", "").replace("/km", ""));
+
+      return `${times[0]} — ${times[1].split(":")[1]}${suffix}`;
+    } else {
+      return nonCondensedRange;
+    }
+  }
+
   setEligibleForRange(set) {
     return set.pattern.length === 1;
   }
@@ -301,34 +325,51 @@ class Formatter {
     // For now, we only do ranges if the set is homogeneous
     const lap = set.laps[0];
 
+    var output = "";
+
     if (lap.workoutBasis === "DISTANCE") {
       switch (compareToMile(lap.distance)) {
         case "LESS":
           switch (this.formatConfig.subMileDistanceValue) {
             case "TIME":
-              return this.printer.setTimeRangeFormatted(set);
+              output = this.printer.setTimeRangeFormatted(set);
+              break;
             case "PACE":
-              return this.printer.setPaceRangeFormatted(set);
+              output = this.printer.setPaceRangeFormatted(set);
+              break;
             default:
-              return this.printer.setTimeRangeFormatted(set);
+              output = this.printer.setTimeRangeFormatted(set);
+              break;
           }
+          break;
         case "EQUALS":
-          return this.printer.setTimeRangeFormatted(set);
+          output = this.printer.setTimeRangeFormatted(set);
+          break;
         case "MORE":
           switch (this.formatConfig.greaterThanMileDistanceValue) {
             case "TIME":
-              return this.printer.setTimeRangeFormatted(set);
+              output = this.printer.setTimeRangeFormatted(set);
+              break;
             case "PACE":
-              return this.printer.setPaceRangeFormatted(set);
+              output = this.printer.setPaceRangeFormatted(set);
+              break;
             default:
-              return this.printer.setPaceRangeFormatted(set);
+              output = this.printer.setPaceRangeFormatted(set);
+              break;
           }
+          break;
         default:
-          return "";
+          output = this.printer.setPaceRangeFormatted(set);
+          break;
       }
     } else if (lap.workoutBasis === "TIME") { // Ignore config on time b/c showing total time on a time-based rep is pointless
-      return this.printer.setPaceRangeFormatted(set);
+      output = this.printer.setPaceRangeFormatted(set);
     }
+
+    if (this.formatConfig.splitsFormat === "CONDENSED") {
+      return this.condenseSetRange(output);
+    }
+    return output;
   }
 
   determineSetDetails(set) {
@@ -357,7 +398,6 @@ class Formatter {
       const setNameForAverage = this.determineSetName(set, false); // don't include parens
       const setAverage = this.determineSetAverage(set);
       const setSplits = this.determineSetDetails(set);
-
 
       fullDescription += `⏱️ ${setNameForAverage} ${setAverage}${setSplits === `` ? "" : "\n"}${setSplits}\n\n`;
     }

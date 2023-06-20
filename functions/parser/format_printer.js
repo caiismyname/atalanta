@@ -224,7 +224,7 @@ class FormatPrinter {
 
     const paceUnitAbbrv = this.paceUnits === "KM" ? "/km" : "/mi"; // matches the switch default of miles
 
-    return `${this.secondsToTimeFormatted(min)}${paceUnitAbbrv} — ${this.secondsToTimeFormatted(max)}${paceUnitAbbrv}`;
+    return `${this.secondsToTimeFormatted(min)} — ${this.secondsToTimeFormatted(max)}${paceUnitAbbrv}`;
   }
 
   setDistanceRangeFormatted(set) {
