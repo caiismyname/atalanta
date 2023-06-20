@@ -4,7 +4,6 @@ const {Formatter} = require("../parser/formatter.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
 
 const defaultTestRuns = require("./test_runs.json");
-const { count } = require("console");
 
 // Set these as global
 let parserConfig = {...defaultParserConfig};
