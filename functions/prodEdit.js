@@ -67,14 +67,14 @@ function migrateConfigKey(oldKey, newKey, commit = false) {
       });
 
       Promise.all(allPromises)
-        .then(result => {
-          console.log(`Updated ${updatedUserCount} users`);
-          firebase.delete();
-        })
-        .catch(error => {
-          console.error(`ERROR ${error}`);
-          firebase.delete();
-        })
+          .then((result) => {
+            console.log(`Updated ${updatedUserCount} users`);
+            firebase.delete();
+          })
+          .catch((error) => {
+            console.error(`ERROR ${error}`);
+            firebase.delete();
+          });
     });
   });
 }
@@ -91,8 +91,8 @@ function deleteConfigKey(toDelete, commit = false) {
         allPromises.push(new Promise((resolve, reject) => {
           const prefs = allUsers[userID]["preferences"];
           const allConfigs = ["format", "parser", "account"];
-          var updated = false;
-  
+          let updated = false;
+
           allConfigs.forEach((configName) => {
             Object.keys(prefs[configName]).forEach((key) => {
               if (key === toDelete) {
@@ -119,14 +119,14 @@ function deleteConfigKey(toDelete, commit = false) {
       });
 
       Promise.all(allPromises)
-        .then(results => {
-          console.log(`Updated ${updatedUserCount} users`);
-          firebase.delete();
-        })
-        .catch(error => {
-          console.error(`ERROR ${error}`);
-          firebase.delete();
-        })
+          .then((results) => {
+            console.log(`Updated ${updatedUserCount} users`);
+            firebase.delete();
+          })
+          .catch((error) => {
+            console.error(`ERROR ${error}`);
+            firebase.delete();
+          });
     });
   });
 }
@@ -144,35 +144,35 @@ function addNewConfigKey(configName, newKey, defaultVal, commit = false) {
     saveBackup(allUsers, () => {
       Object.keys(allUsers).forEach((userID) => {
         allPromises.push(
-          new Promise ((resolve, reject) => {
-            if (!(newKey in allUsers[userID]["preferences"][configName])) {
-              if (commit) {
-                db.ref(`users/${userID}/preferences/${configName}`).update(updateObj).then(() => {
+            new Promise((resolve, reject) => {
+              if (!(newKey in allUsers[userID]["preferences"][configName])) {
+                if (commit) {
+                  db.ref(`users/${userID}/preferences/${configName}`).update(updateObj).then(() => {
+                    console.log(`\t${commit ? "" : "DRY RUN — "}Added ${configName}/${newKey} = ${defaultVal} for ${userID}`);
+                    updatedUserCount++;
+                    resolve();
+                  });
+                } else {
                   console.log(`\t${commit ? "" : "DRY RUN — "}Added ${configName}/${newKey} = ${defaultVal} for ${userID}`);
                   updatedUserCount++;
                   resolve();
-                });
+                }
               } else {
-                console.log(`\t${commit ? "" : "DRY RUN — "}Added ${configName}/${newKey} = ${defaultVal} for ${userID}`);
-                updatedUserCount++;
                 resolve();
               }
-            } else {
-              resolve();
-            }
-          })
+            }),
         );
       });
 
       Promise.all(allPromises)
-        .then(results => {
-          console.log(`Updated ${updatedUserCount} users`);
-          firebase.delete();
-        })
-        .catch(error => {
-          console.error(`Error ${error}`);
-          firebase.delete();
-        });
+          .then((results) => {
+            console.log(`Updated ${updatedUserCount} users`);
+            firebase.delete();
+          })
+          .catch((error) => {
+            console.error(`Error ${error}`);
+            firebase.delete();
+          });
     });
   });
 }

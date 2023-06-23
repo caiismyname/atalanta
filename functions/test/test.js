@@ -666,7 +666,7 @@ describe("Formatter", () => {
           returnSets: true,
           verbose: false,
         });
-        
+
         const splits = formatter.determineSetSplits(res.sets[0]);
         assert.equal(countOccurances(":", splits), 0);
       });
