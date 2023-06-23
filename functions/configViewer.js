@@ -3,7 +3,7 @@ const serviceAccount = require("./serviceAccountKey.json");
 const firebase = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   // databaseURL: "https://atalanta-12c63-default-rtdb.firebaseio.com",
-  // databaseURL: "http://127.0.0.1:9000",
+  databaseURL: "http://127.0.0.1:9000/?ns=atalanta-12c63-default-rtdb",
 });
 const db = firebase.database();
 
