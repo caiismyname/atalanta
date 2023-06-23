@@ -526,7 +526,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         run = testRuns["4 x 2mi"];
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsLength = "CONDENSED";
         formatter = new Formatter(formatConfig);
         const condensedRes = parseWorkout({
           run: run,
@@ -549,7 +549,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 2mi"];
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsLength = "CONDENSED";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
           run: run,
@@ -570,7 +570,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 2mi"];
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsLength = "CONDENSED";
         formatConfig.greaterThanMileDistanceValue = "TIME";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
@@ -610,7 +610,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         run = testRuns["4 x 400m"];
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsLength = "CONDENSED";
         formatter = new Formatter(formatConfig);
         const condensedRes = parseWorkout({
           run: run,
@@ -633,7 +633,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 400m"];
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsLength = "CONDENSED";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
           run: run,
@@ -654,7 +654,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 400m"];
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsLength = "CONDENSED";
         formatConfig.sub90SecFormat = "SECONDS";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
@@ -666,7 +666,7 @@ describe("Formatter", () => {
           returnSets: true,
           verbose: false,
         });
-        
+
         const splits = formatter.determineSetSplits(res.sets[0]);
         assert.equal(countOccurances(":", splits), 0);
       });
@@ -675,7 +675,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 400m"];
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsLength = "CONDENSED";
         formatConfig.sub90SecFormat = "SECONDS";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
@@ -697,7 +697,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 400m"];
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsLength = "CONDENSED";
         formatConfig.subMileDistanceValue = "PACE";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
@@ -719,7 +719,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x (400m, 200m, 100m)"];
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsLength = "CONDENSED";
         let formatter = new Formatter(formatConfig);
         const condensedRes = parseWorkout({
           run: run,
@@ -778,7 +778,7 @@ describe("Formatter", () => {
 
         resetConfigs();
         run = testRuns["4 x 2mi"];
-        formatConfig.detailsMode = "RANGE";
+        formatConfig.detailsStructure = "RANGE";
         formatter = new Formatter(formatConfig);
         const rangeRes = parseWorkout({
           run: run,
@@ -803,7 +803,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 2mi"];
-        formatConfig.detailsMode = "RANGE";
+        formatConfig.detailsStructure = "RANGE";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
           run: run,
@@ -826,7 +826,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 2mi"];
-        formatConfig.detailsMode = "RANGE";
+        formatConfig.detailsStructure = "RANGE";
         formatConfig.greaterThanMileDistanceValue = "TIME";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
@@ -866,7 +866,7 @@ describe("Formatter", () => {
 
         resetConfigs();
         run = testRuns["4 x 400m"];
-        formatConfig.detailsMode = "RANGE";
+        formatConfig.detailsStructure = "RANGE";
         formatter = new Formatter(formatConfig);
         const rangeRes = parseWorkout({
           run: run,
@@ -891,7 +891,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 400m"];
-        formatConfig.detailsMode = "RANGE";
+        formatConfig.detailsStructure = "RANGE";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
           run: run,
@@ -915,7 +915,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 400m"];
-        formatConfig.detailsMode = "RANGE";
+        formatConfig.detailsStructure = "RANGE";
         formatConfig.sub90SecFormat = "SECONDS";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
@@ -939,7 +939,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 400m"];
-        formatConfig.detailsMode = "RANGE";
+        formatConfig.detailsStructure = "RANGE";
         formatConfig.subMileDistanceValue = "PACE";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
@@ -964,8 +964,8 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 2mi"];
-        formatConfig.detailsMode = "RANGE";
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsStructure = "RANGE";
+        formatConfig.detailsLength = "CONDENSED";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
           run: run,
@@ -988,8 +988,8 @@ describe("Formatter", () => {
         resetConfigs();
 
         const run = testRuns["4 x 400m"];
-        formatConfig.detailsMode = "RANGE";
-        formatConfig.splitsFormat = "CONDENSED";
+        formatConfig.detailsStructure = "RANGE";
+        formatConfig.detailsLength = "CONDENSED";
         formatConfig.sub90SecFormat = "SECONDS";
         const formatter = new Formatter(formatConfig);
         const res = parseWorkout({
@@ -1012,7 +1012,7 @@ describe("Formatter", () => {
         resetConfigs();
 
         let run = testRuns["4 x (400m, 200m, 100m)"];
-        formatConfig.detailsMode = "RANGE";
+        formatConfig.detailsStructure = "RANGE";
         let formatter = new Formatter(formatConfig);
         const condensedRes = parseWorkout({
           run: run,
@@ -1095,7 +1095,7 @@ describe("Formatter", () => {
             resetConfigs();
 
             let run = testRuns[runName];
-            formatConfig.detailsMode = "RANGE";
+            formatConfig.detailsStructure = "RANGE";
             const defaultRes = parseWorkout({
               run: run,
               config: {
@@ -1110,7 +1110,7 @@ describe("Formatter", () => {
             resetConfigs();
             run = testRuns[runName];
             delete formatConfig[configOption];
-            formatConfig.detailsMode = "RANGE";
+            formatConfig.detailsStructure = "RANGE";
 
             const removeRes = parseWorkout({
               run: run,
