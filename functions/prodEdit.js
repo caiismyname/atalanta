@@ -3,7 +3,8 @@ const admin = require("firebase-admin");
 const serviceAccount = require("./serviceAccountKey.json");
 const firebase = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://atalanta-12c63-default-rtdb.firebaseio.com",
+  // databaseURL: "https://atalanta-12c63-default-rtdb.firebaseio.com",
+  // databaseURL: "http://127.0.0.1:9000",
 });
 const db = firebase.database();
 
@@ -20,36 +21,84 @@ function saveBackup(content, callback) {
   });
 }
 
+function migrateConfigKey(oldKey, newKey, commit = false) {
+  db.ref(`users`).once("value", (snapshot) => {
+    const allUsers = snapshot.val();
+    var updatedUserCount = 0;
 
-//
-// ENTRYPOINT
-//
+    saveBackup(allUsers, () => {
+      Object.keys(allUsers).forEach((userID) => {
+        var updated = false;
+        const prefs = allUsers[userID]["preferences"];
+        const allConfigs = ["format", "parser", "account"];
 
-db.ref(`users`).once("value", (snapshot) => {
-  const allUsers = snapshot.val();
-  saveBackup(allUsers, () => {
-    Object.keys(allUsers).forEach((userID) => {
-      console.log(userID);
-      update(userID, false);
-    });
+        allConfigs.forEach(configName => {
+          Object.keys(prefs[configName]).forEach(key => {
+            if (key === oldKey) {
+              const existingValue = prefs[configName][oldKey];
 
-    console.log("Finished all users");
-  });
-});
+              if (commit) {
+                // Create the new key with the existing value
+                let updateObj = {};
+                updateObj[newKey] = existingValue
 
+                db.ref(`users/${userID}/preferences/${configName}`).update(updateObj).then(() => {
+                });
+              }
 
-function update(userID, dryRun = true) {
-  if (!dryRun) {
-    db.ref(`users/${userID}/preferences/format`).update({
-      "subMileDistanceValue": "TIME",
-      "greaterThanMileDistanceValue": "PACE",
-    }).then(() => {
-      db.ref(`users/${userID}/preferences/format/subMileDistanceAverageUnit`).remove().then(() => {
-        db.ref(`users/${userID}/preferences/format/greaterThanMileDistanceAverageUnit`).remove().then(() => {
-          console.log("\tDone");
+              console.log(`\t${commit ? "" : "DRY RUN — "}Migrated ${configName}/${oldKey} to ${configName}/${newKey}: ${existingValue} for ${userID}`);
+              updated = true;
+            }
+          });
         });
+
+        if (updated) {
+          updatedUserCount++;
+        }
       });
+ 
+      console.log(`Updated ${updatedUserCount} users`);
+      firebase.delete();
     });
-  }
+  });
 }
 
+function deleteConfigKey(toDelete, commit = false) {
+  db.ref(`users`).once("value", (snapshot) => {
+    const allUsers = snapshot.val();
+    var updatedUserCount = 0;
+
+    saveBackup(allUsers, () => {
+      Object.keys(allUsers).forEach((userID) => {
+        var updated = false;
+        const prefs = allUsers[userID]["preferences"];
+        const allConfigs = ["format", "parser", "account"];
+
+        allConfigs.forEach(configName => {
+          Object.keys(prefs[configName]).forEach(key => {
+            if (key === toDelete) {
+              const existingValue = prefs[configName][toDelete];
+
+              if (commit) {
+                  db.ref(`users/${userID}/preferences/${configName}/${toDelete}`).remove();
+              }
+
+              console.log(`\t${commit ? "" : "DRY RUN — "}Deleted ${configName}/${toDelete} for ${userID}`);
+              updated = true;
+            }
+          });
+        });
+
+        if (updated) {
+          updatedUserCount++;
+        }
+      });
+ 
+      console.log(`Updated ${updatedUserCount} users`);
+      firebase.delete();
+    });
+  });
+}
+
+// migrateConfigKey("", "", true);
+// deleteConfigKey("", true);
