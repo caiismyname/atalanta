@@ -294,14 +294,14 @@ class Formatter {
   }
 
   condenseSetRange(nonCondensedRange) {
-    var times = nonCondensedRange.split(" — ");
+    let times = nonCondensedRange.split(" — ");
 
     // See if the minutes are the same (otherwise there's nothing to condense)
     const firstMinute = times[0].split(":")[0];
     const secondMinute = times[1].split(":")[0];
 
     if (firstMinute === secondMinute && firstMinute !== undefined) {
-      var suffix = "";
+      let suffix = "";
       if (nonCondensedRange.includes("/mi")) {
         suffix = "/mi";
       } else if (nonCondensedRange.includes("/km")) {
@@ -309,7 +309,7 @@ class Formatter {
       }
 
       // Remove the pace suffixes, if any are present
-      times = times.map(time => time.replace("/mi", "").replace("/km", ""));
+      times = times.map((time) => time.replace("/mi", "").replace("/km", ""));
 
       return `${times[0]} — ${times[1].split(":")[1]}${suffix}`;
     } else {
@@ -325,7 +325,7 @@ class Formatter {
     // For now, we only do ranges if the set is homogeneous
     const lap = set.laps[0];
 
-    var output = "";
+    let output = "";
 
     if (lap.workoutBasis === "DISTANCE") {
       switch (compareToMile(lap.distance)) {

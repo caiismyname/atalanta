@@ -21,26 +21,27 @@ function saveBackup(content, callback) {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function migrateConfigKey(oldKey, newKey, commit = false) {
   db.ref(`users`).once("value", (snapshot) => {
     const allUsers = snapshot.val();
-    var updatedUserCount = 0;
+    let updatedUserCount = 0;
 
     saveBackup(allUsers, () => {
       Object.keys(allUsers).forEach((userID) => {
-        var updated = false;
+        let updated = false;
         const prefs = allUsers[userID]["preferences"];
         const allConfigs = ["format", "parser", "account"];
 
-        allConfigs.forEach(configName => {
-          Object.keys(prefs[configName]).forEach(key => {
+        allConfigs.forEach((configName) => {
+          Object.keys(prefs[configName]).forEach((key) => {
             if (key === oldKey) {
               const existingValue = prefs[configName][oldKey];
 
               if (commit) {
                 // Create the new key with the existing value
-                let updateObj = {};
-                updateObj[newKey] = existingValue
+                const updateObj = {};
+                updateObj[newKey] = existingValue;
 
                 db.ref(`users/${userID}/preferences/${configName}`).update(updateObj).then(() => {
                 });
@@ -56,34 +57,35 @@ function migrateConfigKey(oldKey, newKey, commit = false) {
           updatedUserCount++;
         }
       });
- 
+
       console.log(`Updated ${updatedUserCount} users`);
       firebase.delete();
     });
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function deleteConfigKey(toDelete, commit = false) {
   db.ref(`users`).once("value", (snapshot) => {
     const allUsers = snapshot.val();
-    var updatedUserCount = 0;
+    let updatedUserCount = 0;
 
     saveBackup(allUsers, () => {
       Object.keys(allUsers).forEach((userID) => {
-        var updated = false;
+        let updated = false;
         const prefs = allUsers[userID]["preferences"];
         const allConfigs = ["format", "parser", "account"];
 
-        allConfigs.forEach(configName => {
-          Object.keys(prefs[configName]).forEach(key => {
+        allConfigs.forEach((configName) => {
+          Object.keys(prefs[configName]).forEach((key) => {
             if (key === toDelete) {
-              const existingValue = prefs[configName][toDelete];
-
               if (commit) {
-                  db.ref(`users/${userID}/preferences/${configName}/${toDelete}`).remove();
+                db.ref(`users/${userID}/preferences/${configName}/${toDelete}`).remove().then(() => {
+                  console.log(`\t${commit ? "" : "DRY RUN — "}Deleted ${configName}/${toDelete} for ${userID}`);
+                });
+              } else {
+                console.log(`\t${commit ? "" : "DRY RUN — "}Deleted ${configName}/${toDelete} for ${userID}`);
               }
-
-              console.log(`\t${commit ? "" : "DRY RUN — "}Deleted ${configName}/${toDelete} for ${userID}`);
               updated = true;
             }
           });
@@ -93,7 +95,7 @@ function deleteConfigKey(toDelete, commit = false) {
           updatedUserCount++;
         }
       });
- 
+
       console.log(`Updated ${updatedUserCount} users`);
       firebase.delete();
     });

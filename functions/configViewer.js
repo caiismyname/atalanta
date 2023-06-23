@@ -1,4 +1,3 @@
-const fs = require("fs");
 const admin = require("firebase-admin");
 const serviceAccount = require("./serviceAccountKey.json");
 const firebase = admin.initializeApp({
@@ -10,7 +9,7 @@ const db = firebase.database();
 
 db.ref(`users`).once("value", (snapshot) => {
   const allUsers = snapshot.val();
-  var combinedConfigs = {};
+  const combinedConfigs = {};
 
   Object.keys(allUsers).forEach((userID) => {
     const userFormatConfig = allUsers[userID]["preferences"]["format"];
