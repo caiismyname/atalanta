@@ -136,9 +136,17 @@ function handleIncomingWebhook(req, res, isTest=false) {
 
   // Decide if we want to process the event
   const isActivityUpdate = req.body.object_type === "activity";
-  const isRelevantUpdateType = req.body.aspect_type === "create" ||
-   req.body.aspect_type === "update" && (req.body.updates === "title" || req.body.updates === "type");
-  const isAccountDeauthorization = req.body.updates.authorized === "false";
+  const isRelevantUpdateType = req.body.aspect_type === "create";// || (req.body.aspect_type === "update" && (req.body.updates === "title" || req.body.updates === "type"));
+  const isAccountDeauthorization = false;
+  if (req.body.aspect_type === "update") {
+    if ("updates" in req.body) { // being defensive here
+      if ("authorized" in req.body.updates) {
+        if (req.body.updates.authorized === "false") {
+          isAccountDeauthorization = true;
+        }
+      }
+    }
+  } 
 
   const activityID = req.body.object_id;
   const userStravaID = req.body.owner_id;
@@ -176,11 +184,13 @@ function handleIncomingWebhook(req, res, isTest=false) {
                   if (!isTest) {
                     logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);
                   }
-                }, 1000);
+                }, 0); // Keep the timeout framework but no timeout for now
               } else {
                 console.log(`ACTIVITY ${activityID} is NOT a workout, no action taken.`);
               }
             });
+          } else {
+            console.log(`ACTIVITY ${activityID} is NOT a run, no action taken.`);
           }
         });
       }, isTest); // Force a refresh for code-exercise purposes if in test mode
@@ -191,11 +201,18 @@ function handleIncomingWebhook(req, res, isTest=false) {
       logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_DEACTIVATION, db);
     });
   } else {
-    console.log(`ACTVITIY ${activityID} is not eligible.`);
+    if (req.body.aspect_type === "update") {
+      console.log(`Received update for ACTIVITY ${activityID}, no action taken.`);
+    } else {
+      console.log(`Webhook for ACTIVITY ${activityID} is not eligible.`);
+    }
+    
   }
 }
 
 app.post("/strava_webhook", (req, res) => {
+  console.log(`INBOUND WEBHOOK ${JSON.stringify(req.body).replace(new RegExp("\n", "g"), " || ")}`)
+
   handleIncomingWebhook(req, res);
 });
 
@@ -291,7 +308,6 @@ function validateUserToken(idToken, res, callback) {
 }
 
 function getPersonalDetailsFromUserToken(idToken, callback) {
-  console.log("GETTING DETAILS");
   try {
     firebase.auth()
         .verifyIdToken(idToken)
@@ -300,7 +316,6 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
           const name = decodedToken.name;
           const email = decodedToken.email;
 
-          console.log(`EMAIL: ${email}`);
           callback({
             "userID": uid,
             "name": name,
