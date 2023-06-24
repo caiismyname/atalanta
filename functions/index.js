@@ -137,7 +137,7 @@ function handleIncomingWebhook(req, res, isTest=false) {
   // Decide if we want to process the event
   const isActivityUpdate = req.body.object_type === "activity";
   const isRelevantUpdateType = req.body.aspect_type === "create";// || (req.body.aspect_type === "update" && (req.body.updates === "title" || req.body.updates === "type"));
-  const isAccountDeauthorization = false;
+  let isAccountDeauthorization = false;
   if (req.body.aspect_type === "update") {
     if ("updates" in req.body) { // being defensive here
       if ("authorized" in req.body.updates) {
@@ -146,7 +146,7 @@ function handleIncomingWebhook(req, res, isTest=false) {
         }
       }
     }
-  } 
+  }
 
   const activityID = req.body.object_id;
   const userStravaID = req.body.owner_id;
@@ -206,12 +206,11 @@ function handleIncomingWebhook(req, res, isTest=false) {
     } else {
       console.log(`Webhook for ACTIVITY ${activityID} is not eligible.`);
     }
-    
   }
 }
 
 app.post("/strava_webhook", (req, res) => {
-  console.log(`INBOUND WEBHOOK ${JSON.stringify(req.body).replace(new RegExp("\n", "g"), " || ")}`)
+  console.log(`INBOUND WEBHOOK ${JSON.stringify(req.body).replace(new RegExp("\n", "g"), " || ")}`);
 
   handleIncomingWebhook(req, res);
 });
