@@ -1,5 +1,5 @@
 const assert = require("assert");
-const {parseWorkout} = require("../parser/parser.js");
+const {parseWorkout, determineRunIsWorkout, mergeAbutingLaps, tagWorkoutLaps, tagWorkoutTypes, tagWorkoutBasisAndValue} = require("../parser/parser.js");
 const {Formatter} = require("../parser/formatter.js");
 const {FormatPrinter} = require("../parser/format_printer.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
