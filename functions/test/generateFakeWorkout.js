@@ -80,13 +80,11 @@ function generateLap(value, unit, prevIndex, lapIndex, pace) {
   if (unit === "METERS") {
     // Fuzz the time, not the distance, in order to get pace variation
     lap.distance = value;
-    // lap.moving_time = Math.round(fuzz(Helpers.metersToMiles(lap.distance) * (isWorkout ? workoutSecondsPerMile : restSecondsPerMile)));
     lap.moving_time = Math.round(fuzz(Helpers.metersToMiles(lap.distance) * pace));
   } else if (unit === "SECONDS") {
-    // lap.moving_time = Math.round(fuzz(value));
-    lap.moving_time = value; // Don't fuzz time-based laps b/c it needs precision.
-    // lap.distance = Helpers.milesToMeters(lap.moving_time / (isWorkout ? workoutSecondsPerMile : restSecondsPerMile));
-    lap.distance = Helpers.milesToMeters(lap.moving_time / pace);
+    // Fuzz the distance, not the time, in order to maintain time precision
+    lap.moving_time = value;
+    lap.distance = Helpers.milesToMeters(fuzz(lap.moving_time / pace));
   }
 
   lap.elapsed_time = lap.moving_time;
@@ -119,8 +117,12 @@ function saveToTests(run) {
 function fuzz(value) {
   const direction = Math.random() > 0.5 ? 1 : -1;
 
-  // Up to 5%
-  const fuzzPercentage = Math.random() * 0.05; // random gives 0 — 1, which serves as the percentage of 5%, which is our max fuzz amount
+  const fuzzMax = 0.05;
+  const fuzzMin= 0.02;
+
+  // between 2 — 5% (see min/max above)
+  // const fuzzPercentage = (Math.random() * (fuzzMax - fuzzMin)) + fuzzMin;
+  const fuzzPercentage = 0.045; // Maybe a constant value at the limit of reasonable variation makes testing easier?
   return Math.round(((fuzzPercentage * direction * value) + value) * 100) / 100;
 }
 

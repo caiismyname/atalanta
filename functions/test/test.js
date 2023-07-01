@@ -1,6 +1,7 @@
 const assert = require("assert");
 const {parseWorkout, determineRunIsWorkout, mergeAbutingLaps, tagWorkoutLaps, tagWorkoutTypes, tagWorkoutBasisAndValue} = require("../parser/parser.js");
 const {Formatter} = require("../parser/formatter.js");
+const {FormatPrinter} = require("../parser/format_printer.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
 const {generateAndReturnWorkout} = require("./generateFakeWorkout.js");
 
@@ -41,6 +42,14 @@ function countOccurances(search, whole) {
   }
 
   return (count);
+}
+
+function shuffleList(list) {
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list;
 }
 
 describe("Formatter", () => {
@@ -1099,35 +1108,233 @@ describe("Parser", () => {
     });
   });
 
-  describe("Rep unit and value", () => {
+  describe("BASIS AND VALUE", () => {
     const dominentWorkoutTypes = ["BALANCED", "DISTANCE", "TIME"];
-    const meters = [100, 200, 300, 400];
+    const meters = [100, 200, 300, 400, 500, 600, 800, 1500];
+    const kilometers = [1000, 2000, 3000, 5000, 10000];
+    const miles = [];
+    for (let i = 1; i <= 10; i++) {
+      miles.push(i * 1609);
+    };
 
-
-    for (let dominentWorkoutType of dominentWorkoutTypes) {
-      for (let distance of meters) {
-        it(`${dominentWorkoutType} — ${distance}m`, () => {
-          resetConfigs();
-          
-          parserConfig.dominantWorkoutType = dominentWorkoutType;
-          const run = generateAndReturnWorkout([[distance, "METERS", true]]);
-
-          const sets = parseWorkout({
-            run: run,
-            config: {
-              parser: parserConfig,
-              format: formatConfig,
-            },
-            returnSets: true,
-            verbose: false,
-          }).sets;
-
-          const tokenLap = sets[0].laps[0];
-
-          assert.equal(tokenLap.workoutBasis, "DISTANCE");
-          assert.equal(tokenLap.closestDistanceUnit, "m");
-        });
-      }
+    const seconds = [15, 30, 45];
+    const minutes = [90, 150, 210, 270];
+    for (let i = 1; i <= 15; i++) {
+      minutes.push(i * 60);
     }
-  })
+
+    resetConfigs();
+    let printer = new FormatPrinter(formatConfig);
+
+    // Values that should parse consistently regardless of config
+    for (let dominentWorkoutType of dominentWorkoutTypes) {
+      describe(`${dominentWorkoutType}`, () => {
+        for (let distance of meters) {
+          it(`${distance}m`, () => {
+            resetConfigs();
+            
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "DISTANCE");
+            assert.equal(tokenLap.closestDistanceUnit, "m");
+          });
+        };
+
+        for (let distance of kilometers) {
+          it(`${distance}km`, () => {
+            resetConfigs();
+            
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "DISTANCE");
+            assert.equal(tokenLap.closestDistanceUnit, "km");
+          });
+        };
+
+        for (let distance of miles) {
+          it(`${distance / 1609}mi`, () => {
+            resetConfigs();
+            
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "DISTANCE");
+            assert.equal(tokenLap.closestDistanceUnit, "mi");
+          });
+        };
+
+        for (let time of seconds) {
+          it(`${printer.secondsToTimeFormatted(time)}sec`, () => {
+            resetConfigs();
+            
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const inputLaps = [];
+            for (let i = 1; i < 5; i++) {
+              inputLaps.push([time, "SECONDS", true]);
+              inputLaps.push([time, "SECONDS", false]);
+            }
+            const run = generateAndReturnWorkout(inputLaps);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "TIME");
+          });
+        };
+
+        for (let time of minutes) {
+          it(`${printer.secondsToTimeFormatted(time)} min`, () => {
+            resetConfigs();
+            
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const inputLaps = [];
+            for (let i = 1; i < 5; i++) {
+              inputLaps.push([time, "SECONDS", true]);
+              inputLaps.push([time, "SECONDS", false]);
+            }
+            const run = generateAndReturnWorkout(inputLaps);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "TIME");
+          });
+        };
+      });
+    }
+
+    // Values that should parse differently depending on config
+
+  });
+
+  describe("WORKOUT TYPE TAGGING", () => {
+    it("Greater than 50%, descending", () => {
+      resetConfigs();
+      const inputDistances = [10000, 5000, 1609, 800, 500, 300, 200, 100]; // Descending to ensure we're properly sorting
+      const laps = [];
+      for (let distance of inputDistances) {
+        laps.push([distance, "METERS", true]);
+        laps.push([distance, "METERS", false]);
+      };
+
+      const run = generateAndReturnWorkout(laps);
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+      console.log(res.summary.title);
+
+      assert.equal(res.sets.length, inputDistances.length);
+    });
+
+    it("Greater than 50%, non-sequential multiples", () => {
+      resetConfigs();
+      let inputDistances = [10000, 5000, 1609, 800, 500, 300, 200, 10000, 100, 5000, 1609, 500, 800, 300, 200, 100]; // Should all be parsed as singles
+      let laps = [];
+      for (let distance of inputDistances) {
+        laps.push([distance, "METERS", true]);
+        laps.push([distance, "METERS", false]);
+      };
+
+      const run = generateAndReturnWorkout(laps);
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+      assert.equal(res.sets.length, inputDistances.length);
+    });
+
+    it("Greater than 50%, sequential multiples", () => {
+      resetConfigs();
+      let inputDistances = [100, 400, 1609, 10000];
+      let laps = [];
+      const repeatCount = 3;
+      for (let distance of inputDistances) {
+        for (i = 0; i < repeatCount; i++) {
+          laps.push([distance, "METERS", true]);
+          laps.push([distance, "METERS", false]);
+        }
+      };
+
+      const run = generateAndReturnWorkout(laps);
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets.length, inputDistances.length);
+      assert.equal(res.sets[0].laps.length, repeatCount)
+    });
+  });
 });
