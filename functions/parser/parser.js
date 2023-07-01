@@ -18,15 +18,16 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   }
 
   // Remove last lap if it's super short, as this tends to give falsely fast/slow readings
-  let laps = run.laps;
+  let laps = structuredClone(run.laps);
   if (run.laps[run.laps.length - 1].distance < Helpers.milesToMeters(.03)) {
     laps = run.laps.slice(0, -1);
   }
 
   const workoutsIdentifiedLaps = tagWorkoutLaps(laps);
   const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
-  tagWorkoutTypes(mergedLaps, config.parser); // Mutates in place
-  const sets = extractPatterns(mergedLaps.filter((lap) => lap.isWorkout));
+  const typeTaggedLaps = tagWorkoutTypes(mergedLaps);
+  const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser);
+  const sets = extractPatterns(valueAssignedLaps.filter((lap) => lap.isWorkout));
 
   const formatter = new Formatter(config.format);
   const summary = formatter.printSets(sets);
@@ -154,7 +155,27 @@ function tagWorkoutLaps(laps) {
   return (laps);
 }
 
-function tagWorkoutTypes(laps, parserConfig) {
+function mergeAbutingLaps(laps) {
+  const mergedLaps = [];
+
+  let prevLap = laps[0];
+  for (let lapIdx = 1; lapIdx < laps.length; lapIdx++ ) {
+    // If two consequtive laps are the same type (workout vs. nonworkout), merge them
+    if (prevLap.isWorkout === laps[lapIdx].isWorkout) {
+      prevLap = mergeLapsHelper(prevLap, laps[lapIdx]);
+    } else { // If not the same type, add the previous lap to the result array
+      mergedLaps.push(prevLap);
+      prevLap = laps[lapIdx];
+    }
+  }
+
+  // Include the last lap
+  mergedLaps.push(prevLap);
+
+  return mergedLaps;
+}
+
+function tagWorkoutTypes(laps) {
   const workouts = laps.filter((lap) => lap.isWorkout);
 
   // [start] K Means Clustering -based method
@@ -204,8 +225,13 @@ function tagWorkoutTypes(laps, parserConfig) {
   }
   // [end]
 
-  // Tag each workout lap with its basis
-  for (let workoutType = 0; workoutType <= workoutTypeCounter; workoutType++) {
+  return laps;
+}
+
+function tagWorkoutBasisAndValue(laps, parserConfig) {
+  const maxWorkoutType = laps.map(lap => lap.workoutType === undefined ? 0 : lap.workoutType).reduce((a,b) => Math.max(a, b), 0);
+
+  for (let workoutType = 0; workoutType <= maxWorkoutType; workoutType++) {
     const correspondingLaps = laps.filter((lap) => lap.workoutType === workoutType);
 
     // If we know one format is more common, apply the biasFactor to make for a higher threshold before we categorize a workout's basis as the un-common format.
@@ -286,6 +312,59 @@ function tagWorkoutTypes(laps, parserConfig) {
   return laps;
 }
 
+function extractPatterns(laps) {
+  let i = 0;
+  const patterns = [];
+  let patternLength = 1;
+
+  while (i < laps.length) {
+    const patternGuess = laps.slice(i, i + patternLength).map((lap) => lap.workoutType);
+    const attemptedReduction = patternReducer(patternGuess, laps.slice(i + patternLength).map((lap) => lap.workoutType)); // start at `+ patternLength` to avoid matching the initial pattern
+
+    if (attemptedReduction.matchCount > 0) {
+      patterns.push({
+        "pattern": patternGuess,
+        "count": attemptedReduction.matchCount + 1, // + 1 to include the initial pattern
+        "laps": laps.slice(i, i + (patternLength * (attemptedReduction.matchCount + 1))),
+      });
+
+      i += patternLength * (attemptedReduction.matchCount + 1); // + 1 to include the initial pattern
+      patternLength = 1;
+    } else {
+      // Keep increasing the pattern length to try longer patterns
+      if (patternLength < laps.length - i) {
+        patternLength = patternLength + 1;
+      } else {
+        // If no pattern starting here is found, add as a single element and move on
+        patterns.push({
+          "pattern": [laps[i].workoutType],
+          "count": 1,
+          "laps": [laps[i]],
+        });
+
+        i += 1;
+        patternLength = 1;
+      }
+    }
+  }
+
+  return patterns;
+  // console.log("-------- " + laps)
+  // console.log(patterns)
+  // console.log(" ")
+}
+
+/*
+*
+*
+* HELPERS
+* HELPERS
+* HELPERS
+* HELPERS
+*
+*
+*/
+
 // Expects an object with one property, `features`, that is an array of all features to be evaluated.
 // Returns the inputs array (same order) with the cluster assignments added as property `knn_temp_assignment`
 function runKnn(inputs, k) {
@@ -327,28 +406,9 @@ function runKnn(inputs, k) {
   return inputs;
 }
 
-function mergeAbutingLaps(laps) {
-  const mergedLaps = [];
-
-  let prevLap = laps[0];
-  for (let lapIdx = 1; lapIdx < laps.length; lapIdx++ ) {
-    // If two consequtive laps are the same type (workout vs. nonworkout), merge them
-    if (prevLap.isWorkout === laps[lapIdx].isWorkout) {
-      prevLap = mergeLaps(prevLap, laps[lapIdx]);
-    } else { // If not the same type, add the previous lap to the result array
-      mergedLaps.push(prevLap);
-      prevLap = laps[lapIdx];
-    }
-  }
-
-  // Include the last lap
-  mergedLaps.push(prevLap);
-
-  return mergedLaps;
-}
 
 // Combines the 'addition' lap into the base lap, preserves all component laps in a property called `component_laps`
-function mergeLaps(base, addition) {
+function mergeLapsHelper(base, addition) {
   // Determine if the addition is actually a track vs. GPS error, by the heuristic:
   // If the addition is < 4% of the previous lap's distance, and that distance is an auto-lapped distance (km or mile)
 
@@ -584,50 +644,15 @@ function patternReducer(pattern, list) {
   };
 }
 
-function extractPatterns(laps) {
-  let i = 0;
-  const patterns = [];
-  let patternLength = 1;
-
-  while (i < laps.length) {
-    const patternGuess = laps.slice(i, i + patternLength).map((lap) => lap.workoutType);
-    const attemptedReduction = patternReducer(patternGuess, laps.slice(i + patternLength).map((lap) => lap.workoutType)); // start at `+ patternLength` to avoid matching the initial pattern
-
-    if (attemptedReduction.matchCount > 0) {
-      patterns.push({
-        "pattern": patternGuess,
-        "count": attemptedReduction.matchCount + 1, // + 1 to include the initial pattern
-        "laps": laps.slice(i, i + (patternLength * (attemptedReduction.matchCount + 1))),
-      });
-
-      i += patternLength * (attemptedReduction.matchCount + 1); // + 1 to include the initial pattern
-      patternLength = 1;
-    } else {
-      // Keep increasing the pattern length to try longer patterns
-      if (patternLength < laps.length - i) {
-        patternLength = patternLength + 1;
-      } else {
-        // If no pattern starting here is found, add as a single element and move on
-        patterns.push({
-          "pattern": [laps[i].workoutType],
-          "count": 1,
-          "laps": [laps[i]],
-        });
-
-        i += 1;
-        patternLength = 1;
-      }
-    }
-  }
-
-  return patterns;
-  // console.log("-------- " + laps)
-  // console.log(patterns)
-  // console.log(" ")
-}
-
 function print(x) {
   console.log(x);
 }
 
-module.exports = {parseWorkout, determineRunIsWorkout};
+module.exports = {
+  parseWorkout, 
+  determineRunIsWorkout,
+  mergeAbutingLaps,
+  tagWorkoutLaps,
+  tagWorkoutTypes,
+  tagWorkoutBasisAndValue
+};

@@ -1,7 +1,8 @@
 const assert = require("assert");
-const {parseWorkout} = require("../parser/parser.js");
+const {parseWorkout, determineRunIsWorkout, mergeAbutingLaps, tagWorkoutLaps, tagWorkoutTypes, tagWorkoutBasisAndValue} = require("../parser/parser.js");
 const {Formatter} = require("../parser/formatter.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
+const {generateAndReturnWorkout} = require("./generateFakeWorkout.js");
 
 const defaultTestRuns = require("./test_runs.json");
 
@@ -398,7 +399,6 @@ describe("Formatter", () => {
 
         const splits = formatter.determineSetDetails(res.sets[0]);
 
-        console.log(splits);
         assert.notEqual(splits, "");
         assert.ok(countOccurances(", ", splits), 3);
       });
@@ -1098,4 +1098,36 @@ describe("Parser", () => {
       assert.equal(defaultRes.summary.description, removeRes.summary.description);
     });
   });
+
+  describe("Rep unit and value", () => {
+    const dominentWorkoutTypes = ["BALANCED", "DISTANCE", "TIME"];
+    const meters = [100, 200, 300, 400];
+
+
+    for (let dominentWorkoutType of dominentWorkoutTypes) {
+      for (let distance of meters) {
+        it(`${dominentWorkoutType} — ${distance}m`, () => {
+          resetConfigs();
+          
+          parserConfig.dominantWorkoutType = dominentWorkoutType;
+          const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+
+          const sets = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          }).sets;
+
+          const tokenLap = sets[0].laps[0];
+
+          assert.equal(tokenLap.workoutBasis, "DISTANCE");
+          assert.equal(tokenLap.closestDistanceUnit, "m");
+        });
+      }
+    }
+  })
 });
