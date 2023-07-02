@@ -229,7 +229,7 @@ function tagWorkoutTypes(laps) {
 }
 
 function tagWorkoutBasisAndValue(laps, parserConfig) {
-  const maxWorkoutType = laps.map(lap => lap.workoutType === undefined ? 0 : lap.workoutType).reduce((a,b) => Math.max(a, b), 0);
+  const maxWorkoutType = laps.map((lap) => lap.workoutType === undefined ? 0 : lap.workoutType).reduce((a, b) => Math.max(a, b), 0);
 
   for (let workoutType = 0; workoutType <= maxWorkoutType; workoutType++) {
     const correspondingLaps = laps.filter((lap) => lap.workoutType === workoutType);
@@ -649,10 +649,10 @@ function print(x) {
 }
 
 module.exports = {
-  parseWorkout, 
+  parseWorkout,
   determineRunIsWorkout,
   mergeAbutingLaps,
   tagWorkoutLaps,
   tagWorkoutTypes,
-  tagWorkoutBasisAndValue
+  tagWorkoutBasisAndValue,
 };

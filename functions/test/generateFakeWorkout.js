@@ -25,7 +25,6 @@ function generateAndSave(laps, name, workoutSecondsPerMile, restSecondsPerMile) 
 
 // Just clearer naming
 function generateAndReturnWorkout(laps, name = "unnamed", includeWarmup = true, workoutSecondsPerMile = defaultWorkoutSecondsPerMile, restSecondsPerMile = defaultRestSecondsPerMile) {
-
   if (includeWarmup) {
     const warmupIncluded = [[1609, "METERS", false]].concat(laps).concat([[1609, "METERS", false]]);
     return generate(warmupIncluded, name, workoutSecondsPerMile, restSecondsPerMile);
