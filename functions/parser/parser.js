@@ -654,5 +654,5 @@ module.exports = {
   mergeAbutingLaps,
   tagWorkoutLaps,
   tagWorkoutTypes,
-  tagWorkoutBasisAndValue
+  tagWorkoutBasisAndValue,
 };

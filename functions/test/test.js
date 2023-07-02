@@ -1,5 +1,5 @@
 const assert = require("assert");
-const {parseWorkout, determineRunIsWorkout, mergeAbutingLaps, tagWorkoutLaps, tagWorkoutTypes, tagWorkoutBasisAndValue} = require("../parser/parser.js");
+const {parseWorkout} = require("../parser/parser.js");
 const {Formatter} = require("../parser/formatter.js");
 const {FormatPrinter} = require("../parser/format_printer.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
@@ -43,14 +43,6 @@ function countOccurances(search, whole) {
   }
 
   return (count);
-}
-
-function shuffleList(list) {
-  for (let i = list.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [list[i], list[j]] = [list[j], list[i]];
-  }
-  return list;
 }
 
 describe("Formatter", () => {
