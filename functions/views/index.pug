@@ -16,25 +16,24 @@ html
 
     main
       .text-section
-        p Splitz automatically detects your workout, names it, and adds split summaries to the description.
-        br
-        p All you need to do is mark a lap for each rep, and Splitz will handle the rest.
-        br
-        div.image-frame
-          img(src='/demo.jpg')
-          div.placeholder-image
-          div.overlay
-            h3 See it in action
-            p Automatically extract format, averages, and splits from your workout
+        p Automatically write averages, splits, and structures to your workouts. All you need to do is lap each rep, and Splitz will handle the rest.
 
-      section
-        h2 Automate your workout descriptions today
+      div.image-frame
+        img(src='/demo.jpg')
+        div.placeholder-image
+        div.overlay
+          h3 See it in action
+          p Automatically extract format, averages, and splits from your workout
+        br
+
+      .card
+        //- h2 Automate your workout descriptions
         a.button(href='/login') Sign Up Now
         br
         br
         p Splitz is in beta and free to use
 
-      .text-section 
+      .text-section
         h1 FAQ 
         p <b>How does Splitz figure out what my workout was?</b>
         p It uses laps in your activity, how far and fast you ran, and some clever guesswork 🪄. It can detect most types of workouts including intervals and repeats, fartleks, and mixed-distance work.
@@ -63,7 +62,7 @@ html
         p <b>Who made this? Why?</b>
         p Splitz is made by 
           a(href="https://davidcai.me") David Cai 👋.
-          | I got tired of manually updating my workouts with splits and built this instead. I hope you find it useful as well!
+          |  I got tired of manually updating my workouts with splits and built this instead. I hope you find it useful as well!
 
         
     footer
