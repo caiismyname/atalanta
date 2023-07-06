@@ -17,18 +17,17 @@ body {
   font-size: 16px;
   line-height: 1.5;
   color: #fff;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 @media screen and (max-width: 600px) {
   body {
     font-size: 16px;
-    margin: 0;
   }
 
-  .fixed-width {
-    width: 100%;
-    padding: 4%;
-    margin: 10px 0px;
+  .card {
+    padding: 10px;
   }
 }
   
@@ -68,19 +67,22 @@ main {
   /* padding: 40px 20px; */
 }
 
-section {
+.card {
   background-color: #262626;
   border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  margin-bottom: 40px;
+  padding: 20px;
+  margin: 20px 0px;
   text-align: center;
   max-width: 800px;
+  width: 87% !important;
 }
 
-.fixed-width {
-  width: 80% !important;
+.text-section {
+  width: 87% !important;
   text-align: left;
+  font-size: 20px;
+  line-height: 1.5;
 }
 
 .section-title {
@@ -159,14 +161,6 @@ footer {
 footer p {
   font-size: 14px;
   color: #999;
-}
-
-/* Text section styles */
-.text-section {
-  max-width: 600px;
-  text-align: left;
-  font-size: 20px;
-  line-height: 1.5;
 }
 
 .image-frame {
