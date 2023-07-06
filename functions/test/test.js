@@ -1064,7 +1064,6 @@ describe("Formatter", () => {
   });
 });
 
-
 describe("Parser", () => {
   describe("DEFAULTS FALLTHROUGH", () => {
     it("dominantWorkoutType", () => {
@@ -1347,7 +1346,7 @@ describe("Parser", () => {
       // Error is that the first set (1mi) had an extra split from the component
       assert.ok(!("component_laps" in res.sets[0].laps[0]));
       assert.equal(countOccurances(",", res.summary.description.split("\n")[0]), 0);
-      assert.ok(res.sets[0].laps.reduce((a,b) => a && !("component_laps" in b), true)); // No rep has component laps
+      assert.ok(res.sets[0].laps.reduce((a, b) => a && !("component_laps" in b), true)); // No rep has component laps
     });
 
     it("Track correction generated 2 — continuous 5k (km)", () => {
@@ -1366,7 +1365,7 @@ describe("Parser", () => {
 
       assert.equal(res.sets[0].laps[0].component_laps.length, 5);
       assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
-      assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a,b) => a && b.includes(":"), true)); // Ensure every element has a ":", imply there are no seconds, which means we didn't display any correction components
+      assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true)); // Ensure every element has a ":", imply there are no seconds, which means we didn't display any correction components
     });
 
     it("Track correction generated 3 — 5 x 1mi (mile)", () => {
@@ -1378,7 +1377,7 @@ describe("Parser", () => {
         laps.push([1609.3, "METERS", true]);
         laps.push([1609.3 * errorMargin, "METERS", true]);
         laps.push([157, "METERS", false]);
-      };
+      }
       const run = generateAndReturnWorkout(laps);
 
       const res = parseWorkout({
@@ -1393,12 +1392,16 @@ describe("Parser", () => {
 
       assert.equal(res.sets.length, 1);
       assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
-      assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a,b) => a && b.includes(":"), true));
-      assert.ok(res.sets[0].laps.reduce((a,b) => a && !("component_laps" in b), true)); // No rep has component laps
+      assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true));
+      assert.ok(res.sets[0].laps.reduce((a, b) => a && !("component_laps" in b), true)); // No rep has component laps
     });
   });
 
   describe("TRICKY IRL WORKOUTS", () => {
+
+  });
+
+  describe("FALSE POSITIVES", () => {
 
   });
 });

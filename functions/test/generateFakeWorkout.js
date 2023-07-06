@@ -18,6 +18,7 @@ const defaultRestSecondsPerMile = 480;
 //
 
 // Saves to the JSON that powers the unit tests
+// eslint-disable-next-line no-unused-vars
 function generateAndSave(laps, name, workoutSecondsPerMile, restSecondsPerMile) {
   const run = generate(name, workoutSecondsPerMile, restSecondsPerMile, laps);
   saveToTests(run);
@@ -116,11 +117,11 @@ function saveToTests(run) {
 function fuzz(value) {
   const direction = Math.random() > 0.5 ? 1 : -1;
 
-  const fuzzMax = 0.05;
-  const fuzzMin= 0.02;
-
-  // between 2 — 5% (see min/max above)
+  // const fuzzMax = 0.05;
+  // const fuzzMin= 0.02;
+  // between 2 — 5% (see min/max above)
   // const fuzzPercentage = (Math.random() * (fuzzMax - fuzzMin)) + fuzzMin;
+
   const fuzzPercentage = 0.045; // Maybe a constant value at the limit of reasonable variation makes testing easier?
   return Math.round(((fuzzPercentage * direction * value) + value) * 100) / 100;
 }
