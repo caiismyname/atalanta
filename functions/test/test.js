@@ -1332,7 +1332,7 @@ describe("Parser", () => {
     it("Track correction IRL 1", () => {
       resetConfigs();
 
-      const run = userTestRuns["track_correction_1"];
+      const run = userTestRuns["track_correction"]["1"];
       const res = parseWorkout({
         run: run,
         config: {
@@ -1352,7 +1352,7 @@ describe("Parser", () => {
     it("Track correction generated 2 — continuous 5k (km)", () => {
       resetConfigs();
 
-      const run = userTestRuns["track_correction_2"];
+      const run = userTestRuns["track_correction"]["2"];
       const res = parseWorkout({
         run: run,
         config: {
