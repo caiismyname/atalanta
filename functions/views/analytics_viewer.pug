@@ -13,8 +13,9 @@ html(lang="en")
         for day in workouts
             h2 #{day.date}
             for workout in day.workouts
-                a(href=`https://strava.com/activities/${workout.activityID}`)  
-                    p #{workout.parsedOutput}
+                a(href=`https://strava.com/activities/${workout.activityID}` target="_blank")  
+                    p #{workout.parsedOutputTitle}
+                    p #{workout.parsedOutputDescription}
   footer
       p Copyright © 2023 Splitz
       img(src="/powered_by_strava.svg" height='24px')

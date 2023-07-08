@@ -97,7 +97,7 @@ app.get("/home", (req, res) => {
   });
 });
 
-app.get("/explorer", (req, res) => {
+app.get("/admin/explorer", (req, res) => {
 
 });
 
@@ -124,18 +124,16 @@ app.get("/explorer_parse", (req, res) => {
   });
 });
 
-app.get("/analytics", (req, res) => {
+app.get("/admin/analytics", (req, res) => {
   dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
     res.render("analytics_viewer", {workouts: workouts});
   });
-
+  
   // const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
   // validateUserToken(userToken, res, (userID) => {
-  //   if (userID === "abcde") {
+  //   if (userID === functions.config().admin.davidID) {
   //     dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
-  //       res.render("analytics_viewer", {
-  //         "workouts": workouts,
-  //       });
+  //       res.render("analytics_viewer", {workouts: workouts});
   //     });
   //   } else {
   //     res.redirect("/home");
