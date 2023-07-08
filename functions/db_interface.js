@@ -151,6 +151,76 @@ class DbInterface {
       callback(allowed);
     });
   }
+
+  generateDatestamp(date = new Date()) {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  }
+
+  storeWorkoutForAnalytics(activityID, userID, parsedOutput) {
+    const datestamp = this.generateDatestamp();
+
+    // TODO make this a list update, not an object storage
+    this.db.ref(`analytics/parsedWorkouts/${datestamp}`).update({
+      "activityID": activityID,
+      "userID": userID,
+      "parsedOutput": `${parsedOutput.title}\n${parsedOutput.description.replace(new RegExp("\n", "g"), " || ")}`,
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getStoredWorkoutsForAnalytics(callback, daysBack = 3) {
+    // TODO Make this filter the query by daysBack
+
+    const queriedDates = [];
+    for (let i = 0; i < daysBack; i++) {
+      let today = new Date();
+      today.setDate(today.getDate() - i);
+      queriedDates.push(generateDatestamp(today));
+    }
+
+    for (let datestamp of queriedDates) {
+      this.db.ref(`analytics/parsedWorkouts/${datestamp}`).once("value", (snapshot) => {
+        callback(snapshot.val());
+      });
+    }
+    
+
+    // callback(
+    //   [
+    //     {
+    //       date: "2023-7-7",
+    //       workouts: [
+    //         {
+    //           "activityID": "1235",
+    //           "userID": "abcde",
+    //           "parsedOutput": "Foo bar : foo foo bar bar"
+    //         },
+    //         {
+    //           "activityID": "1235",
+    //           "userID": "abcde",
+    //           "parsedOutput": "baz baz baz"
+    //         }
+    //       ]
+    //     }, 
+    //     {
+    //       date: "2023-7-6",
+    //       workouts: [
+    //         {
+    //           "activityID": "1235",
+    //           "userID": "abcde",
+    //           "parsedOutput": "23456789"
+    //         },
+    //         {
+    //           "activityID": "1235",
+    //           "userID": "abcde",
+    //           "parsedOutput": "098765"
+    //         }
+    //       ]
+    //     }
+    //   ]
+    // )
+  }
 }
 
 
