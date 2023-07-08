@@ -124,6 +124,25 @@ app.get("/explorer_parse", (req, res) => {
   });
 });
 
+app.get("/analytics", (req, res) => {
+  dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
+    res.render("analytics_viewer", {workouts: workouts});
+  });
+
+  // const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
+  // validateUserToken(userToken, res, (userID) => {
+  //   if (userID === "abcde") {
+  //     dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
+  //       res.render("analytics_viewer", {
+  //         "workouts": workouts,
+  //       });
+  //     });
+  //   } else {
+  //     res.redirect("/home");
+  //   }
+  // });
+});
+
 // Adds support for GET requests to the webhook for webhook subscription creation
 app.get("/strava_webhook", (req, res) => {
   StravaInterface.webhookCreationResponse(req, res);
@@ -176,6 +195,7 @@ function handleIncomingWebhook(req, res, isTest=false) {
                   StravaInterface.writeSummaryToStrava(activityID, output.summary, stravaToken);
                   if (!isTest) {
                     logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);
+                    dbInterface.storeWorkoutForAnalytics(activityID, userID, output.summary);
                   }
                 }, 1000);
               } else {
