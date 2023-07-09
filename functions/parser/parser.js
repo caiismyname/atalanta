@@ -18,7 +18,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   }
 
   // Remove last lap if it's super short, as this tends to give falsely fast/slow readings
-  let laps = structuredClone(run.laps);
+  let laps = JSON.parse(JSON.stringify(run.laps));
   if (run.laps[run.laps.length - 1].distance < Helpers.milesToMeters(.03)) {
     laps = run.laps.slice(0, -1);
   }
