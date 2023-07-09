@@ -1,7 +1,7 @@
 const {StravaInterface} = require("../strava_interface.js");
 const {DbInterface} = require("../db_interface.js");
 const userTestActivities = require("./user_test_runs.json");
-const userTestRunsPath = "./functions/test/user_test_runs.json";
+const userTestRunsPath = "./user_test_runs.json";
 
 const fs = require("fs");
 const admin = require("firebase-admin");
