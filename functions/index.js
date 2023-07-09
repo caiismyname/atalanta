@@ -2,14 +2,14 @@ const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const fs = require("fs");
 const path = require("path");
 const favicon = require("serve-favicon");
 
 const {parseWorkout} = require("./parser/parser.js");
 const {StravaInterface} = require("./strava_interface.js");
+const {DbInterface} = require("./db_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics} = require("./analytics.js");
-const {defaultParserConfig, defaultFormatConfig, defaultAccountSettingsConfig} = require("./parser/defaultConfigs.js");
+const {defaultAccountSettingsConfig} = require("./parser/defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -31,6 +31,7 @@ const firebase = admin.initializeApp({
   databaseURL: "https://atalanta-12c63-default-rtdb.firebaseio.com",
 });
 const db = firebase.database();
+const dbInterface = new DbInterface(db);
 
 //
 //
@@ -65,7 +66,7 @@ app.get("/strava_oauth_redirect", (req, res) => {
       const accessToken = authRes.data.access_token;
       const refreshToken = authRes.data.refresh_token;
       const expiration = authRes.data.expires_at;
-      saveStravaCredentialsForUser(userID, athleteID, accessToken, refreshToken, expiration);
+      dbInterface.saveStravaCredentialsForUser(userID, athleteID, accessToken, refreshToken, expiration);
       logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_CONNECTION, db);
 
       res.redirect("/home");
@@ -81,14 +82,14 @@ app.get("/home", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
   validateUserToken(userToken, res, (userID) => {
     if (userID !== null) {
-      isUserCreated(userID, (isCreated) => {
+      dbInterface.isUserCreated(userID, (isCreated) => {
         if (!isCreated) {
           getPersonalDetailsFromUserToken(userToken, (details) => {
-            createNewUser(details);
+            dbInterface.createNewUser(details);
           });
         }
 
-        getUserDetails(userID, (details) => {
+        dbInterface.getUserDetails(userID, (details) => {
           res.render("home", details);
         });
       });
@@ -107,7 +108,7 @@ app.get("/explorer_parse", (req, res) => {
   // console.log(`Explorer parsing: ${activityID}`);
 
   validateUserToken(userToken, res, (userID) => {
-    getStravaTokenForID(userID, (accessToken) => {
+    dbInterface.getStravaTokenForID(userID, (accessToken) => {
       StravaInterface.getActivity(activityID, accessToken, (activity) => {
         if (activity.type === "Run") {
           const output = parseWorkout({
@@ -156,15 +157,15 @@ function handleIncomingWebhook(req, res, isTest=false) {
   }
 
   if (isActivityUpdate && isRelevantUpdateType) {
-    getUserIDForStravaID(userStravaID, (userID) => {
-      getStravaTokenForID(userID, (stravaToken) => {
+    dbInterface.getUserIDForStravaID(userStravaID, (userID) => {
+      dbInterface.getStravaTokenForID(userID, (stravaToken) => {
         StravaInterface.getActivity(activityID, stravaToken, (activity) => {
           if (activity.type === "Run") {
             if (!isTest) {
               logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
             }
 
-            getPreferencesForUser(userID, (config) => {
+            dbInterface.getPreferencesForUser(userID, (config) => {
               const output = parseWorkout({
                 run: activity,
                 config: config,
@@ -196,8 +197,8 @@ function handleIncomingWebhook(req, res, isTest=false) {
       }, isTest); // Force a refresh for code-exercise purposes if in test mode
     });
   } else if (isAccountDeauthorization) {
-    getUserIDForStravaID(req.body.owner_id, (userID) => {
-      deleteUser(userID);
+    dbInterface.getUserIDForStravaID(req.body.owner_id, (userID) => {
+      dbInterface.deleteUser(userID);
       logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_DEACTIVATION, db);
     });
   } else {
@@ -234,7 +235,7 @@ app.get("/_mock_strava_webhook", (req, res) => {
 app.get("/delete_account", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
   validateUserToken(userToken, res, (userID) => {
-    deleteUser(userID);
+    dbInterface.deleteUser(userID);
     logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_DELETION, db);
     res.redirect("/");
   });
@@ -258,7 +259,7 @@ app.post("/update_preferences", (req, res) => {
       },
     };
 
-    updateUserPreferences(userID, updatedPreferences);
+    dbInterface.updateUserPreferences(userID, updatedPreferences);
     res.redirect("/home");
   });
 });
@@ -273,7 +274,7 @@ app.post("/update_account_settings", (req, res) => {
       updatedSettings[setting] = enabledSettings.includes(setting);
     });
 
-    updateAccountSettings(userID, updatedSettings);
+    dbInterface.updateAccountSettings(userID, updatedSettings);
   });
 
   res.redirect("/home");
@@ -339,209 +340,43 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
   }
 }
 
-function isUserCreated(userID, callback) {
-  db.ref(`users/${userID}`).once("value", (snapshot) => {
-    callback(snapshot.exists());
-  });
-}
+exports.app = functions.https.onRequest(app); // Exporting the app for Firebase
 
-function createNewUser(details) {
-  logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, db);
-  db.ref(`users/${details.userID}`).update({
-    stravaConnected: false,
-    name: details.name,
-    email: details.email,
-    preferences: {
-      parser: defaultParserConfig,
-      format: defaultFormatConfig,
-      account: defaultAccountSettingsConfig,
-    },
-  }, (error) => {
-    console.log(error);
-  });
-}
+// //
+// //
+// // Utilities
+// //
+// //
 
-function saveStravaCredentialsForUser(userID, stravaID, accessToken, refreshToken, expiration) {
-  db.ref(`users/${userID}`).update({
-    stravaConnected: true,
-    stravaID: stravaID,
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-    accessTokenExpiration: expiration,
-  }, (error) => {
-    console.log(error);
-  });
+// function saveJSON(content, fileName="output.json") {
+//   const jsonContent = JSON.stringify(content, null, 4);
+//   fs.writeFile(fileName, jsonContent, "utf8", (err) => {
+//     if (err) {
+//       console.log("An error occured while writing JSON Object to file.");
+//       return console.log(err);
+//     }
 
-  // Create the reverse lookup (stravaID: googleID)
-  db.ref(`stravaIDLookup/${stravaID}`).update({
-    userID: userID,
-  }, (error) => {
-    console.log(error);
-  });
-}
+//     console.log(`JSON file ${fileName} has been saved.`);
+//   });
+// }
 
-function getStravaTokenForID(userID, callback, forceRefresh=false) {
-  db.ref(`users/${userID}/accessTokenExpiration`).once("value", (snapshot) => {
-    const expirationEpoch = snapshot.val();
-    const expiration = new Date(0);
-    expiration.setUTCSeconds(expirationEpoch);
-
-    // Token has expired, request a new one
-    if (new Date() >= expiration || forceRefresh) {
-      // Get refresh token
-      db.ref(`users/${userID}/refreshToken`).once("value", (snapshot) => {
-        const refreshToken = snapshot.val();
-        // Get new access token from Strava
-        StravaInterface.refreshAccessToken(refreshToken, (res) => {
-          // Save new access token and expiry
-          db.ref(`users/${userID}`).update({
-            accessToken: res.accessToken,
-            accessTokenExpiration: res.expiration,
-          });
-          callback(res.accessToken);
-        });
-      });
-    } else {
-      db.ref(`users/${userID}/accessToken`).once("value", (snapshot) => {
-        const accessToken = snapshot.val();
-        callback(accessToken);
-      });
-    }
-  });
-}
-
-function getUserIDForStravaID(stravaID, callback) {
-  db.ref(`stravaIDLookup/${stravaID}/userID`).once("value", (snapshot) => {
-    const userID = snapshot.val();
-
-    callback(userID);
-  });
-}
-
-function getUserDetails(userID, callback) {
-  db.ref(`users/${userID}`).once("value", (snapshot) => {
-    const details = snapshot.val();
-    callback(
-        // Construct a new object so we control exactly what's being sent
-        // i.e. omitting access tokens etc.
-        {
-          stravaConnected: details["stravaConnected"],
-          name: details["name"],
-          preferences: details.preferences,
-        });
-  });
-}
-
-
-// Excludes account settings
-function getPreferencesForUser(userID, callback) {
-  db.ref(`users/${userID}/preferences`).once("value", (snapshot) => {
-    const prefs = snapshot.val();
-    callback({
-      parser: prefs.parser,
-      format: prefs.format,
-    });
-  });
-}
-
-function deleteUser(userID) {
-  db.ref(`users/${userID}/stravaID`).once("value", (snapshot) => {
-    const stravaID = snapshot.val();
-    db.ref(`stravaIDLookup/${stravaID}`).remove();
-    db.ref(`users/${userID}`).remove();
-    // console.log(`Deleted user ${userID}`);
-  });
-}
-
-function updateUserPreferences(userID, updatedPreferences) {
-  db.ref(`users/${userID}/preferences/parser`).update(
-      updatedPreferences.parser,
-      (error) => {
-        console.error(error);
-      },
-  );
-
-  db.ref(`users/${userID}/preferences/format`).update(
-      updatedPreferences.format,
-      (error) => {
-        console.error(error);
-      },
-  );
-}
-
-function updateAccountSettings(userID, updatedSettings) {
-  db.ref(`users/${userID}/preferences/account`).update(
-      updatedSettings,
-      (error) => {
-        console.error(error);
-      },
-  );
-}
-
-//
-//
-// Firebase
-//
-//
-
-exports.app = functions.https.onRequest(app);
-
-
-//
-//
-// Utilities
-//
-//
-
-function saveJSON(content, fileName="output.json") {
-  const jsonContent = JSON.stringify(content, null, 4);
-  fs.writeFile(fileName, jsonContent, "utf8", (err) => {
-    if (err) {
-      console.log("An error occured while writing JSON Object to file.");
-      return console.log(err);
-    }
-
-    console.log(`JSON file ${fileName} has been saved.`);
-  });
-}
-
-// eslint-disable-next-line no-unused-vars
-function saveActivityForUser(userID, activityID) {
-  db.ref(`users/${userID}/preferences/account/dataUsageOptIn`).once("value", (snapshot) => {
-    const allowed = snapshot.val();
-    if (allowed) {
-      getStravaTokenForID(userID, (stravaToken) => {
-        StravaInterface.getActivity(activityID, stravaToken, (activity) => {
-          saveJSON(activity);
-        });
-      });
-    } else {
-      console.error(`User ${userID} opted out of data usage.`);
-    }
-  });
-}
+// // eslint-disable-next-line no-unused-vars
+// function saveActivityForUser(userID, activityID) {
+//   db.ref(`users/${userID}/preferences/account/dataUsageOptIn`).once("value", (snapshot) => {
+//     const allowed = snapshot.val();
+//     if (allowed) {
+//       getStravaTokenForID(userID, (stravaToken) => {
+//         StravaInterface.getActivity(activityID, stravaToken, (activity) => {
+//           saveJSON(activity);
+//         });
+//       });
+//     } else {
+//       console.error(`User ${userID} opted out of data usage.`);
+//     }
+//   });
+// }
 
 
 // const testUserID = "";
 // const testActivityID = "";
 // saveActivityForUser(testUserID, testActivityID);
-
-// getRecentRuns(stravaToken, (runs) => {
-//   console.log(runs.length);
-
-//   const allRuns = [];
-
-//   for (const runId of runs) {
-//     getActivity(runId, stravaToken, (runDetails) => {
-//       allRuns.push(runDetails);
-//       // parseWorkout({run: runDetails, verbose: true});
-//     });
-//   }
-
-//   setTimeout(() => {
-//     console.log(allRuns.length);
-//     saveJSON({"examples": allRuns});
-//   },
-//   20000,
-//   );
-// });

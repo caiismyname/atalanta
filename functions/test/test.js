@@ -1,9 +1,12 @@
 const assert = require("assert");
 const {parseWorkout} = require("../parser/parser.js");
 const {Formatter} = require("../parser/formatter.js");
+const {FormatPrinter} = require("../parser/format_printer.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
+const {generateAndReturnWorkout} = require("./generateFakeWorkout.js");
 
 const defaultTestRuns = require("./test_runs.json");
+const userTestRuns = require("./user_test_runs.json");
 
 // Set these as global
 let parserConfig = {...defaultParserConfig};
@@ -1131,7 +1134,6 @@ describe("Formatter", () => {
   });
 });
 
-
 describe("Parser", () => {
   describe("DEFAULTS FALLTHROUGH", () => {
     it("dominantWorkoutType", () => {
@@ -1166,5 +1168,310 @@ describe("Parser", () => {
       assert.equal(defaultRes.summary.title, removeRes.summary.title);
       assert.equal(defaultRes.summary.description, removeRes.summary.description);
     });
+  });
+
+  describe("BASIS AND VALUE", () => {
+    const dominentWorkoutTypes = ["BALANCED", "DISTANCE", "TIME"];
+    const meters = [100, 200, 300, 400, 500, 600, 800, 1500];
+    const kilometers = [1000, 2000, 3000, 5000, 10000];
+    const miles = [];
+    for (let i = 1; i <= 10; i++) {
+      miles.push(i * 1609);
+    }
+
+    const seconds = [15, 30, 45];
+    const minutes = [90, 150, 210, 270];
+    for (let i = 1; i <= 15; i++) {
+      minutes.push(i * 60);
+    }
+
+    resetConfigs();
+    const printer = new FormatPrinter(formatConfig);
+
+    // Values that should parse consistently regardless of config
+    for (const dominentWorkoutType of dominentWorkoutTypes) {
+      describe(`${dominentWorkoutType}`, () => {
+        for (const distance of meters) {
+          it(`${distance}m`, () => {
+            resetConfigs();
+
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "DISTANCE");
+            assert.equal(tokenLap.closestDistanceUnit, "m");
+          });
+        }
+
+        for (const distance of kilometers) {
+          it(`${distance}km`, () => {
+            resetConfigs();
+
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "DISTANCE");
+            assert.equal(tokenLap.closestDistanceUnit, "km");
+          });
+        }
+
+        for (const distance of miles) {
+          it(`${distance / 1609}mi`, () => {
+            resetConfigs();
+
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "DISTANCE");
+            assert.equal(tokenLap.closestDistanceUnit, "mi");
+          });
+        }
+
+        for (const time of seconds) {
+          it(`${printer.secondsToTimeFormatted(time)}sec`, () => {
+            resetConfigs();
+
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const inputLaps = [];
+            for (let i = 1; i < 5; i++) {
+              inputLaps.push([time, "SECONDS", true]);
+              inputLaps.push([time, "SECONDS", false]);
+            }
+            const run = generateAndReturnWorkout(inputLaps);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "TIME");
+          });
+        }
+
+        for (const time of minutes) {
+          it(`${printer.secondsToTimeFormatted(time)} min`, () => {
+            resetConfigs();
+
+            parserConfig.dominantWorkoutType = dominentWorkoutType;
+            const inputLaps = [];
+            for (let i = 1; i < 5; i++) {
+              inputLaps.push([time, "SECONDS", true]);
+              inputLaps.push([time, "SECONDS", false]);
+            }
+            const run = generateAndReturnWorkout(inputLaps);
+
+            const sets = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            }).sets;
+
+            const tokenLap = sets[0].laps[0];
+
+            assert.equal(tokenLap.workoutBasis, "TIME");
+          });
+        }
+      });
+    }
+
+    // Values that should parse differently depending on config
+  });
+
+  describe("WORKOUT TYPE TAGGING", () => {
+    it("Greater than 50%, descending", () => {
+      resetConfigs();
+      const inputDistances = [10000, 5000, 1609, 800, 500, 300, 200, 100]; // Descending to ensure we're properly sorting
+      const laps = [];
+      for (const distance of inputDistances) {
+        laps.push([distance, "METERS", true]);
+        laps.push([distance, "METERS", false]);
+      }
+
+      const run = generateAndReturnWorkout(laps);
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets.length, inputDistances.length);
+    });
+
+    it("Greater than 50%, non-sequential multiples", () => {
+      resetConfigs();
+      const inputDistances = [10000, 5000, 1609, 800, 500, 300, 200, 10000, 100, 5000, 1609, 500, 800, 300, 200, 100]; // Should all be parsed as singles
+      const laps = [];
+      for (const distance of inputDistances) {
+        laps.push([distance, "METERS", true]);
+        laps.push([distance, "METERS", false]);
+      }
+
+      const run = generateAndReturnWorkout(laps);
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+      assert.equal(res.sets.length, inputDistances.length);
+    });
+
+    it("Greater than 50%, sequential multiples", () => {
+      resetConfigs();
+      const inputDistances = [100, 400, 1609, 10000];
+      const laps = [];
+      const repeatCount = 3;
+      for (const distance of inputDistances) {
+        for (let i = 0; i < repeatCount; i++) {
+          laps.push([distance, "METERS", true]);
+          laps.push([distance, "METERS", false]);
+        }
+      }
+
+      const run = generateAndReturnWorkout(laps);
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets.length, inputDistances.length);
+      assert.equal(res.sets[0].laps.length, repeatCount);
+    });
+  });
+
+  describe("TRACK AUTOLAP CORRECTION", () => {
+    it("Track correction IRL 1", () => {
+      resetConfigs();
+
+      const run = userTestRuns["track_correction"]["1"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // Error is that the first set (1mi) had an extra split from the component
+      assert.ok(!("component_laps" in res.sets[0].laps[0]));
+      assert.equal(countOccurances(",", res.summary.description.split("\n")[0]), 0);
+      assert.ok(res.sets[0].laps.reduce((a, b) => a && !("component_laps" in b), true)); // No rep has component laps
+    });
+
+    it("Track correction generated 2 — continuous 5k (km)", () => {
+      resetConfigs();
+
+      const run = userTestRuns["track_correction"]["2"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets[0].laps[0].component_laps.length, 5);
+      assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
+      assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true)); // Ensure every element has a ":", imply there are no seconds, which means we didn't display any correction components
+    });
+
+    it("Track correction generated 3 — 5 x 1mi (mile)", () => {
+      resetConfigs();
+      const errorMargin = 0.038;
+
+      const laps = [];
+      for (let i = 0; i < 5; i++) {
+        laps.push([1609.3, "METERS", true]);
+        laps.push([1609.3 * errorMargin, "METERS", true]);
+        laps.push([157, "METERS", false]);
+      }
+      const run = generateAndReturnWorkout(laps);
+
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets.length, 1);
+      assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
+      assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true));
+      assert.ok(res.sets[0].laps.reduce((a, b) => a && !("component_laps" in b), true)); // No rep has component laps
+    });
+  });
+
+  describe("TRICKY IRL WORKOUTS", () => {
+
+  });
+
+  describe("FALSE POSITIVES", () => {
+
   });
 });
