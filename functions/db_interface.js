@@ -151,6 +151,107 @@ class DbInterface {
       callback(allowed);
     });
   }
+
+  generateDatestamp(date = new Date()) {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  }
+
+  storeWorkoutForAnalytics(activityID, userID, parsedOutput) {
+    const datestamp = this.generateDatestamp();
+
+    this.db.ref(`analytics/parsedWorkouts/${datestamp}`).push({
+      "activityID": activityID,
+      "userID": userID,
+      "parsedOutputTitle": `${parsedOutput.title}`,
+      "parsedOutputDescription": `${parsedOutput.description.replace(new RegExp("\n", "g"), " || ")}`,
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  fillWorkouts() {
+    for (let i = 0; i < 10; i++) {
+      this.storeWorkoutForAnalytics("123", "456", {title: "4x400m", description: "4 x 400m — Avg: 59\n59,58,57,56"});
+    }
+  }
+
+  getStoredWorkoutsForAnalytics(callback, daysBack = 3) {
+    const queriedDates = [];
+    for (let i = 0; i < daysBack; i++) {
+      const today = new Date();
+      today.setDate(today.getDate() - i);
+      queriedDates.push(this.generateDatestamp(today));
+    }
+
+    const allPromises = [];
+    const fetchedWorkouts = [];
+
+    for (const datestamp of queriedDates) {
+      allPromises.push(new Promise((resolve, reject) => {
+        this.db.ref(`analytics/parsedWorkouts/${datestamp}`).once("value", (snapshot) => {
+          const rawWorkouts = snapshot.val();
+          if (rawWorkouts) {
+            fetchedWorkouts.push({
+              "date": datestamp,
+              "workouts": Object.values(rawWorkouts),
+            });
+          }
+          resolve();
+        });
+      }));
+    }
+
+    Promise.all(allPromises)
+        .then((result) => {
+          fetchedWorkouts.sort((a, b) => {
+            new Date(b.date) - new Date(a.date); // sort in reverse order (most recent first);
+          });
+          callback(fetchedWorkouts);
+        })
+        .catch((error) => {
+          console.error(`ERROR ${error}`);
+          callback([]);
+        });
+
+
+    // Format:
+    //   [
+    //     {
+    //       date: "2023-7-7",
+    //       workouts: [
+    //         {
+    //           "activityID": "1235",
+    //           "userID": "abcde",
+    //           "parsedOutputTitle": "4 x 400m",
+    //           "parsedOutputDesription": "400m — Avg: 58 \n59,58,58,57",
+    //         },
+    //         {
+    //           "activityID": "1235",
+    //           "userID": "abcde",
+    //           "parsedOutputTitle": "4 x 400m",
+    //           "parsedOutputDesription": "400m — Avg: 58 \n59,58,58,57",
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       date: "2023-7-6",
+    //       workouts: [
+    //         {
+    //           "activityID": "1235",
+    //           "userID": "abcde",
+    //           "parsedOutputTitle": "4 x 400m",
+    //           "parsedOutputDesription": "400m — Avg: 58 \n59,58,58,57",
+    //         },
+    //         {
+    //           "activityID": "1235",
+    //           "userID": "abcde",
+    //           "parsedOutputTitle": "4 x 400m",
+    //           "parsedOutputDesription": "400m — Avg: 58 \n59,58,58,57",
+    //         }
+    //       ]
+    //     }
+    //   ]
+  }
 }
 
 
