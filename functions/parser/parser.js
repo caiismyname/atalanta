@@ -212,23 +212,60 @@ function tagWorkoutTypes(laps) {
   }
 
   const differenceThreshold = 1.2; // TODO Tune this
+
+
+  /* 
+  Try out the threshold system on both distances and times.
+  We haven't assigned basises yet, so this will proxy for the true basis.
+  By taking the basis that generates the fewest distinct workout types, we guard against pace variance, which manifests as
+  time variance on distance based reps, and distance variance on time based reps
+  */
+
   const workoutsSortedByDistance = [...workouts].sort((a, b) => a.distance < b.distance ? -1 : 1);
-  let workoutTypeCounter = 0;
+  const workoutsSortedByTime = [...workouts].sort((a, b) => a.moving_time < b.moving_time ? -1 : 1);
+
+  let workoutTypeCounter_d = 0;
+  let workoutTypeCounter_t = 0;
+
   let prevWorkoutDistance = workoutsSortedByDistance[0].distance;
   for (const lap of workoutsSortedByDistance) {
     if ((lap.distance / prevWorkoutDistance) >= differenceThreshold) {
-      workoutTypeCounter += 1;
+      workoutTypeCounter_d += 1;
     }
 
     prevWorkoutDistance = lap.distance;
-    lap.workoutType = workoutTypeCounter;
+    lap.workoutType_d = workoutTypeCounter_d;
   }
+
+  let prevWorkoutTime = workoutsSortedByTime[0].moving_time;
+  for (const lap of workoutsSortedByTime) {
+    if ((lap.moving_time / prevWorkoutTime) >= differenceThreshold) {
+      workoutTypeCounter_t += 1;
+    }
+
+    prevWorkoutTime = lap.moving_time
+    lap.workoutType_t = workoutTypeCounter_t
+  }
+
+
+  // Take the system that generates the FEWEST distinct workout types
+  if (workoutTypeCounter_t > workoutTypeCounter_d) {
+    for (const lap of workouts) {
+      lap.workoutType = lap.workoutType_d;
+    }
+  } else {
+    for (const lap of workouts) {
+      lap.workoutType = lap.workoutType_t;
+    }
+  }
+
   // [end]
 
   return laps;
 }
 
 function tagWorkoutBasisAndValue(laps, parserConfig) {
+
   const maxWorkoutType = laps.map((lap) => lap.workoutType === undefined ? 0 : lap.workoutType).reduce((a, b) => Math.max(a, b), 0);
 
   for (let workoutType = 0; workoutType <= maxWorkoutType; workoutType++) {
