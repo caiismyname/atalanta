@@ -8,7 +8,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "test": "mocha",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "saveRun": "node ./test/saveUserWorkouts.js"
   },
   "engines": {
     "node": "16"

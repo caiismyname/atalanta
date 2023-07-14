@@ -1,7 +1,7 @@
 const {StravaInterface} = require("../strava_interface.js");
 const {DbInterface} = require("../db_interface.js");
 const userTestActivities = require("./user_test_runs.json");
-const userTestRunsPath = "./user_test_runs.json";
+const userTestRunsPath = "./test/user_test_runs.json";
 
 const fs = require("fs");
 const admin = require("firebase-admin");
@@ -84,9 +84,17 @@ function saveActivityForUser(userID, activityID) {
   });
 }
 
-// const testUserID = "";
-// const testActivityID = "";
-// saveActivityForUser(testUserID, testActivityID);
+
+const args = process.argv.slice(2); // skip `node` and the script name
+
+if (args[0] === "-h" || args[0] === "h") {
+  console.log("Usage: [activity ID] [userID (firebase)]");
+} else if (args.length === 2) {
+  const testActivityID = args[0];
+  const testUserID = args[1];
+
+  saveActivityForUser(testUserID, testActivityID);
+}
 
 module.exports = {
   cleanStravaActivity,

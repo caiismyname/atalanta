@@ -255,20 +255,23 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
       distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
       timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
 
+      // console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
+      // console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
+
       for (const lap of correspondingLaps) {
-        // Assign based on lowest std dev.
+        // Assign based on lowest average difference
         switch (parserConfig.dominantWorkoutType) {
           case "DISTANCE":
-            lap.workoutBasis = (distanceStdDev <= (biasFactor * timeStdDev) ? "DISTANCE" : "TIME");
+            lap.workoutBasis = (distanceDifferenceAverage <= (biasFactor * timeDifferenceAverage) ? "DISTANCE" : "TIME");
             break;
           case "TIME":
-            lap.workoutBasis = (timeStdDev <= (biasFactor * distanceStdDev) ? "TIME" : "DISTANCE");
+            lap.workoutBasis = (timeDifferenceAverage <= (biasFactor * distanceDifferenceAverage) ? "TIME" : "DISTANCE");
             break;
           case "BALANCED":
-            lap.workoutBasis = (distanceStdDev <= timeStdDev ? "DISTANCE" : "TIME");
+            lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
             break;
           default: // Same as balanced
-            lap.workoutBasis = (distanceStdDev <= timeStdDev ? "DISTANCE" : "TIME");
+            lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
             break;
         }
 

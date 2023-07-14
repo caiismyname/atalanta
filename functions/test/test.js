@@ -1468,6 +1468,40 @@ describe("Parser", () => {
   });
 
   describe("TRICKY IRL WORKOUTS", () => {
+    it("Vicente 15/30 second sprints", () => {
+      resetConfigs();
+
+      const run = userTestRuns["pattern_reducer"]["vicente_1"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      console.log(res.summary.title)
+      console.log(res.sets)
+    });
+
+    it("800m misparsed as 3min", () => {
+      resetConfigs();
+
+      const run = userTestRuns["incorrect_basis"]["3min_vs_800m"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets[0].laps[0].workoutBasis, 'DISTANCE');
+    })
 
   });
 
