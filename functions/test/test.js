@@ -1467,8 +1467,47 @@ describe("Parser", () => {
     });
   });
 
-  describe("TRICKY IRL WORKOUTS", () => {
+  describe("IRL WORKOUTS", () => {
+    describe("Basis tagging", () => {
+      it("Vicente 15/30 second sprints", () => {
+        resetConfigs();
 
+        const run = userTestRuns["pattern_reducer"]["vicente_1"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const intervals = res.sets[1];
+
+        // Should be 4 x (15sec, 30sec)
+        assert.equal(intervals.pattern.length, 2);
+        assert.equal(intervals.count, 4);
+      });
+
+      it("800m misparsed as 3min", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["3min_vs_800m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.ok(res.summary.title.includes("800m"));
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+      });
+    });
   });
 
   describe("FALSE POSITIVES", () => {
