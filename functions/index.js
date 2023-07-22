@@ -131,7 +131,7 @@ app.get("/admin/analytics", (req, res) => {
 
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
   validateUserToken(userToken, res, (userID) => {
-    if (userID === functions.config().admin.david) {
+    if (userID === functions.config().admin.david || userID === functions.config().admin.caiismyname) {
       dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
         res.render("analytics_viewer", {workouts: workouts});
       });
