@@ -166,6 +166,7 @@ function webhookIsDefaultTitleUpdate(req) {
       console.log(req.body.updates);
       if ("title" in req.body.updates) {
         const newTitle = req.body.updates.title;
+        console.log(`newTitle: ${newTitle}`);
         return knownStravaDefaultRunNames.includes(newTitle);
       }
     }
