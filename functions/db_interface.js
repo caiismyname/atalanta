@@ -262,12 +262,12 @@ class DbInterface {
     const todayRef = this.db.ref(`analytics/parsedWorkouts/${todayDatestamp}`);
     const yesterdayRef = this.db.ref(`analytics/parsedWorkouts/${yesterdayDatestamp}`);
 
-    todayRef.orderByChild(`activityID`).equalTo(activityID).on("value", (snapshot) => {
+    todayRef.orderByChild(`activityID`).equalTo(activityID).once("value", (snapshot) => {
       const writtenWorkoutFoundToday = snapshot.exists();
       if (writtenWorkoutFoundToday) { // If false, check yesterday
         callback(writtenWorkoutFoundToday);
       } else {
-        yesterdayRef.orderByChild(`activityID`).equalTo(activityID).on("value", (snapshot) => {
+        yesterdayRef.orderByChild(`activityID`).equalTo(activityID).once("value", (snapshot) => {
           const writtenWorkoutFoundYesterday = snapshot.exists();
           callback(writtenWorkoutFoundYesterday); // Send regardless of result since we're only looking at today and yesterday
         });
