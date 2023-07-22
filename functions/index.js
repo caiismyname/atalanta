@@ -124,20 +124,27 @@ app.get("/explorer_parse", (req, res) => {
   });
 });
 
+app.get("/admin", (req, res) => {
+  const userToken = req.cookies["__session"];
+  if (userToken) {
+    validateAdminToken(userToken, res, (userID) => {
+      res.render("admin");
+    });
+  } else {
+    res.render("admin_login");
+  }
+});
+
 app.get("/admin/analytics", (req, res) => {
   // dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
   //   res.render("analytics_viewer", {workouts: workouts});
   // });
 
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
-  validateUserToken(userToken, res, (userID) => {
-    if (userID === functions.config().admin.david) {
-      dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
-        res.render("analytics_viewer", {workouts: workouts});
-      });
-    } else {
-      res.redirect("/home");
-    }
+  validateAdminToken(userToken, res, (userID) => {
+    dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
+      res.render("analytics_viewer", {workouts: workouts});
+    });
   });
 });
 
@@ -359,6 +366,29 @@ function validateUserToken(idToken, res, callback) {
   } catch (error) {
     console.error(error);
     res.redirect("/");
+  }
+}
+
+function validateAdminToken(idToken, res, callback) {
+  try {
+    firebase.auth()
+        .verifyIdToken(idToken)
+        .then((decodedToken) => {
+          const uid = decodedToken.uid;
+          if (uid === functions.config().admin.david || uid === functions.config().admin.caiismyname) {
+            callback(uid);
+          } else {
+            console.error(`Logged in user is not an admin`);
+            res.redirect("/admin");
+          }
+        })
+        .catch((error) => {
+          console.error(`Invalid user authentication: ${error}`);
+          res.redirect("/admin");
+        });
+  } catch (error) {
+    console.error(error);
+    res.redirect("/admin");
   }
 }
 
