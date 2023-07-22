@@ -9,7 +9,7 @@ const {parseWorkout} = require("./parser/parser.js");
 const {StravaInterface} = require("./strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics} = require("./analytics.js");
-const {defaultAccountSettingsConfig} = require("./parser/defaultConfigs.js");
+const {defaultAccountSettingsConfig, knownStravaDefaultRunNames} = require("./parser/defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -161,13 +161,11 @@ function webhookIsAccountDeauth(req) {
 }
 
 function webhookIsDefaultTitleUpdate(req) {
-  const defaultRunTitles = ["Morning run", "Lunch run", "Afternoon run", "Evening run", "Night run"];
-
   if (req.body.aspect_type === "update") {
     if ("updates" in req.body) { // being defensive here
       if (req.body.updates === "title") {
         const newTitle = req.body.updates.title;
-        return defaultRunTitles.includes(newTitle);
+        return knownStravaDefaultRunNames.includes(newTitle);
       }
     }
   }
@@ -240,7 +238,7 @@ function handleIncomingWebhook(req, res, isTest=false) {
   if (isActivity && isCreate) {
     dbInterface.getIsWorkoutWritten(activityID, (isWritten) => {
       /*
-      Sometimes we get a second ping if the function doesn't start up soon enough to ack the webhook in time. 
+      Sometimes we get a second ping if the function doesn't start up soon enough to ack the webhook in time.
       Even so, we still do the full parse+write (if it's a workout) in response to the first webhook, so the second write is unnecessary.
       The second write can be harmful if the user updates the activity between the two webhooks because the second write would overwrite the user's changes.
       */
@@ -254,7 +252,7 @@ function handleIncomingWebhook(req, res, isTest=false) {
       if (isWritten) {
         processActivity(activityID, userStravaID, isTest);
       }
-    })
+    });
   } else if (isAccountDeauthorization) {
     dbInterface.getUserIDForStravaID(req.body.owner_id, (userID) => {
       dbInterface.deleteUser(userID);
@@ -264,7 +262,7 @@ function handleIncomingWebhook(req, res, isTest=false) {
     console.log(`Received update for ACTIVITY ${activityID}, no action taken.`);
   } else {
     console.log(`Webhook for ACTIVITY ${activityID} is not eligible.`);
-  };
+  }
 }
 
 app.post("/strava_webhook", (req, res) => {
