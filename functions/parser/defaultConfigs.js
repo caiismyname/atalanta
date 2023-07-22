@@ -18,8 +18,11 @@ const defaultAccountSettingsConfig = {
   "emailOptIn": true, // true, false
 };
 
+const knownStravaDefaultRunNames = ["Morning run", "Lunch run", "Afternoon run", "Evening run", "Night run"];
+
 module.exports = {
   defaultFormatConfig,
   defaultParserConfig,
   defaultAccountSettingsConfig,
+  knownStravaDefaultRunNames,
 };

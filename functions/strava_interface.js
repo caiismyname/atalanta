@@ -69,8 +69,6 @@ class StravaInterface {
 
   static writeSummaryToStrava(activityID, summary, accessToken) {
     const stravaConfigDetails = this.stravaConfigDetails();
-    // console.log(`Writing workout:\n\tActivity: ${activityID}\n\tTitle:${summary.title}\n\tDescription:${summary.description.replace("\n", "")}`);
-
     const config = {headers: {Accept: "application/json", Authorization: `Bearer ${accessToken}`}};
     const newTitleAndDescription = {
       "name": summary.title,

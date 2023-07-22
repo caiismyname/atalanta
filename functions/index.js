@@ -9,7 +9,7 @@ const {parseWorkout} = require("./parser/parser.js");
 const {StravaInterface} = require("./strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics} = require("./analytics.js");
-const {defaultAccountSettingsConfig} = require("./parser/defaultConfigs.js");
+const {defaultAccountSettingsConfig, knownStravaDefaultRunNames} = require("./parser/defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -146,6 +146,76 @@ app.get("/strava_webhook", (req, res) => {
   StravaInterface.webhookCreationResponse(req, res);
 });
 
+function webhookIsAccountDeauth(req) {
+  if (req.body.aspect_type === "update") {
+    if ("updates" in req.body) { // being defensive here
+      if ("authorized" in req.body.updates) {
+        if (req.body.updates.authorized === "false") {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+function webhookIsDefaultTitleUpdate(req) {
+  if (req.body.aspect_type === "update") {
+    if ("updates" in req.body) { // being defensive here
+      if (req.body.updates === "title") {
+        const newTitle = req.body.updates.title;
+        return knownStravaDefaultRunNames.includes(newTitle);
+      }
+    }
+  }
+
+  return false;
+}
+
+function processActivity(activityID, userStravaID, isTest) {
+  dbInterface.getUserIDForStravaID(userStravaID, (userID) => {
+    dbInterface.getStravaTokenForID(userID, (stravaToken) => {
+      StravaInterface.getActivity(activityID, stravaToken, (activity) => {
+        if (activity.type === "Run") {
+          if (!isTest) {
+            logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
+          }
+
+          dbInterface.getPreferencesForUser(userID, (config) => {
+            const output = parseWorkout({
+              run: activity,
+              config: config,
+              verbose: false,
+            });
+            if (output.isWorkout) {
+              console.log(`ACTIVITY ${activityID} is a workout. Title: [${output.summary.title}] Description: [${output.summary.description.replace(new RegExp("\n", "g"), " || ")}]`);
+              if (!isTest) {
+                logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
+              }
+              setTimeout(() => {
+                if (isTest) {
+                  output.summary.title += ` ${new Date()}`;
+                  output.summary.description += `\n${new Date()}`;
+                }
+                StravaInterface.writeSummaryToStrava(activityID, output.summary, stravaToken);
+                if (!isTest) {
+                  logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);
+                  dbInterface.storeWrittenWorkout(activityID, userID, output.summary);
+                }
+              }, 0); // Keep the timeout framework but no timeout for now
+            } else {
+              console.log(`ACTIVITY ${activityID} is NOT a workout, no action taken.`);
+            }
+          });
+        } else {
+          console.log(`ACTIVITY ${activityID} is NOT a run, no action taken.`);
+        }
+      });
+    }, isTest); // Force a refresh for code-exercise purposes if in test mode
+  });
+}
+
 // Store all logic in a function for easy access by tests
 function handleIncomingWebhook(req, res, isTest=false) {
   if (!isTest) {
@@ -153,18 +223,10 @@ function handleIncomingWebhook(req, res, isTest=false) {
   }
 
   // Decide if we want to process the event
-  const isActivityUpdate = req.body.object_type === "activity";
-  const isRelevantUpdateType = req.body.aspect_type === "create";// || (req.body.aspect_type === "update" && (req.body.updates === "title" || req.body.updates === "type"));
-  let isAccountDeauthorization = false;
-  if (req.body.aspect_type === "update") {
-    if ("updates" in req.body) { // being defensive here
-      if ("authorized" in req.body.updates) {
-        if (req.body.updates.authorized === "false") {
-          isAccountDeauthorization = true;
-        }
-      }
-    }
-  }
+  const isActivity = req.body.object_type === "activity";
+  const isCreate = req.body.aspect_type === "create"; // || (req.body.aspect_type === "update" && (req.body.updates === "title" || req.body.updates === "type"));
+  const isAccountDeauthorization = webhookIsAccountDeauth(req);
+  const isStravaDefaultTitleUpdate = webhookIsDefaultTitleUpdate(req);
 
   const activityID = req.body.object_id;
   const userStravaID = req.body.owner_id;
@@ -173,58 +235,33 @@ function handleIncomingWebhook(req, res, isTest=false) {
     StravaInterface.acknowledgeWebhook(res);
   }
 
-  if (isActivityUpdate && isRelevantUpdateType) {
-    dbInterface.getUserIDForStravaID(userStravaID, (userID) => {
-      dbInterface.getStravaTokenForID(userID, (stravaToken) => {
-        StravaInterface.getActivity(activityID, stravaToken, (activity) => {
-          if (activity.type === "Run") {
-            if (!isTest) {
-              logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
-            }
-
-            dbInterface.getPreferencesForUser(userID, (config) => {
-              const output = parseWorkout({
-                run: activity,
-                config: config,
-                verbose: false,
-              });
-              if (output.isWorkout) {
-                console.log(`ACTIVITY ${activityID} is a workout. Title: [${output.summary.title}] Description: [${output.summary.description.replace(new RegExp("\n", "g"), " || ")}]`);
-                if (!isTest) {
-                  logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
-                }
-                setTimeout(() => {
-                  if (isTest) {
-                    output.summary.title += ` ${new Date()}`;
-                    output.summary.description += `\n${new Date()}`;
-                  }
-                  StravaInterface.writeSummaryToStrava(activityID, output.summary, stravaToken);
-                  if (!isTest) {
-                    logAnalytics(ANALYTICS_EVENTS.WORKOUT_WRITTEN, db);
-                    dbInterface.storeWorkoutForAnalytics(activityID, userID, output.summary);
-                  }
-                }, 0); // Keep the timeout framework but no timeout for now
-              } else {
-                console.log(`ACTIVITY ${activityID} is NOT a workout, no action taken.`);
-              }
-            });
-          } else {
-            console.log(`ACTIVITY ${activityID} is NOT a run, no action taken.`);
-          }
-        });
-      }, isTest); // Force a refresh for code-exercise purposes if in test mode
+  if (isActivity && isCreate) {
+    dbInterface.getIsWorkoutWritten(activityID, (isWritten) => {
+      /*
+      Sometimes we get a second ping if the function doesn't start up soon enough to ack the webhook in time.
+      Even so, we still do the full parse+write (if it's a workout) in response to the first webhook, so the second write is unnecessary.
+      The second write can be harmful if the user updates the activity between the two webhooks because the second write would overwrite the user's changes.
+      */
+      if (!isWritten) {
+        processActivity(activityID, userStravaID, isTest);
+      }
+    });
+  } else if (isActivity && isStravaDefaultTitleUpdate) {
+    dbInterface.getIsWorkoutWritten(activityID, (isWritten) => {
+      // If we've already written the workout, and we subsequently receive a default title update, it means we were overwritten and we need to re-write
+      if (isWritten) {
+        processActivity(activityID, userStravaID, isTest);
+      }
     });
   } else if (isAccountDeauthorization) {
     dbInterface.getUserIDForStravaID(req.body.owner_id, (userID) => {
       dbInterface.deleteUser(userID);
       logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_DEACTIVATION, db);
     });
+  } else if (req.body.aspect_type === "update") {
+    console.log(`Received update for ACTIVITY ${activityID}, no action taken.`);
   } else {
-    if (req.body.aspect_type === "update") {
-      console.log(`Received update for ACTIVITY ${activityID}, no action taken.`);
-    } else {
-      console.log(`Webhook for ACTIVITY ${activityID} is not eligible.`);
-    }
+    console.log(`Webhook for ACTIVITY ${activityID} is not eligible.`);
   }
 }
 
