@@ -1514,3 +1514,13 @@ describe("Parser", () => {
 
   });
 });
+
+describe("Strava interface", () => {
+  describe("Detecting variations of defualt run titles", () => {
+
+  });
+
+  describe("Ensuring normal titles aren't interpretted as default title", () => {
+
+  });
+})
