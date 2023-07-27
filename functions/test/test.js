@@ -1321,7 +1321,68 @@ describe("Parser", () => {
       });
     }
 
-    // Values that should parse differently depending on config
+    describe("IRL Examples", () => {
+      it("800m misparsed as 3min", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["3min_vs_800m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.ok(res.summary.title.includes("800m"));
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+      });
+
+      it("400m misparsed as 69sec", () => {
+        resetConfigs();
+
+        parserConfig.dominantWorkoutType = "DISTANCE";
+
+        const run = userTestRuns["incorrect_basis"]["69sec_vs_400m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 3);
+        const targetSet = res.sets[1];
+        assert.equal(targetSet.laps[0].workoutBasis, "DISTANCE");
+        assert.equal(targetSet.laps[0].closestDistance, 400);
+        assert.equal(targetSet.laps[0].closestDistanceUnit, "m");
+      });
+
+      it("2mi misparsed as 12min", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["2mi_vs_12min"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const targetLap = res.sets[0].laps[0];
+        assert.equal(targetLap.workoutBasis, "DISTANCE");
+        assert.equal(targetLap.closestDistance, "2");
+        assert.equal(targetLap.closestDistanceUnit, "mi");
+      });
+    });
   });
 
   describe("WORKOUT TYPE TAGGING", () => {
@@ -1490,10 +1551,10 @@ describe("Parser", () => {
         assert.equal(intervals.count, 4);
       });
 
-      it("800m misparsed as 3min", () => {
+      it("Moderately fast warmup lap combined into workout to make 6x1k misparse as 1mi + 5x1k", () => {
         resetConfigs();
 
-        const run = userTestRuns["incorrect_basis"]["3min_vs_800m"];
+        const run = userTestRuns["workout_lap_tagger"]["6x1k"];
         const res = parseWorkout({
           run: run,
           config: {
@@ -1504,8 +1565,11 @@ describe("Parser", () => {
           verbose: false,
         });
 
-        assert.ok(res.summary.title.includes("800m"));
+        assert.equal(res.sets.length, 1);
+        assert.equal(res.sets[0].count, 6);
         assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 1);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "km");
       });
     });
   });
