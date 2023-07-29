@@ -32,6 +32,17 @@ html(lang="en")
             br
             p Splitz does not keep or share any of your activity data once the summary has been updated on Strava.
     
+      if stravaConnected
+        .card
+          h2.section-title Spare a gel?
+          p 
+            | Hi, I'm David, the maker of Splitz and an OTQ hopeful 
+            a(href=`https://www.strava.com/athletes/7786466`) marathoner.
+          p If Splitz is helping your training, please consider helping me cover the costs of building and maintaining it!
+          <script async src="https://js.stripe.com/v3/buy-button.js"> </script>
+          <stripe-buy-button buy-button-id="buy_btn_1NZ1ohK0AQtnORqn6q0PCfxp" publishable-key="pk_live_51NYzE1K0AQtnORqnHWbv6FnpnWzYh0rBDeaHNs3xa2ExcfbGMIiZYmb7qE11cl7zrsmV4I2S4T5l48WlngkmFKHV00M3QQiFrB" >
+          </stripe-buy-button>
+    
       .card
         h2.section-title Preferences
         form(action="/update_preferences", method="POST")
