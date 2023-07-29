@@ -132,34 +132,34 @@ function tagWorkoutLaps(laps) {
     lap.average_speed = Math.max(lap.average_speed, maxSlowness);
   }
 
-  //
-  // Start experiment — speed as percentage of min and max paces found, instead of actual speeds
-  //
+  // //
+  // // Start experiment — speed as percentage of min and max paces found, instead of actual speeds
+  // //
 
-  const max_speed = laps.reduce((a, b) => Math.max(a, b.average_speed), 0);
-  const min_speed = laps.reduce((a, b) => Math.min(a, b.average_speed), 9999);
-  const speed_range = max_speed - min_speed;
-  for (const lap of laps) {
-    lap.average_speed_percentile = (lap.average_speed - min_speed) / speed_range;
-    // console.log(lap.average_speed_percentile);
-  }
+  // const max_speed = laps.reduce((a, b) => Math.max(a, b.average_speed), 0);
+  // const min_speed = laps.reduce((a, b) => Math.min(a, b.average_speed), 9999);
+  // const speed_range = max_speed - min_speed;
+  // for (const lap of laps) {
+  //   lap.average_speed_percentile = (lap.average_speed - min_speed) / speed_range;
+  //   // console.log(lap.average_speed_percentile);
+  // }
 
-  // const isWorkoutAssignments = runKnn(
-  //   laps
-  //     .filter(lap => lap.average_speed_percentile >= 0.1)
-  //     .map((lap) => {
-  //       return {"features": [lap.average_speed_percentile]};
-  //     }
-  // ), 2);
+  // // const isWorkoutAssignments = runKnn(
+  // //   laps
+  // //     .filter(lap => lap.average_speed_percentile >= 0.1)
+  // //     .map((lap) => {
+  // //       return {"features": [lap.average_speed_percentile]};
+  // //     }
+  // // ), 2);
 
 
-  //
-  // End experiment
-  //
+  // //
+  // // End experiment
+  // //
 
 
   const isWorkoutAssignments = runKnn(laps.map((lap) => {
-    return {"features": [lap.average_speed_percentile]};
+    return {"features": [lap.average_speed]};
   }), 2);
 
   // Figure out which group is workouts
@@ -309,6 +309,32 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
       assignNearestTime(lap);
     }
 
+
+    // To smooth differences across the laps, average their values and make the determinations on the aggregate lap
+    const aggregateLap = {};
+    aggregateLap.moving_time = correspondingLaps.reduce((a, b) => a + b.moving_time, 0) / correspondingLaps.length;
+    aggregateLap.distance = correspondingLaps.reduce((a, b) => a + b.distance, 0) / correspondingLaps.length;
+    assignNearestDistance(aggregateLap);
+    assignNearestTime(aggregateLap);
+
+    let aggregateBasis = "";
+
+    switch (parserConfig.dominantWorkoutType) {
+      case "DISTANCE":
+        aggregateBasis = (aggregateLap.closestDistanceDifference <= (biasFactor * aggregateLap.closestTimeDifference) ? "DISTANCE" : "TIME");
+        break;
+      case "TIME":
+        aggregateBasis = (aggregateLap.closestTimeDifference <= (biasFactor * aggregateLap.closestDistanceDifference) ? "TIME" : "DISTANCE");
+        break;
+      case "BALANCED":
+        aggregateBasis = (aggregateLap.closestDistanceDifference <= aggregateLap.closestTimeDifference ? "DISTANCE" : "TIME");
+        break;
+      default: // Same as balanced
+        aggregateBasis = (aggregateLap.closestDistanceDifference <= aggregateLap.closestTimeDifference ? "DISTANCE" : "TIME");
+        break;
+    }
+
+
     const distanceDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestDistanceDifference, 0) / correspondingLaps.length;
     const timeDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestTimeDifference, 0) / correspondingLaps.length;
 
@@ -319,25 +345,42 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
     distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
     timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
 
-    // console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
-    // console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
+    console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
+    console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
 
     for (const lap of correspondingLaps) {
       // Assign based on lowest average difference
-      switch (parserConfig.dominantWorkoutType) {
+      // switch (parserConfig.dominantWorkoutType) {
+      //   case "DISTANCE":
+      //     lap.workoutBasis = (distanceDifferenceAverage <= (biasFactor * timeDifferenceAverage) ? "DISTANCE" : "TIME");
+      //     break;
+      //   case "TIME":
+      //     lap.workoutBasis = (timeDifferenceAverage <= (biasFactor * distanceDifferenceAverage) ? "TIME" : "DISTANCE");
+      //     break;
+      //   case "BALANCED":
+      //     lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
+      //     break;
+      //   default: // Same as balanced
+      //     lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
+      //     break;
+      // }
+
+      // Give each lap the basis + value determined on the aggregate lap
+      lap.workoutBasis = aggregateBasis;
+      switch (lap.workoutBasis) {
         case "DISTANCE":
-          lap.workoutBasis = (distanceDifferenceAverage <= (biasFactor * timeDifferenceAverage) ? "DISTANCE" : "TIME");
+          lap.closestDistance = aggregateLap.closestDistance;
+          lap.closestDistanceUnit = aggregateLap.closestDistanceUnit;
           break;
         case "TIME":
-          lap.workoutBasis = (timeDifferenceAverage <= (biasFactor * distanceDifferenceAverage) ? "TIME" : "DISTANCE");
-          break;
-        case "BALANCED":
-          lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
-          break;
-        default: // Same as balanced
-          lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
+          lap.closestTime = aggregateLap.closestTime;
+          lap.closestTimeUnit = aggregateLap.closestTimeUnit;
           break;
       }
+
+      // Saving for ease of debugging
+      lap.aggregateClosestDistanceDifference = aggregateLap.closestDistanceDifference
+      lap.aggregateClosestTimeDifference = aggregateLap.closestTimeDifference
 
       // Double check that time-based laps are reasonably close to the actual time.
       if (lap.workoutBasis === "TIME") {
@@ -640,7 +683,7 @@ function assignNearestTime(lap) {
     // 330,
     // 360, // 6
     // 390,
-    // 420, // 7
+    420, // 7
     // 450,
     // 480, // 8
     // 510,

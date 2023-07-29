@@ -1321,7 +1321,7 @@ describe("Parser", () => {
       });
     }
 
-    describe("IRL Examples", () => {
+    describe("IRL Examples of Incorrect Basis", () => {
       it("800m misparsed as 3min", () => {
         resetConfigs();
 
@@ -1381,6 +1381,30 @@ describe("Parser", () => {
         assert.equal(targetLap.workoutBasis, "DISTANCE");
         assert.equal(targetLap.closestDistance, "2");
         assert.equal(targetLap.closestDistanceUnit, "mi");
+      });
+    });
+
+    describe("IRL Examples of Incorrect Value", () => {
+      it("2km misparsed as 1.5mi", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["2km_vs_1.5mi"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const targetLaps = res.sets[0].laps;
+        for (const lap of targetLaps) {
+          assert.equal(lap.workoutBasis, "DISTANCE");
+          assert.equal(lap.closestDistance, 2);
+          assert.equal(lap.closestDistanceUnit, "km");
+        }
       });
     });
   });
