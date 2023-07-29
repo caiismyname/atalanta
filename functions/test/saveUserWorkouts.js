@@ -17,10 +17,8 @@ const dbInterface = new DbInterface(firebase.database());
 
 function cleanStravaActivity(activity) {
   const keysToSave = [
-    "laps",
     "name",
     "description",
-    "athlete",
     "distance",
     "moving_time",
     "elapsed_time",
@@ -41,6 +39,12 @@ function cleanStravaActivity(activity) {
     cleanedActivity[key] = activity[key];
   }
 
+  cleanedActivity.laps = [];
+  for (const lap of activity.laps) {
+    const {athlete: _, activity: __, ...rest} = lap;
+    cleanedActivity.laps.push(rest);
+  }
+
   return cleanedActivity;
 }
 
@@ -48,7 +52,7 @@ function saveToTests(activity) {
   const uncategorizedKey = "uncategorized";
 
   if (uncategorizedKey in userTestActivities) {
-    userTestActivities.push(activity);
+    userTestActivities[uncategorizedKey].push(activity);
   } else {
     userTestActivities[uncategorizedKey] = [activity];
   }
