@@ -1,3 +1,5 @@
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "_" }]*/
+
 const {StravaInterface} = require("../strava_interface.js");
 const {DbInterface} = require("../db_interface.js");
 const userTestActivities = require("./user_test_runs.json");

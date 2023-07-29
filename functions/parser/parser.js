@@ -379,8 +379,8 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
       }
 
       // Saving for ease of debugging
-      lap.aggregateClosestDistanceDifference = aggregateLap.closestDistanceDifference
-      lap.aggregateClosestTimeDifference = aggregateLap.closestTimeDifference
+      lap.aggregateClosestDistanceDifference = aggregateLap.closestDistanceDifference;
+      lap.aggregateClosestTimeDifference = aggregateLap.closestTimeDifference;
 
       // Double check that time-based laps are reasonably close to the actual time.
       if (lap.workoutBasis === "TIME") {
