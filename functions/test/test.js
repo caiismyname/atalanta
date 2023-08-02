@@ -1553,6 +1553,9 @@ describe("Parser", () => {
   });
 
   describe("IRL WORKOUTS", () => {
+    describe("Known-good workouts", () => {
+
+    });
     describe("Basis tagging", () => {
       it("Vicente 15/30 second sprints", () => {
         resetConfigs();
