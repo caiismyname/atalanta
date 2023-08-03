@@ -293,6 +293,7 @@ function tagWorkoutTypes(laps) {
 
 function tagWorkoutBasisAndValue(laps, parserConfig) {
   const MAX_TIME_DIFF = 5; // The maximum difference allowed between a lap's total time and the guessed time and have it still be considered TIME basis, in seconds.
+  const MAX_TIME_DIFF_RATIO = 0.25; // The maximum percentage of laps outside the range allowed while keeping the TIME basis.
 
   const maxWorkoutType = laps.map((lap) => lap.workoutType === undefined ? 0 : lap.workoutType).reduce((a, b) => Math.max(a, b), 0);
 
@@ -334,6 +335,13 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
         break;
     }
 
+    // Double check that time-based laps are reasonably close to the actual time.
+    if (aggregateBasis === "TIME") {
+      const countOfLapsOutOfTimeDiffRange = correspondingLaps.reduce((a, b) => a + (Math.abs(aggregateLap.closestTime - b.moving_time) > MAX_TIME_DIFF ? 1 : 0), 0);
+      if (countOfLapsOutOfTimeDiffRange / correspondingLaps.length > MAX_TIME_DIFF_RATIO) {
+        aggregateBasis = "DISTANCE";
+      }
+    }
 
     const distanceDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestDistanceDifference, 0) / correspondingLaps.length;
     const timeDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestTimeDifference, 0) / correspondingLaps.length;
@@ -345,8 +353,8 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
     distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
     timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
 
-    console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
-    console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
+    // console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
+    // console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
 
     for (const lap of correspondingLaps) {
       // Assign based on lowest average difference
@@ -374,20 +382,12 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
           break;
         case "TIME":
           lap.closestTime = aggregateLap.closestTime;
-          lap.closestTimeUnit = aggregateLap.closestTimeUnit;
           break;
       }
 
       // Saving for ease of debugging
       lap.aggregateClosestDistanceDifference = aggregateLap.closestDistanceDifference;
       lap.aggregateClosestTimeDifference = aggregateLap.closestTimeDifference;
-
-      // Double check that time-based laps are reasonably close to the actual time.
-      if (lap.workoutBasis === "TIME") {
-        if (Math.abs(lap.closestTime - lap.moving_time) > MAX_TIME_DIFF) {
-          lap.workoutBasis = "DISTANCE";
-        }
-      }
 
       // Because the guesses are inherantly limited because they're compared against a pre-defined list of valid distances/times, it's possible to see a new value that's not on the list. This is guarded for by checking the standard deviation and, if 0, taking that value instead.
       if (lap.workoutBasis === "TIME" && distanceStdDev === 0) {

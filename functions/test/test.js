@@ -1554,8 +1554,355 @@ describe("Parser", () => {
 
   describe("IRL WORKOUTS", () => {
     describe("Known-good workouts", () => {
+      it("2mi_8x300", () => {
+        resetConfigs();
 
+        const run = userTestRuns["known_good"]["2mi_8x300"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 2);
+
+        assert.equal(res.sets[0].count, 1);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 2);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+
+        assert.equal(res.sets[1].count, 8);
+        assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[1].laps[0].closestDistance, 300);
+        assert.equal(res.sets[1].laps[0].closestDistanceUnit, "m");
+      });
+
+      it("4mi_with_long_warmup", () => {
+        resetConfigs();
+
+        const run = userTestRuns["known_good"]["4mi_with_long_warmup"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+
+        assert.equal(res.sets[0].count, 1);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 4);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+      });
+
+      it("10x_alternating_miles", () => {
+        resetConfigs();
+
+        const run = userTestRuns["known_good"]["10x_alternating_miles"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+
+        assert.equal(res.sets[0].count, 10);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 1);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+      });
+
+      it("3x2mi", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["3x2mi"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+
+        assert.equal(res.sets[0].count, 3);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 2);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+      });
+
+      it("10x1km", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["10x1km"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+
+        assert.equal(res.sets[0].count, 10);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 1);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "km");
+      });
+
+      it("4x1.5mi", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["4x1.5mi"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+
+        assert.equal(res.sets[0].count, 4);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 1.5);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+      });
+
+      it("10x800m", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["10x800m"];
+
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+
+        assert.equal(res.sets[0].count, 10);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 800);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "m");
+      });
+
+      it("6x1km_3x400m", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["6x1km_3x400m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 2);
+
+        assert.equal(res.sets[0].count, 6);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 1);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "km");
+
+        assert.equal(res.sets[1].count, 3);
+        assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[1].laps[0].closestDistance, 400);
+        assert.equal(res.sets[1].laps[0].closestDistanceUnit, "m");
+      });
+
+      it("6x1mi_6x200m", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["6x1mi_6x200m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 2);
+
+        assert.equal(res.sets[0].count, 6);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 1);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+
+        assert.equal(res.sets[1].count, 6);
+        assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[1].laps[0].closestDistance, 200);
+        assert.equal(res.sets[1].laps[0].closestDistanceUnit, "m");
+      });
+
+      it("3mi_3x1mi_3mi", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["3mi_3x1mi_3mi"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 3);
+
+        assert.equal(res.sets[0].count, 1);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 3);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+
+        assert.equal(res.sets[1].count, 3);
+        assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[1].laps[0].closestDistance, 1);
+        assert.equal(res.sets[1].laps[0].closestDistanceUnit, "mi");
+
+        assert.equal(res.sets[2].count, 1);
+        assert.equal(res.sets[2].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[2].laps[0].closestDistance, 3);
+        assert.equal(res.sets[2].laps[0].closestDistanceUnit, "mi");
+      });
+
+      it("4mi_3x1mi_4mi", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["4mi_3x1mi_4mi"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 3);
+
+        assert.equal(res.sets[0].count, 1);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 4);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+
+        assert.equal(res.sets[1].count, 3);
+        assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[1].laps[0].closestDistance, 1);
+        assert.equal(res.sets[1].laps[0].closestDistanceUnit, "mi");
+
+        assert.equal(res.sets[2].count, 1);
+        assert.equal(res.sets[2].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[2].laps[0].closestDistance, 4);
+        assert.equal(res.sets[2].laps[0].closestDistanceUnit, "mi");
+      });
+
+      it("2x(1000,800,400)", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["2x(1000,800,400)"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        // assert.equal(res.sets.length, 1);
+
+        assert.equal(res.sets[0].count, 2);
+        assert.equal(String(res.sets[0].pattern), String([2, 1, 0])); // Dunno why the list equality doesn't pass
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 1);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "km");
+        assert.equal(res.sets[0].laps[1].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[1].closestDistance, 800);
+        assert.equal(res.sets[0].laps[1].closestDistanceUnit, "m");
+        assert.equal(res.sets[0].laps[2].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[2].closestDistance, 400);
+        assert.equal(res.sets[0].laps[2].closestDistanceUnit, "m");
+      });
+
+      it("7x5min", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["7x5min"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+
+        assert.equal(res.sets[0].count, 7);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "TIME");
+        assert.equal(res.sets[0].laps[0].closestTime, 300);
+      });
+
+      it("2x(1,2,3,2,1min)", () => {
+        resetConfigs();
+        const run = userTestRuns["known_good"]["2x(1,2,3,2,1min)"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+
+        assert.equal(res.sets[0].count, 2);
+        assert.equal(String(res.sets[0].pattern), String([0, 1, 2, 1, 0])); // Dunno why the list equality doesn't pass
+        assert.equal(res.sets[0].laps[0].workoutBasis, "TIME");
+        assert.equal(res.sets[0].laps[0].closestTime, 60);
+        assert.equal(res.sets[0].laps[1].workoutBasis, "TIME");
+        assert.equal(res.sets[0].laps[1].closestTime, 120);
+        assert.equal(res.sets[0].laps[2].workoutBasis, "TIME");
+        assert.equal(res.sets[0].laps[2].closestTime, 180);
+        assert.equal(res.sets[0].laps[3].workoutBasis, "TIME");
+        assert.equal(res.sets[0].laps[3].closestTime, 120);
+        assert.equal(res.sets[0].laps[4].workoutBasis, "TIME");
+        assert.equal(res.sets[0].laps[4].closestTime, 60);
+      });
     });
+
+
     describe("Basis tagging", () => {
       it("Vicente 15/30 second sprints", () => {
         resetConfigs();
