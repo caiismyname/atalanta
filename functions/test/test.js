@@ -1483,6 +1483,135 @@ describe("Parser", () => {
     });
   });
 
+  describe("IS LAP A WORKOUT LAP TAGGING", () => {
+    it("8x3min", () => {
+      resetConfigs();
+
+      const run = userTestRuns["workout_lap_tagger"]["8x3min"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets.length, 1);
+
+      assert.equal(res.sets[0].count, 8);
+      assert.equal(res.sets[0].laps[0].workoutBasis, "TIME");
+      assert.equal(res.sets[0].laps[0].closestTime, 180);
+    });
+
+    it("2mi", () => {
+      resetConfigs();
+
+      const run = userTestRuns["workout_lap_tagger"]["2mi"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+
+      assert.equal(res.sets.length, 1);
+
+      assert.equal(res.sets[0].count, 1);
+      assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+      assert.equal(res.sets[0].laps[0].closestDistance, 2);
+      assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+
+      // Incorrectly added a nonworkout 0.21mi lap into the 2mi set
+      assert.equal(res.sets[0].laps[0].component_laps.length, 2);
+      assert.equal(res.sets[0].laps[0].component_laps[0].distance, 1609.34);
+      assert.equal(res.sets[0].laps[0].component_laps[1].distance, 1609.34);
+    });
+
+    it("8x800m", () => {
+      resetConfigs();
+
+      const run = userTestRuns["workout_lap_tagger"]["8x800m"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // console.log(res.summary);
+
+      assert.equal(res.sets.length, 1);
+
+      // Incorrectly missed the first workout rep
+      assert.equal(res.sets[0].count, 8);
+      assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+      assert.equal(res.sets[0].laps[0].closestDistance, 800);
+      assert.equal(res.sets[0].laps[0].closestDistanceUnit, "m");
+    });
+
+    it("6x200m", () => {
+      resetConfigs();
+
+      const run = userTestRuns["workout_lap_tagger"]["6x200m"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // console.log(res.summary);
+
+      // Incorrectly tagged a 5k in the beginning as warmup
+      assert.equal(res.sets.length, 1);
+
+      assert.equal(res.sets[0].count, 6);
+      assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+      assert.equal(res.sets[0].laps[0].closestDistance, 200);
+      assert.equal(res.sets[0].laps[0].closestDistanceUnit, "m");
+    });
+
+    it("6x1km_2x300m", () => {
+      resetConfigs();
+
+      const run = userTestRuns["workout_lap_tagger"]["6x1km_2x300m"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // Incorrectly tagged 2mi in the beginning and 1mi at the end
+      assert.equal(res.sets.length, 2);
+
+      assert.equal(res.sets[0].count, 6);
+      assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+      assert.equal(res.sets[0].laps[0].closestDistance, 1);
+      assert.equal(res.sets[0].laps[0].closestDistanceUnit, "km");
+
+      assert.equal(res.sets[1].count, 2);
+      assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
+      assert.equal(res.sets[1].laps[0].closestDistance, 300);
+      assert.equal(res.sets[1].laps[0].closestDistanceUnit, "m");
+    });
+  });
+
   describe("TRACK AUTOLAP CORRECTION", () => {
     it("Track correction IRL 1", () => {
       resetConfigs();
@@ -1899,6 +2028,27 @@ describe("Parser", () => {
         assert.equal(res.sets[0].laps[3].closestTime, 120);
         assert.equal(res.sets[0].laps[4].workoutBasis, "TIME");
         assert.equal(res.sets[0].laps[4].closestTime, 60);
+      });
+
+      it("16x400m", () => {
+        resetConfigs();
+
+        const run = userTestRuns["known_good"]["16x400m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+        assert.equal(res.sets[0].count, 16);
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 400);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "m");
       });
     });
 
