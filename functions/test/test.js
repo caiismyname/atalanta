@@ -1420,14 +1420,12 @@ describe("Parser", () => {
           verbose: false,
         });
 
-        console.log(res.summary);
-        console.log(res.sets[0].laps.map(l => l.moving_time));
-        console.log(res.sets[0].laps.map(l => l.distance));
-
-        const targetLap = res.sets[0].laps[0];
-        assert.equal(targetLap.workoutBasis, "DISTANCE");
-        assert.equal(targetLap.closestDistance, 2);
-        assert.equal(targetLap.closestDistanceUnit, "km");
+        assert.equal(res.sets.length, 1);
+        for (const targetLap of res.sets[0].laps) {
+          assert.equal(targetLap.workoutBasis, "DISTANCE");
+          assert.equal(targetLap.closestDistance, 2);
+          assert.equal(targetLap.closestDistanceUnit, "km");
+        }
       });
 
 

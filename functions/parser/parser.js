@@ -26,7 +26,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   const workoutsIdentifiedLaps = tagWorkoutLaps(laps);
   const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
   const typeTaggedLaps = tagWorkoutTypes(mergedLaps);
-  const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser);
+  const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
   const sets = extractPatterns(valueAssignedLaps.filter((lap) => lap.isWorkout));
 
   const formatter = new Formatter(config.format);
@@ -291,7 +291,7 @@ function tagWorkoutTypes(laps) {
   return laps;
 }
 
-function tagWorkoutBasisAndValue(laps, parserConfig) {
+function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
   const MAX_TIME_DIFF = 5; // The maximum difference allowed between a lap's total time and the guessed time and have it still be considered TIME basis, in seconds.
 
   const maxWorkoutType = laps.map((lap) => lap.workoutType === undefined ? 0 : lap.workoutType).reduce((a, b) => Math.max(a, b), 0);
@@ -316,8 +316,10 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
     aggregateLap.distance = correspondingLaps.reduce((a, b) => a + b.distance, 0) / correspondingLaps.length;
     assignNearestDistance(aggregateLap);
     assignNearestTime(aggregateLap);
-    
-    console.log(aggregateLap)
+
+    if (verbose) {
+      console.log(aggregateLap);
+    }
 
     let aggregateBasis = "";
 
@@ -369,16 +371,9 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
 
       // Give each lap the basis + value determined on the aggregate lap
       lap.workoutBasis = aggregateBasis;
-      switch (lap.workoutBasis) {
-        case "DISTANCE":
-          lap.closestDistance = aggregateLap.closestDistance;
-          lap.closestDistanceUnit = aggregateLap.closestDistanceUnit;
-          break;
-        case "TIME":
-          lap.closestTime = aggregateLap.closestTime;
-          lap.closestTimeUnit = aggregateLap.closestTimeUnit;
-          break;
-      }
+      lap.closestTime = aggregateLap.closestTime;
+      lap.closestDistance = aggregateLap.closestDistance;
+      lap.closestDistanceUnit = aggregateLap.closestDistanceUnit;
 
       // Saving for ease of debugging
       lap.aggregateClosestDistanceDifference = aggregateLap.closestDistanceDifference;
@@ -639,21 +634,21 @@ function assignNearestDistance(lap) {
   lap.closestDistanceDifference = 1;
 
   for (const guess of validDistancesMeters) {
-    const difference = Math.abs(lapDist - guess) / guess;
+    const difference = Math.abs(lapDist - guess) / lapDist; // Divide by lapDist for a consistent denominator across guesses
     if (difference < lap.closestDistanceDifference) {
       assignDistanceGuess(lap, guess, difference, "m");
     }
   }
 
   for (const guess of validDistancesKilometers) {
-    const difference = Math.abs(lapDist - guess) / guess;
+    const difference = Math.abs(lapDist - guess) / lapDist; // Divide by lapDist for a consistent denominator across guesses
     if (difference < lap.closestDistanceDifference) {
       assignDistanceGuess(lap, guess / 1000, difference, "km");
     }
   }
 
   for (const guess of validDistancesMiles) {
-    const difference = Math.abs(lapDist - guess) / guess;
+    const difference = Math.abs(lapDist - guess) / lapDist; // Divide by lapDist for a consistent denominator across guesses
     if (difference < lap.closestDistanceDifference) {
       assignDistanceGuess(lap, Helpers.metersToMilesRounded(guess), difference, "mi");
     }
@@ -711,7 +706,7 @@ function assignNearestTime(lap) {
   lap.closestTimeDifference = 1;
 
   for (const time of validTimes) {
-    const difference = Math.abs(time - lapTime) / time;
+    const difference = Math.abs(time - lapTime) / lapTime; // Divide by lapTime for a consistent denominator across guesses
     if (difference < lap.closestTimeDifference) {
       assignTimeGuess(lap, time, difference);
     }
