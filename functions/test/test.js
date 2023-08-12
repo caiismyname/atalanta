@@ -1382,6 +1382,55 @@ describe("Parser", () => {
         assert.equal(targetLap.closestDistance, "2");
         assert.equal(targetLap.closestDistanceUnit, "mi");
       });
+
+      it("7min misparsed as 1500m",() => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["7min_1500m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        console.log(res.summary);
+        console.log(res.sets[0].laps.map(l => l.moving_time));
+        console.log(res.sets[0].laps.map(l => l.distance));
+
+        const targetLap = res.sets[0].laps[0];
+        assert.equal(targetLap.workoutBasis, "TIME");
+        assert.equal(targetLap.closestTime, 420);
+      });
+
+      it("2km misparsed as 1.5mi",() => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["2km_vs_1.5mi_2"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        console.log(res.summary);
+        console.log(res.sets[0].laps.map(l => l.moving_time));
+        console.log(res.sets[0].laps.map(l => l.distance));
+
+        const targetLap = res.sets[0].laps[0];
+        assert.equal(targetLap.workoutBasis, "DISTANCE");
+        assert.equal(targetLap.closestDistance, 2);
+        assert.equal(targetLap.closestDistanceUnit, "km");
+      });
+
+
     });
 
     describe("IRL Examples of Incorrect Value", () => {

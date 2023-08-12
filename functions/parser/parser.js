@@ -316,6 +316,8 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
     aggregateLap.distance = correspondingLaps.reduce((a, b) => a + b.distance, 0) / correspondingLaps.length;
     assignNearestDistance(aggregateLap);
     assignNearestTime(aggregateLap);
+    
+    console.log(aggregateLap)
 
     let aggregateBasis = "";
 
@@ -345,8 +347,8 @@ function tagWorkoutBasisAndValue(laps, parserConfig) {
     distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
     timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
 
-    console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
-    console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
+    // console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
+    // console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
 
     for (const lap of correspondingLaps) {
       // Assign based on lowest average difference
