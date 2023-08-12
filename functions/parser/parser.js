@@ -158,7 +158,7 @@ function tagWorkoutLaps(laps) {
   // //
 
 
-  const isWorkoutAssignments = runKnn(laps.map((lap) => {
+  const isWorkoutAssignments = runKmeans(laps.map((lap) => {
     return {"features": [lap.average_speed]};
   }), 2);
 
@@ -469,7 +469,7 @@ function extractPatterns(laps) {
 
 // Expects an object with one property, `features`, that is an array of all features to be evaluated.
 // Returns the inputs array (same order) with the cluster assignments added as property `knn_temp_assignment`
-function runKnn(inputs, k) {
+function runKmeans(inputs, k) {
   // Initialize uniformly into clusters
   for (let idx = 0; idx < inputs.length; idx++) {
     inputs[idx].knn_temp_assignment = idx % k;
@@ -506,6 +506,10 @@ function runKnn(inputs, k) {
   } while (!isStable);
 
   return inputs;
+}
+
+function runGMM(inputs, k) {
+  
 }
 
 
