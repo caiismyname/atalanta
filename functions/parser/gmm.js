@@ -49,26 +49,26 @@ function runKmeans(inputs, k) {
 }
 
 function generateMeanAndVarianceForCluster(cluster) {
-    const singularityAvoidance = 1e-6;
+  const singularityAvoidance = 1e-6;
 
-    const averageSpeed = cluster.reduce((a, b) => a + b.speed, 0) / cluster.length ;
-    const averageDistance = cluster.reduce((a, b) => a + b.distance, 0) / cluster.length;
-    const varianceSpeed = cluster.reduce((a, b) => a + (averageSpeed - b.speed)**2, 0) / cluster.length;
-    const varianceDistance = cluster.reduce((a, b) => a + (averageDistance - b.distance)**2, 0) / cluster.length;
-    const covariance = cluster.reduce((a, b) => {
-      const speedDeviation = b.speed - averageSpeed;
-      const distDeviation = b.distance - averageDistance;
-  
-      return a + (speedDeviation * distDeviation);
-    }, 0) / cluster.length;
+  const averageSpeed = cluster.reduce((a, b) => a + b.speed, 0) / cluster.length;
+  const averageDistance = cluster.reduce((a, b) => a + b.distance, 0) / cluster.length;
+  const varianceSpeed = cluster.reduce((a, b) => a + (averageSpeed - b.speed)**2, 0) / cluster.length;
+  const varianceDistance = cluster.reduce((a, b) => a + (averageDistance - b.distance)**2, 0) / cluster.length;
+  const covariance = cluster.reduce((a, b) => {
+    const speedDeviation = b.speed - averageSpeed;
+    const distDeviation = b.distance - averageDistance;
 
-    return {
-        "mean": [averageSpeed, averageDistance],
-        "covarianceMatrix": [
-            [varianceSpeed + singularityAvoidance, covariance], 
-            [covariance, varianceDistance + singularityAvoidance]
-        ]
-    }
+    return a + (speedDeviation * distDeviation);
+  }, 0) / cluster.length;
+
+  return {
+    "mean": [averageSpeed, averageDistance],
+    "covarianceMatrix": [
+      [varianceSpeed + singularityAvoidance, covariance],
+      [covariance, varianceDistance + singularityAvoidance],
+    ],
+  };
 }
 
 function initialGMMParams(laps) {
@@ -82,14 +82,14 @@ function initialGMMParams(laps) {
   const kmeansClustered = runKmeans(kmeansLaps, 2);
 
   const slowLaps = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 0);
-  slowLaps.sort((a,b) => a.speed - b.speed);
+  slowLaps.sort((a, b) => a.speed - b.speed);
   const cluster0 = [];
   const cluster1 = [];
   for (let idx = 0; idx < slowLaps.length; idx++) {
     if (idx < slowLaps.length / 2) {
-        cluster0.push(slowLaps[idx]);
+      cluster0.push(slowLaps[idx]);
     } else {
-        cluster1.push(slowLaps[idx]);
+      cluster1.push(slowLaps[idx]);
     }
   }
   const cluster2 = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 1);
@@ -108,20 +108,11 @@ function initialGMMParams(laps) {
   };
 }
 
-function fuzz(value) {
-  return value;
-  //   const direction = Math.random() > 0.5 ? 1 : -1;
-  const direction = 1;
+function formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance ) {
+  const normSpeed = (lap.average_speed - minSpeed) / (maxSpeed - minSpeed);
+  const normDist = (lap.distance - minDistance) / (maxDistance - minDistance);
 
-  const fuzzMax = 0.03;
-  const fuzzMin= 0.01;
-  const fuzzPercentage = (Math.random() * (fuzzMax - fuzzMin)) + fuzzMin;
-
-  return Math.round(((fuzzPercentage * direction * value) + value) * 100) / 100;
-}
-
-function formatLapForGMM(lap, minSpeed, maxSpeed ) {
-  return;
+  return [normSpeed, normDist];
 }
 
 // https://github.com/lukapopijac/gaussian-mixture-model
@@ -135,14 +126,6 @@ function runGMM(laps) {
 
 
   // Normalize laps
-  for (const lap of laps) {
-    lap.original_average_speed = lap.average_speed;
-    lap.original_distance = lap.distance;
-
-    lap.average_speed = fuzz(lap.average_speed);
-    lap.distance = fuzz(lap.distance);
-  }
-
   let maxSpeed = laps.reduce((a, b) => Math.max(a, b.average_speed), 0);
   const minSpeed = laps.reduce((a, b) => Math.min(a, b.average_speed), 999999);
   if (minSpeed === maxSpeed) {
@@ -155,16 +138,11 @@ function runGMM(laps) {
     maxDistance *= 1.02;
   }
 
-  const gmmFormattedLaps = laps.map((lap) => {
-    const normSpeed = (lap.average_speed - minSpeed) / (maxSpeed - minSpeed);
-    const normDist = (lap.distance - minDistance) / (maxDistance - minDistance);
-
-    return [normSpeed, normDist];
-  });
+  const gmmFormattedLaps = laps.map((lap) => formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
 
   const initialParams = initialGMMParams(gmmFormattedLaps);
-  console.log("mean", initialParams.mean);
-  console.log("covar", initialParams.covariance);
+  //   console.log("mean", initialParams.mean);
+  //   console.log("covar", initialParams.covariance);
   // console.log("weight", initialParams.weight);
   const gmm = new GMM({
     weights: initialParams.weight,
@@ -180,25 +158,16 @@ function runGMM(laps) {
       return isWorkoutAssignments;
     }
 
-    const predictions = {0: [], 1: [], 2: []};
     for (const lap of laps) {
-      const formattedLap = [fuzz((lap.average_speed - minSpeed) / (maxSpeed - minSpeed)), (lap.distance - minDistance) / (maxDistance - minDistance)];
-      console.log("Lap", formattedLap);
-
-      const probNorm = gmm.predictNormalize(formattedLap);
+      const probNorm = gmm.predictNormalize(formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
       lap.gmm_assignment = probNorm.indexOf(Math.max(...probNorm));
-      console.log(lap.gmm_assignment);
-    //   predictions[probNorm.indexOf(Math.max(probNorm))].push(lap.average_speed);
+    //   console.log(lap.gmm_assignment);
     }
 
-    console.log("mean", gmm.means);
-    console.log("covar", gmm.covariances);
+    // console.log("mean", gmm.means);
+    // console.log("covar", gmm.covariances);
   }
 
-  for (const lap of laps) {
-    lap.average_speed = lap.original_average_speed;
-    lap.distance = lap.original_distance;
-  }
   return laps;
 }
 
@@ -210,19 +179,8 @@ function runGMM(laps) {
 // runGMM(userTestRuns["known_good"]["2x(1,2,3,2,1min)"].laps);
 // runGMM(defaultTestRuns["4mi"].laps);
 
-// const res = parseWorkout({
-//   run: run,
-//   config: {
-//     parser: defaultParserConfig,
-//     format: defaultFormatConfig,
-//   },
-//   returnSets: true,
-//   verbose: false,
-// });
-
 
 // runGMM(run.laps);
-// console.log(res.summary);
 
 
 module.exports = {

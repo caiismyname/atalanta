@@ -158,11 +158,6 @@ function tagWorkoutLaps(laps) {
   // // End experiment
   // //
 
-
-  // const isWorkoutAssignments = runKmeans(laps.map((lap) => {
-  //   return {"features": [lap.average_speed]};
-  // }), 2);
-
   const isWorkoutAssignments = runGMM(laps);
 
   if ("gmm_assignment" in isWorkoutAssignments[0]) {
@@ -174,15 +169,10 @@ function tagWorkoutLaps(laps) {
     const cAverage = cGroup.reduce((x, y) => x + y.average_speed, 0) / bGroup.length;
 
     const averages = [aAverage, bAverage, cAverage];
-
     const workoutClusterIndex = averages.indexOf(Math.max(...averages));
 
     for (let idx = 0; idx < isWorkoutAssignments.length; idx++) {
       laps[idx].isWorkout = isWorkoutAssignments[idx].gmm_assignment === workoutClusterIndex;
-    }
-
-    for (const lap of laps) {
-      console.log("ASSIGN ", lap.average_speed, lap.isWorkout);
     }
   } else {
     // Figure out which group is workouts
@@ -197,12 +187,6 @@ function tagWorkoutLaps(laps) {
       laps[idx].isWorkout = isWorkoutAssignments[idx].knn_temp_assignment === workoutClusterIndex;
     }
   }
-
-
-  // console.log(" ")
-  // console.log("Workouts: " + laps.filter(lap => lap.isWorkout).map(lap => lap.lap_index))
-  // console.log("NonWorkouts: " + laps.filter(lap => !lap.isWorkout).map(lap => lap.lap_index))
-  // console.log(" ")
 
   return (laps);
 }
@@ -491,47 +475,6 @@ function extractPatterns(laps) {
 *
 *
 */
-
-// Expects an object with one property, `features`, that is an array of all features to be evaluated.
-// Returns the inputs array (same order) with the cluster assignments added as property `knn_temp_assignment`
-// function runKmeans(inputs, k) {
-//   // Initialize uniformly into clusters
-//   for (let idx = 0; idx < inputs.length; idx++) {
-//     inputs[idx].knn_temp_assignment = idx % k;
-//   }
-
-//   let isStable = false;
-
-//   do {
-//     const previousAssignments = [...inputs];
-
-//     for (const item of inputs) {
-//       const distances = []; // Distance to each cluster
-//       for (let clusterIdx = 0; clusterIdx < k; clusterIdx++ ) {
-//         distances.push(
-//             Helpers.averageDistanceToCluster(
-//                 item.features,
-//                 previousAssignments
-//                     .filter((item) => item.knn_temp_assignment === clusterIdx)
-//                     .map((item) => item.features),
-//             ),
-//         );
-//       }
-
-//       // Reassign
-//       const clusterAssignment = distances.indexOf(Math.min(...distances));
-//       item.knn_temp_assignment = clusterAssignment;
-//     }
-
-//     // Compare prev vs. new assignments
-//     const newAssignments = [...inputs];
-//     isStable = Helpers.arraysAreEqual(previousAssignments, newAssignments);
-
-//     // console.log(previousAssignments, newAssignments)
-//   } while (!isStable);
-
-//   return inputs;
-// }
 
 // Combines the 'addition' lap into the base lap, preserves all component laps in a property called `component_laps`
 function mergeLapsHelper(base, addition) {
