@@ -48,6 +48,29 @@ function runKmeans(inputs, k) {
   return inputs;
 }
 
+function generateMeanAndVarianceForCluster(cluster) {
+    const singularityAvoidance = 1e-6;
+
+    const averageSpeed = cluster.reduce((a, b) => a + b.speed, 0) / cluster.length ;
+    const averageDistance = cluster.reduce((a, b) => a + b.distance, 0) / cluster.length;
+    const varianceSpeed = cluster.reduce((a, b) => a + (averageSpeed - b.speed)**2, 0) / cluster.length;
+    const varianceDistance = cluster.reduce((a, b) => a + (averageDistance - b.distance)**2, 0) / cluster.length;
+    const covariance = cluster.reduce((a, b) => {
+      const speedDeviation = b.speed - averageSpeed;
+      const distDeviation = b.distance - averageDistance;
+  
+      return a + (speedDeviation * distDeviation);
+    }, 0) / cluster.length;
+
+    return {
+        "mean": [averageSpeed, averageDistance],
+        "covarianceMatrix": [
+            [varianceSpeed + singularityAvoidance, covariance], 
+            [covariance, varianceDistance + singularityAvoidance]
+        ]
+    }
+}
+
 function initialGMMParams(laps) {
   const kmeansLaps = laps.map((lap) => {
     return {
@@ -56,49 +79,32 @@ function initialGMMParams(laps) {
       "distance": lap[1],
     };
   });
-  const kmeansClustered = runKmeans(kmeansLaps, 3);
-  const singularityAvoidance = 1e-6;
+  const kmeansClustered = runKmeans(kmeansLaps, 2);
 
-  let cluster0 = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 0);
-  const cluster0SlowestSpeed = Math.min(...cluster0.map((x) => x.speed));
-  const cluster1 = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 1);
+  const slowLaps = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 0);
+  slowLaps.sort((a,b) => a.speed - b.speed);
+  const cluster0 = [];
+  const cluster1 = [];
+  for (let idx = 0; idx < slowLaps.length; idx++) {
+    if (idx < slowLaps.length / 2) {
+        cluster0.push(slowLaps[idx]);
+    } else {
+        cluster1.push(slowLaps[idx]);
+    }
+  }
+  const cluster2 = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 1);
 
-  const cluster0AverageSpeed = cluster0.reduce((a, b) => a + b.speed, 0) / cluster0.length;
-  const cluster0AverageDistance = cluster0.reduce((a, b) => a + b.distance, 0) / cluster0.length;
-  const cluster0VarianceSpeed = cluster0.reduce((a, b) => a + (cluster0AverageSpeed - b.speed)**2, 0) / cluster0.length;
-  const cluster0VarianceDistance = cluster0.reduce((a, b) => a + (cluster0AverageDistance - b.distance)**2, 0) / cluster0.length;
-  const cluster0Covariance = cluster0.reduce((a, b) => {
-    const speedDeviation = b.speed - cluster0AverageSpeed;
-    const distDeviation = b.distance - cluster0AverageDistance;
+  const cluster0Values = generateMeanAndVarianceForCluster(cluster0);
+  const cluster1Values = generateMeanAndVarianceForCluster(cluster1);
+  const cluster2Values = generateMeanAndVarianceForCluster(cluster2);
 
-    return a + (speedDeviation * distDeviation);
-  }, 0) / cluster0.length;
-
-
-  const cluster1AverageSpeed = cluster1.reduce((a, b) => a + b.speed, 0) / cluster1.length;
-  const cluster1AverageDistance = cluster1.reduce((a, b) => a + b.distance, 0) / cluster1.length;
-  const cluster1VarianceSpeed = cluster1.reduce((a, b) => a + (cluster1AverageSpeed - b.speed)**2, 0) / cluster1.length;
-  const cluster1VarianceDistance = cluster1.reduce((a, b) => a + (cluster1AverageDistance - b.distance)**2, 0) / cluster1.length;
-  const cluster1Covariance = cluster1.reduce((a, b) => {
-    const speedDeviation = b.speed - cluster1AverageSpeed;
-    const distDeviation = b.distance - cluster1AverageDistance;
-
-    return a + (speedDeviation * distDeviation);
-  }, 0) / cluster1.length;
-
-
-  const initialMeans = [[cluster0AverageSpeed, cluster0AverageDistance], [cluster1AverageSpeed, cluster1AverageDistance], [cluster0SlowestSpeed, cluster0AverageDistance]];
-
-  const initialCovariance = [
-    [[cluster0VarianceSpeed + singularityAvoidance, cluster0Covariance], [cluster0Covariance, cluster0VarianceDistance + singularityAvoidance]],
-    [[cluster1VarianceSpeed + singularityAvoidance, cluster1Covariance], [cluster1Covariance, cluster1VarianceDistance + singularityAvoidance]],
-    [[(cluster0VarianceSpeed * 2) + singularityAvoidance, cluster0Covariance], [cluster0Covariance, cluster0VarianceDistance + singularityAvoidance]],
-  ];
+  const initialMeans = [cluster0Values.mean, cluster1Values.mean, cluster2Values.mean];
+  const initialCovariance = [cluster0Values.covarianceMatrix, cluster1Values.covarianceMatrix, cluster2Values.covarianceMatrix];
 
   return {
     "mean": initialMeans,
     "covariance": initialCovariance,
-    "weight": [(cluster0.length - 1) / laps.length, cluster1.length / laps.length, 1 / laps.length],
+    "weight": [cluster0.length / laps.length, cluster1.length / laps.length, cluster2.length / laps.length],
   };
 }
 
@@ -140,13 +146,13 @@ function runGMM(laps) {
   let maxSpeed = laps.reduce((a, b) => Math.max(a, b.average_speed), 0);
   const minSpeed = laps.reduce((a, b) => Math.min(a, b.average_speed), 999999);
   if (minSpeed === maxSpeed) {
-    maxSpeed += 1;
+    maxSpeed *= 1.02;
   }
 
   let maxDistance = laps.reduce((a, b) => Math.max(a, b.distance), 0);
   const minDistance = laps.reduce((a, b) => Math.min(a, b.distance), 999999);
   if (minDistance === maxDistance) {
-    maxDistance += 800;
+    maxDistance *= 1.02;
   }
 
   const gmmFormattedLaps = laps.map((lap) => {
@@ -177,16 +183,16 @@ function runGMM(laps) {
     const predictions = {0: [], 1: [], 2: []};
     for (const lap of laps) {
       const formattedLap = [fuzz((lap.average_speed - minSpeed) / (maxSpeed - minSpeed)), (lap.distance - minDistance) / (maxDistance - minDistance)];
-      console.log(formattedLap);
+      console.log("Lap", formattedLap);
 
       const probNorm = gmm.predictNormalize(formattedLap);
-      console.log(probNorm);
       lap.gmm_assignment = probNorm.indexOf(Math.max(...probNorm));
+      console.log(lap.gmm_assignment);
     //   predictions[probNorm.indexOf(Math.max(probNorm))].push(lap.average_speed);
     }
 
-    // console.log("mean", gmm.means)
-    // console.log("covar", gmm.covariances)
+    console.log("mean", gmm.means);
+    console.log("covar", gmm.covariances);
   }
 
   for (const lap of laps) {

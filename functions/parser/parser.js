@@ -173,10 +173,16 @@ function tagWorkoutLaps(laps) {
     const cGroup = isWorkoutAssignments.filter((lap) => lap.gmm_assignment === 2);
     const cAverage = cGroup.reduce((x, y) => x + y.average_speed, 0) / bGroup.length;
 
-    const workoutClusterIndex = aAverage > bAverage ? 0 : 1;
+    const averages = [aAverage, bAverage, cAverage];
+
+    const workoutClusterIndex = averages.indexOf(Math.max(...averages));
 
     for (let idx = 0; idx < isWorkoutAssignments.length; idx++) {
       laps[idx].isWorkout = isWorkoutAssignments[idx].gmm_assignment === workoutClusterIndex;
+    }
+
+    for (const lap of laps) {
+      console.log("ASSIGN ", lap.average_speed, lap.isWorkout);
     }
   } else {
     // Figure out which group is workouts
