@@ -1,6 +1,7 @@
 const Helpers = require("./parser_helpers.js");
 const {Formatter} = require("./formatter.js");
 const {defaultParserConfig, defaultFormatConfig} = require("./defaultConfigs.js");
+const {runGMM} = require("./gmm.js");
 
 // This is the entrypoint
 // eslint-disable-next-line no-unused-vars
@@ -158,21 +159,39 @@ function tagWorkoutLaps(laps) {
   // //
 
 
-  const isWorkoutAssignments = runKmeans(laps.map((lap) => {
-    return {"features": [lap.average_speed]};
-  }), 2);
+  // const isWorkoutAssignments = runKmeans(laps.map((lap) => {
+  //   return {"features": [lap.average_speed]};
+  // }), 2);
 
-  // Figure out which group is workouts
-  const aGroup = isWorkoutAssignments.filter((item) => item.knn_temp_assignment === 0);
-  const aAverage = aGroup.reduce((x, y) => x + y.features[0], 0) / aGroup.length;
-  const bGroup = isWorkoutAssignments.filter((item) => item.knn_temp_assignment === 1);
-  const bAverage = bGroup.reduce((x, y) => x + y.features[0], 0) / bGroup.length;
+  const isWorkoutAssignments = runGMM(laps);
 
-  const workoutClusterIndex = aAverage > bAverage ? 0 : 1;
+  if ("gmm_assignment" in isWorkoutAssignments[0]) {
+    const aGroup = isWorkoutAssignments.filter((lap) => lap.gmm_assignment === 0);
+    const aAverage = aGroup.reduce((x, y) => x + y.average_speed, 0) / aGroup.length;
+    const bGroup = isWorkoutAssignments.filter((lap) => lap.gmm_assignment === 1);
+    const bAverage = bGroup.reduce((x, y) => x + y.average_speed, 0) / bGroup.length;
+    const cGroup = isWorkoutAssignments.filter((lap) => lap.gmm_assignment === 2);
+    const cAverage = cGroup.reduce((x, y) => x + y.average_speed, 0) / bGroup.length;
 
-  for (let idx = 0; idx < isWorkoutAssignments.length; idx++) {
-    laps[idx].isWorkout = isWorkoutAssignments[idx].knn_temp_assignment === workoutClusterIndex;
+    const workoutClusterIndex = aAverage > bAverage ? 0 : 1;
+
+    for (let idx = 0; idx < isWorkoutAssignments.length; idx++) {
+      laps[idx].isWorkout = isWorkoutAssignments[idx].gmm_assignment === workoutClusterIndex;
+    }
+  } else {
+    // Figure out which group is workouts
+    const aGroup = isWorkoutAssignments.filter((item) => item.knn_temp_assignment === 0);
+    const aAverage = aGroup.reduce((x, y) => x + y.features[0], 0) / aGroup.length;
+    const bGroup = isWorkoutAssignments.filter((item) => item.knn_temp_assignment === 1);
+    const bAverage = bGroup.reduce((x, y) => x + y.features[0], 0) / bGroup.length;
+
+    const workoutClusterIndex = aAverage > bAverage ? 0 : 1;
+
+    for (let idx = 0; idx < isWorkoutAssignments.length; idx++) {
+      laps[idx].isWorkout = isWorkoutAssignments[idx].knn_temp_assignment === workoutClusterIndex;
+    }
   }
+
 
   // console.log(" ")
   // console.log("Workouts: " + laps.filter(lap => lap.isWorkout).map(lap => lap.lap_index))
@@ -469,49 +488,44 @@ function extractPatterns(laps) {
 
 // Expects an object with one property, `features`, that is an array of all features to be evaluated.
 // Returns the inputs array (same order) with the cluster assignments added as property `knn_temp_assignment`
-function runKmeans(inputs, k) {
-  // Initialize uniformly into clusters
-  for (let idx = 0; idx < inputs.length; idx++) {
-    inputs[idx].knn_temp_assignment = idx % k;
-  }
+// function runKmeans(inputs, k) {
+//   // Initialize uniformly into clusters
+//   for (let idx = 0; idx < inputs.length; idx++) {
+//     inputs[idx].knn_temp_assignment = idx % k;
+//   }
 
-  let isStable = false;
+//   let isStable = false;
 
-  do {
-    const previousAssignments = [...inputs];
+//   do {
+//     const previousAssignments = [...inputs];
 
-    for (const item of inputs) {
-      const distances = []; // Distance to each cluster
-      for (let clusterIdx = 0; clusterIdx < k; clusterIdx++ ) {
-        distances.push(
-            Helpers.averageDistanceToCluster(
-                item.features,
-                previousAssignments
-                    .filter((item) => item.knn_temp_assignment === clusterIdx)
-                    .map((item) => item.features),
-            ),
-        );
-      }
+//     for (const item of inputs) {
+//       const distances = []; // Distance to each cluster
+//       for (let clusterIdx = 0; clusterIdx < k; clusterIdx++ ) {
+//         distances.push(
+//             Helpers.averageDistanceToCluster(
+//                 item.features,
+//                 previousAssignments
+//                     .filter((item) => item.knn_temp_assignment === clusterIdx)
+//                     .map((item) => item.features),
+//             ),
+//         );
+//       }
 
-      // Reassign
-      const clusterAssignment = distances.indexOf(Math.min(...distances));
-      item.knn_temp_assignment = clusterAssignment;
-    }
+//       // Reassign
+//       const clusterAssignment = distances.indexOf(Math.min(...distances));
+//       item.knn_temp_assignment = clusterAssignment;
+//     }
 
-    // Compare prev vs. new assignments
-    const newAssignments = [...inputs];
-    isStable = Helpers.arraysAreEqual(previousAssignments, newAssignments);
+//     // Compare prev vs. new assignments
+//     const newAssignments = [...inputs];
+//     isStable = Helpers.arraysAreEqual(previousAssignments, newAssignments);
 
-    // console.log(previousAssignments, newAssignments)
-  } while (!isStable);
+//     // console.log(previousAssignments, newAssignments)
+//   } while (!isStable);
 
-  return inputs;
-}
-
-function runGMM(inputs, k) {
-  
-}
-
+//   return inputs;
+// }
 
 // Combines the 'addition' lap into the base lap, preserves all component laps in a property called `component_laps`
 function mergeLapsHelper(base, addition) {

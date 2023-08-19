@@ -1198,7 +1198,7 @@ describe("Parser", () => {
             parserConfig.dominantWorkoutType = dominentWorkoutType;
             const run = generateAndReturnWorkout([[distance, "METERS", true]]);
 
-            const sets = parseWorkout({
+            const res = parseWorkout({
               run: run,
               config: {
                 parser: parserConfig,
@@ -1206,9 +1206,9 @@ describe("Parser", () => {
               },
               returnSets: true,
               verbose: false,
-            }).sets;
+            });
 
-            const tokenLap = sets[0].laps[0];
+            const tokenLap = res.sets[0].laps[0];
 
             assert.equal(tokenLap.workoutBasis, "DISTANCE");
             assert.equal(tokenLap.closestDistanceUnit, "m");
