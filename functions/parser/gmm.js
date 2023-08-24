@@ -144,7 +144,7 @@ function initialGMMParams(laps, numClusters) {
         cluster1.push(cluster2[Math.round(cluster2.length / 2)]);
       }
 
-      // console.log(cluster0.map((x) => x.speed), cluster1.map((x) => x.speed), cluster2.map((x) => x.speed));
+      console.log(cluster0.map((x) => x.speed), cluster1.map((x) => x.speed), cluster2.map((x) => x.speed));
 
       const cluster0Values = generateMeanAndVarianceForCluster(cluster0);
       const cluster1Values = generateMeanAndVarianceForCluster(cluster1);
@@ -203,6 +203,7 @@ function runGMM(laps) {
   }), 2);
 
   if (laps.length <= 5) {
+    console.log("TOO SHORT FOR GMM");
     return isWorkoutAssignments;
   }
 
@@ -220,10 +221,11 @@ function runGMM(laps) {
   }
 
   const gmmFormattedLaps = laps.map((lap) => formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
+  console.log(laps.map((x) => x.average_speed));
 
   let initialParams = initialGMMParams(gmmFormattedLaps, 3);
-  // console.log("INITIAL mean", initialParams.mean);
-  // console.log("INITIAL covar", initialParams.covariance);
+  console.log("INITIAL mean", initialParams.mean);
+  console.log("INITIAL covar", initialParams.covariance);
   // console.log("INITIAL weight", initialParams.weight);
   let gmm = new GMM({
     weights: initialParams.weight,
@@ -235,9 +237,10 @@ function runGMM(laps) {
 
   for (let i = 0; i < 2; i++) {
     gmm.runEM(1);
+
     if (gmm.singularity !== null) {
-      // console.log("SINGULARITY============================")
-      // console.log(gmm.singularity)
+      console.log("SINGULARITY============================");
+      console.log(gmm.singularity);
       succeededWithoutSingularity = false;
     }
 
@@ -245,9 +248,9 @@ function runGMM(laps) {
       const probNorm = gmm.predictNormalize(formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
       lap.gmm_assignment = probNorm.indexOf(Math.max(...probNorm));
 
-      // console.log("LAP", formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
+      console.log("LAP", formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
       // console.log("PROB", probNorm);
-      // console.log(lap.gmm_assignment);
+      console.log(lap.gmm_assignment);
     }
 
     // const cluster0 = laps.filter((lap) => lap.gmm_assignment === 0);
@@ -273,11 +276,11 @@ function runGMM(laps) {
   // TRY AGAIN WITH 2 CLUSTERS
   //
 
-  // console.log("STARTING OVER==============================")
+  console.log("STARTING OVER==============================");
 
   initialParams = initialGMMParams(gmmFormattedLaps, 2);
-  // console.log("INITIAL mean", initialParams.mean);
-  // console.log("INITIAL covar", initialParams.covariance);
+  console.log("INITIAL mean", initialParams.mean);
+  console.log("INITIAL covar", initialParams.covariance);
   // console.log("INITIAL weight", initialParams.weight);
   gmm = new GMM({
     weights: initialParams.weight,
@@ -290,22 +293,22 @@ function runGMM(laps) {
   for (let i = 0; i < 2; i++) {
     gmm.runEM(1);
     if (gmm.singularity !== null) {
-      // console.log("SINGULARITY============================")
+      console.log("SINGULARITY============================");
       // console.log(gmm.singularity)
-      if (i > 0) {
-        return laps;
-      } else {
-        return [];
-      }
+      // if (i > 0) {
+      //   return laps;
+      // } else {
+      //   return [];
+      // }
     }
 
     for (const lap of laps) {
       const probNorm = gmm.predictNormalize(formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
       lap.gmm_assignment = probNorm.indexOf(Math.max(...probNorm));
 
-      // console.log("LAP", formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
+      console.log("LAP", formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
       // console.log("PROB", probNorm);
-      // console.log(lap.gmm_assignment);
+      console.log(lap.gmm_assignment);
     }
 
     // const cluster0 = laps.filter((lap) => lap.gmm_assignment === 0);

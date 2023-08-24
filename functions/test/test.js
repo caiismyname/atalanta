@@ -114,7 +114,7 @@ describe("Formatter", () => {
     });
 
     describe("Fartleks", () => {
-      it("Sub 90sec — 10 x 1:15", () => {
+      it("Sub 90sec — 10 x 1:15", () => { // Only
         resetConfigs();
         const run = testRuns["10 x 75sec"];
         const title = parseWorkout({
@@ -1861,7 +1861,7 @@ describe("Parser", () => {
         assert.equal(res.sets[1].laps[0].closestDistanceUnit, "m");
       });
 
-      it("6x1mi_6x200m", () => {
+      it.only("6x1mi_6x200m", () => {
         resetConfigs();
         const run = userTestRuns["known_good"]["6x1mi_6x200m"];
         const res = parseWorkout({
@@ -1873,6 +1873,8 @@ describe("Parser", () => {
           returnSets: true,
           verbose: false,
         });
+
+        console.log(res.summary);
 
         assert.equal(res.sets.length, 2);
 

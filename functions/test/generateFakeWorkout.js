@@ -2,12 +2,37 @@ const fs = require("fs");
 const Helpers = require("../parser/parser_helpers.js");
 const testRuns = require("./test_runs.json");
 
-const name = "";
+const name = "10 x 75sec";
 const defaultWorkoutSecondsPerMile = 330;
 const defaultRestSecondsPerMile = 480;
 
 // Structure: [(value, "METERS" or "SECONDS", isWorkout), ...]
-// const desiredLaps = [
+const desiredLaps = [
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+  [75, "SECONDS", true],
+  [75, "SECONDS", false],
+];
+
+
+// [
 //   [1609.3, "METERS", false],
 //   [800, "METERS", true],
 //   [1609.3, "METERS", false],
@@ -20,15 +45,15 @@ const defaultRestSecondsPerMile = 480;
 // Saves to the JSON that powers the unit tests
 // eslint-disable-next-line no-unused-vars
 function generateAndSave(laps, name, workoutSecondsPerMile, restSecondsPerMile) {
-  const run = generate(name, workoutSecondsPerMile, restSecondsPerMile, laps);
+  const run = generate(laps, name, workoutSecondsPerMile, restSecondsPerMile);
   saveToTests(run);
 }
 
 // Just clearer naming
 function generateAndReturnWorkout(laps, name = "unnamed", includeWarmup = true, workoutSecondsPerMile = defaultWorkoutSecondsPerMile, restSecondsPerMile = defaultRestSecondsPerMile) {
   if (includeWarmup) {
-    const warmupIncluded = [[1609, "METERS", false]].concat(laps).concat([[1609, "METERS", false]]);
-    return generate(warmupIncluded, name, workoutSecondsPerMile, restSecondsPerMile);
+    const warmupIncludedLaps = [[1609, "METERS", false]].concat(laps).concat([[1609, "METERS", false]]);
+    return generate(warmupIncludedLaps, name, workoutSecondsPerMile, restSecondsPerMile);
   }
   return generate(laps, name, workoutSecondsPerMile, restSecondsPerMile);
 }
@@ -111,18 +136,18 @@ function writeToJSON(run, path) {
 function saveToTests(run) {
   testRuns[name] = run;
 
-  writeToJSON(testRuns, `./functions/test/test_runs.json`);
+  writeToJSON(testRuns, `./test_runs.json`);
 }
 
 function fuzz(value) {
   const direction = Math.random() > 0.5 ? 1 : -1;
 
-  // const fuzzMax = 0.05;
-  // const fuzzMin= 0.02;
+  const fuzzMax = 0.05;
+  const fuzzMin= 0.02;
   // between 2 — 5% (see min/max above)
-  // const fuzzPercentage = (Math.random() * (fuzzMax - fuzzMin)) + fuzzMin;
+  const fuzzPercentage = (Math.random() * (fuzzMax - fuzzMin)) + fuzzMin;
 
-  const fuzzPercentage = 0.045; // Maybe a constant value at the limit of reasonable variation makes testing easier?
+  // const fuzzPercentage = 0.045; // Maybe a constant value at the limit of reasonable variation makes testing easier?
   return Math.round(((fuzzPercentage * direction * value) + value) * 100) / 100;
 }
 
@@ -132,7 +157,7 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
 }
 
-// generateAndSave(name, defaultWorkoutSecondsPerMile, defaultRestSecondsPerMile, desiredLaps);
+generateAndSave(desiredLaps, name, defaultWorkoutSecondsPerMile, defaultRestSecondsPerMile);
 
 
 module.exports = {generateAndReturnWorkout};
