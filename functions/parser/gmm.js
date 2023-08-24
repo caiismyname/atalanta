@@ -71,7 +71,31 @@ function generateMeanAndVarianceForCluster(cluster) {
   };
 }
 
-function initialGMMParams(laps) {
+function swapEnds(a, b) {
+  const swap = a[a.length -1];
+
+  let bIdx = 0;
+  let isDifferent = swap.speed !== b[bIdx].speed;
+  while (!isDifferent && bIdx < b.length) {
+    isDifferent = swap.speed !== b[bIdx].speed;
+    bIdx++;
+  }
+
+  if (bIdx === b.length) { // reached the end and both are still the same
+    a[a.length -1].speed += 1e-6;
+    b[b.length -1].speed += 2e-6;
+  } else { // swap the first element of B that's not the same as the last value in A
+    a[a.length - 1] = b[bIdx];
+    b[bIdx] = swap;
+  }
+}
+
+function allValuesEqual(cluster) {
+  const average = cluster.reduce((a, b) => a + b, 0) / cluster.length;
+  return (cluster[0] === average);
+}
+
+function initialGMMParams(laps, numClusters) {
   const kmeansLaps = laps.map((lap) => {
     return {
       "features": [lap[0]],
@@ -83,29 +107,85 @@ function initialGMMParams(laps) {
 
   const slowLaps = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 0);
   slowLaps.sort((a, b) => a.speed - b.speed);
-  const cluster0 = [];
-  const cluster1 = [];
-  for (let idx = 0; idx < slowLaps.length; idx++) {
-    if (idx < slowLaps.length / 2) {
-      cluster0.push(slowLaps[idx]);
+  if (numClusters === 3) {
+    // let slowLapsAverage = slowLaps.reduce((a, b) => a + b.speed, 0) / slowLaps.length;
+    const cluster0 = [];
+    const cluster1 = [];
+    for (let idx = 0; idx < slowLaps.length; idx++) {
+      // if (slowLaps[idx].speed < slowLapsAverage) {
+      if (idx < slowLaps.length / 2) {
+        cluster0.push(slowLaps[idx]);
+      } else {
+        cluster1.push(slowLaps[idx]);
+      }
+    }
+    const cluster2 = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 1);
+
+    cluster0.sort((a, b) => a.speed - b.speed);
+    cluster1.sort((a, b) => a.speed - b.speed);
+    cluster2.sort((a, b) => a.speed - b.speed);
+
+    if (allValuesEqual(cluster0.map((x) => x.speed)) && allValuesEqual(cluster1.map((x) => x.speed))) {
+      numClusters = 2;
     } else {
-      cluster1.push(slowLaps[idx]);
+      if (allValuesEqual(cluster0.map((x) => x.speed))) {
+        swapEnds(cluster0, cluster1);
+      }
+
+      let swappedFast = false;
+
+      if (allValuesEqual(cluster1.map((x) => x.speed)) || allValuesEqual(cluster2.map((x) => x.speed))) {
+        swapEnds(cluster1, cluster2);
+        swappedFast = true;
+      }
+
+      if (!swappedFast) {
+        // Force increased variance in cluster 1, which is what will catch fast warmups if there are any
+        cluster1.push(cluster2[Math.round(cluster2.length / 2)]);
+      }
+
+      // console.log(cluster0.map((x) => x.speed), cluster1.map((x) => x.speed), cluster2.map((x) => x.speed));
+
+      const cluster0Values = generateMeanAndVarianceForCluster(cluster0);
+      const cluster1Values = generateMeanAndVarianceForCluster(cluster1);
+      const cluster2Values = generateMeanAndVarianceForCluster(cluster2);
+
+      const initialMeans = [cluster0Values.mean, cluster1Values.mean, cluster2Values.mean];
+      const initialCovariance = [cluster0Values.covarianceMatrix, cluster1Values.covarianceMatrix, cluster2Values.covarianceMatrix];
+
+      return {
+        "mean": initialMeans,
+        "covariance": initialCovariance,
+        "weight": [cluster0.length / laps.length, cluster1.length / laps.length, cluster2.length / laps.length],
+      };
     }
   }
-  const cluster2 = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 1);
 
-  const cluster0Values = generateMeanAndVarianceForCluster(cluster0);
-  const cluster1Values = generateMeanAndVarianceForCluster(cluster1);
-  const cluster2Values = generateMeanAndVarianceForCluster(cluster2);
+  if (numClusters === 2) {
+    const cluster2 = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 1);
 
-  const initialMeans = [cluster0Values.mean, cluster1Values.mean, cluster2Values.mean];
-  const initialCovariance = [cluster0Values.covarianceMatrix, cluster1Values.covarianceMatrix, cluster2Values.covarianceMatrix];
+    slowLaps.sort((a, b) => a.speed - b.speed);
+    cluster2.sort((a, b) => a.speed - b.speed);
 
-  return {
-    "mean": initialMeans,
-    "covariance": initialCovariance,
-    "weight": [cluster0.length / laps.length, cluster1.length / laps.length, cluster2.length / laps.length],
-  };
+    if (allValuesEqual(slowLaps.map((x) => x.speed)) || allValuesEqual(cluster2.map((x) => x.speed))) {
+      swapEnds(slowLaps, cluster2);
+    }
+
+    // Force increased variance in cluster 1, which is what will catch fast warmups if there are any
+    slowLaps.push(cluster2[Math.floor(cluster2.length / 2)]);
+
+    const cluster0Values = generateMeanAndVarianceForCluster(slowLaps);
+    const cluster2Values = generateMeanAndVarianceForCluster(cluster2);
+
+    const initialMeans = [cluster0Values.mean, cluster2Values.mean];
+    const initialCovariance = [cluster0Values.covarianceMatrix, cluster2Values.covarianceMatrix];
+
+    return {
+      "mean": initialMeans,
+      "covariance": initialCovariance,
+      "weight": [slowLaps.length / laps.length, cluster2.length / laps.length],
+    };
+  }
 }
 
 function formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance ) {
@@ -117,13 +197,14 @@ function formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance ) {
 
 // https://github.com/lukapopijac/gaussian-mixture-model
 function runGMM(laps) {
+  let succeededWithoutSingularity = true;
   const isWorkoutAssignments = runKmeans(laps.map((lap) => {
     return {"features": [lap.average_speed]};
   }), 2);
-  if (laps.length <= 3) {
+
+  if (laps.length <= 5) {
     return isWorkoutAssignments;
   }
-
 
   // Normalize laps
   let maxSpeed = laps.reduce((a, b) => Math.max(a, b.average_speed), 0);
@@ -140,11 +221,11 @@ function runGMM(laps) {
 
   const gmmFormattedLaps = laps.map((lap) => formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
 
-  const initialParams = initialGMMParams(gmmFormattedLaps);
-  //   console.log("mean", initialParams.mean);
-  //   console.log("covar", initialParams.covariance);
-  // console.log("weight", initialParams.weight);
-  const gmm = new GMM({
+  let initialParams = initialGMMParams(gmmFormattedLaps, 3);
+  // console.log("INITIAL mean", initialParams.mean);
+  // console.log("INITIAL covar", initialParams.covariance);
+  // console.log("INITIAL weight", initialParams.weight);
+  let gmm = new GMM({
     weights: initialParams.weight,
     means: initialParams.mean,
     covariances: initialParams.covariance,
@@ -155,17 +236,85 @@ function runGMM(laps) {
   for (let i = 0; i < 2; i++) {
     gmm.runEM(1);
     if (gmm.singularity !== null) {
-      return isWorkoutAssignments;
+      // console.log("SINGULARITY============================")
+      // console.log(gmm.singularity)
+      succeededWithoutSingularity = false;
     }
 
     for (const lap of laps) {
       const probNorm = gmm.predictNormalize(formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
       lap.gmm_assignment = probNorm.indexOf(Math.max(...probNorm));
-    //   console.log(lap.gmm_assignment);
+
+      // console.log("LAP", formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
+      // console.log("PROB", probNorm);
+      // console.log(lap.gmm_assignment);
     }
+
+    // const cluster0 = laps.filter((lap) => lap.gmm_assignment === 0);
+    // const cluster1 = laps.filter((lap) => lap.gmm_assignment === 1);
+    // const cluster2 = laps.filter((lap) => lap.gmm_assignment === 2);
+
+    // console.log(
+    //     cluster0.map((x) => formatLapForGMM(x, minSpeed, maxSpeed, minDistance, maxDistance)[0]),
+    //     cluster1.map((x) => formatLapForGMM(x, minSpeed, maxSpeed, minDistance, maxDistance)[0]),
+    //     cluster2.map((x) => formatLapForGMM(x, minSpeed, maxSpeed, minDistance, maxDistance)[0]),
+    // );
 
     // console.log("mean", gmm.means);
     // console.log("covar", gmm.covariances);
+  }
+
+  if (succeededWithoutSingularity) {
+    return laps;
+  }
+
+
+  //
+  // TRY AGAIN WITH 2 CLUSTERS
+  //
+
+  // console.log("STARTING OVER==============================")
+
+  initialParams = initialGMMParams(gmmFormattedLaps, 2);
+  // console.log("INITIAL mean", initialParams.mean);
+  // console.log("INITIAL covar", initialParams.covariance);
+  // console.log("INITIAL weight", initialParams.weight);
+  gmm = new GMM({
+    weights: initialParams.weight,
+    means: initialParams.mean,
+    covariances: initialParams.covariance,
+  });
+
+  gmmFormattedLaps.forEach((p) => gmm.addPoint(p));
+
+  for (let i = 0; i < 2; i++) {
+    gmm.runEM(1);
+    if (gmm.singularity !== null) {
+      // console.log("SINGULARITY============================")
+      // console.log(gmm.singularity)
+      if (i > 0) {
+        return laps;
+      } else {
+        return [];
+      }
+    }
+
+    for (const lap of laps) {
+      const probNorm = gmm.predictNormalize(formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
+      lap.gmm_assignment = probNorm.indexOf(Math.max(...probNorm));
+
+      // console.log("LAP", formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance));
+      // console.log("PROB", probNorm);
+      // console.log(lap.gmm_assignment);
+    }
+
+    // const cluster0 = laps.filter((lap) => lap.gmm_assignment === 0);
+    // const cluster1 = laps.filter((lap) => lap.gmm_assignment === 1);
+
+    // console.log(
+    //     cluster0.map((x) => formatLapForGMM(x, minSpeed, maxSpeed, minDistance, maxDistance)[0]),
+    //     cluster1.map((x) => formatLapForGMM(x, minSpeed, maxSpeed, minDistance, maxDistance)[0]),
+    // );
   }
 
   return laps;

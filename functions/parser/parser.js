@@ -162,11 +162,11 @@ function tagWorkoutLaps(laps) {
 
   if ("gmm_assignment" in isWorkoutAssignments[0]) {
     const aGroup = isWorkoutAssignments.filter((lap) => lap.gmm_assignment === 0);
-    const aAverage = aGroup.reduce((x, y) => x + y.average_speed, 0) / aGroup.length;
+    const aAverage = aGroup.length > 0 ? aGroup.reduce((x, y) => x + y.average_speed, 0) / aGroup.length : 0;
     const bGroup = isWorkoutAssignments.filter((lap) => lap.gmm_assignment === 1);
-    const bAverage = bGroup.reduce((x, y) => x + y.average_speed, 0) / bGroup.length;
+    const bAverage = bGroup.length > 0 ? bGroup.reduce((x, y) => x + y.average_speed, 0) / bGroup.length : 0;
     const cGroup = isWorkoutAssignments.filter((lap) => lap.gmm_assignment === 2);
-    const cAverage = cGroup.reduce((x, y) => x + y.average_speed, 0) / bGroup.length;
+    const cAverage = cGroup.length > 0 ? cGroup.reduce((x, y) => x + y.average_speed, 0) / cGroup.length : 0;
 
     const averages = [aAverage, bAverage, cAverage];
     const workoutClusterIndex = averages.indexOf(Math.max(...averages));
@@ -175,6 +175,7 @@ function tagWorkoutLaps(laps) {
       laps[idx].isWorkout = isWorkoutAssignments[idx].gmm_assignment === workoutClusterIndex;
     }
   } else {
+    console.log("GMM FAILED");
     // Figure out which group is workouts
     const aGroup = isWorkoutAssignments.filter((item) => item.knn_temp_assignment === 0);
     const aAverage = aGroup.reduce((x, y) => x + y.features[0], 0) / aGroup.length;

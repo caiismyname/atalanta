@@ -67,7 +67,7 @@ describe("Formatter", () => {
       it("Two Intervals — (4 x 1mi) + (4 x 400m)", () => {
         resetConfigs();
         const run = testRuns["(4 x 1mi) + (4 x 400m)"];
-        const title = parseWorkout({
+        const res = parseWorkout({
           run: run,
           config: {
             parser: parserConfig,
@@ -75,9 +75,9 @@ describe("Formatter", () => {
           },
           returnSets: false,
           verbose: false,
-        }).summary.title;
+        });
 
-        assert.equal(title, "(4 x 1mi) + (4 x 400m)");
+        assert.equal(res.summary.title, "(4 x 1mi) + (4 x 400m)");
       });
 
       it("Heterogeneous Intervals — 4 x (400m, 200m, 100m)", () => {
@@ -1216,7 +1216,7 @@ describe("Parser", () => {
         }
 
         for (const distance of kilometers) {
-          it(`${distance}km`, () => {
+          it(`${distance}m`, () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
@@ -1547,8 +1547,6 @@ describe("Parser", () => {
         verbose: false,
       });
 
-      // console.log(res.summary);
-
       assert.equal(res.sets.length, 1);
 
       // Incorrectly missed the first workout rep
@@ -1571,8 +1569,6 @@ describe("Parser", () => {
         returnSets: true,
         verbose: false,
       });
-
-      // console.log(res.summary);
 
       // Incorrectly tagged a 5k in the beginning as warmup
       assert.equal(res.sets.length, 1);
