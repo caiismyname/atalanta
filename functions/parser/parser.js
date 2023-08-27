@@ -175,7 +175,6 @@ function tagWorkoutLaps(laps) {
       laps[idx].isWorkout = isWorkoutAssignments[idx].gmm_assignment === workoutClusterIndex;
     }
   } else {
-    console.log("GMM FAILED");
     // Figure out which group is workouts
     const aGroup = isWorkoutAssignments.filter((item) => item.knn_temp_assignment === 0);
     const aAverage = aGroup.reduce((x, y) => x + y.features[0], 0) / aGroup.length;

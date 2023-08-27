@@ -1196,7 +1196,12 @@ describe("Parser", () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
-            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+            const run = generateAndReturnWorkout([
+              [distance, "METERS", true],
+              [distance, "METERS", false],
+              [distance, "METERS", true],
+              [distance, "METERS", false],
+            ]);
 
             const res = parseWorkout({
               run: run,
@@ -1220,7 +1225,12 @@ describe("Parser", () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
-            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+            const run = generateAndReturnWorkout([
+              [distance, "METERS", true],
+              [distance, "METERS", false],
+              [distance, "METERS", true],
+              [distance, "METERS", false],
+            ]);
 
             const sets = parseWorkout({
               run: run,
@@ -1244,7 +1254,12 @@ describe("Parser", () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
-            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+            const run = generateAndReturnWorkout([
+              [distance, "METERS", true],
+              [distance, "METERS", false],
+              [distance, "METERS", true],
+              [distance, "METERS", false],
+            ]);
 
             const sets = parseWorkout({
               run: run,
@@ -1519,7 +1534,6 @@ describe("Parser", () => {
         verbose: false,
       });
 
-
       assert.equal(res.sets.length, 1);
 
       assert.equal(res.sets[0].count, 1);
@@ -1546,6 +1560,7 @@ describe("Parser", () => {
         returnSets: true,
         verbose: false,
       });
+
 
       assert.equal(res.sets.length, 1);
 
@@ -1861,7 +1876,7 @@ describe("Parser", () => {
         assert.equal(res.sets[1].laps[0].closestDistanceUnit, "m");
       });
 
-      it.only("6x1mi_6x200m", () => {
+      it("6x1mi_6x200m", () => {
         resetConfigs();
         const run = userTestRuns["known_good"]["6x1mi_6x200m"];
         const res = parseWorkout({
@@ -1873,8 +1888,6 @@ describe("Parser", () => {
           returnSets: true,
           verbose: false,
         });
-
-        console.log(res.summary);
 
         assert.equal(res.sets.length, 2);
 
