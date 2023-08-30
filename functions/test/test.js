@@ -114,7 +114,7 @@ describe("Formatter", () => {
     });
 
     describe("Fartleks", () => {
-      it("Sub 90sec — 10 x 1:15", () => { // Only
+      it("Sub 90sec — 10 x 1:15", () => {
         resetConfigs();
         const run = testRuns["10 x 75sec"];
         const title = parseWorkout({
@@ -1173,6 +1173,7 @@ describe("Parser", () => {
   describe("BASIS AND VALUE", () => {
     const dominentWorkoutTypes = ["BALANCED", "DISTANCE", "TIME"];
     const meters = [100, 200, 300, 400, 500, 600, 800, 1500];
+    // const meters = [300];
     const kilometers = [1000, 2000, 3000, 5000, 10000];
     const miles = [];
     for (let i = 1; i <= 10; i++) {

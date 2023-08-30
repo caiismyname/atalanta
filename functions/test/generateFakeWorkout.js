@@ -4,7 +4,7 @@ const testRuns = require("./test_runs.json");
 
 const name = "10 x 75sec";
 const defaultWorkoutSecondsPerMile = 330;
-const defaultRestSecondsPerMile = 480;
+const defaultRestSecondsPerMile = 430;
 
 // Structure: [(value, "METERS" or "SECONDS", isWorkout), ...]
 const desiredLaps = [
@@ -140,14 +140,17 @@ function saveToTests(run) {
 }
 
 function fuzz(value) {
-  const direction = Math.random() > 0.5 ? 1 : -1;
+  let direction = Math.random() > 0.5 ? 1 : -1;
+  let fuzzPercentage = 0.045; // Maybe a constant value at the limit of reasonable variation makes testing easier?
 
-  // const fuzzMax = 0.05;
-  // const fuzzMin= 0.02;
-  // // between 2 — 5% (see min/max above)
-  // const fuzzPercentage = (Math.random() * (fuzzMax - fuzzMin)) + fuzzMin;
 
-  const fuzzPercentage = 0.045; // Maybe a constant value at the limit of reasonable variation makes testing easier?
+  // const direction = -1;
+
+  const fuzzMax = 0.05;
+  const fuzzMin= 0.02;
+  // between 2 — 5% (see min/max above)
+  fuzzPercentage = (Math.random() * (fuzzMax - fuzzMin)) + fuzzMin;
+
   return Math.round(((fuzzPercentage * direction * value) + value) * 100) / 100;
 }
 
@@ -157,7 +160,7 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
 }
 
-generateAndSave(desiredLaps, name, defaultWorkoutSecondsPerMile, defaultRestSecondsPerMile);
+// generateAndSave(desiredLaps, name, defaultWorkoutSecondsPerMile, defaultRestSecondsPerMile);
 
 
 module.exports = {generateAndReturnWorkout};
