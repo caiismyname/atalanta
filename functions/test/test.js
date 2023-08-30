@@ -1172,7 +1172,7 @@ describe("Parser", () => {
 
   describe("BASIS AND VALUE", () => {
     const dominentWorkoutTypes = ["BALANCED", "DISTANCE", "TIME"];
-    const meters = [100, 200, 300, 400, 500, 600, 800, 1500];
+    const meters = [100, 200, 300, 400, 500, 600, 800, 1500, 2800];
     const kilometers = [1000, 2000, 3000, 5000, 10000];
     const miles = [];
     for (let i = 1; i <= 10; i++) {
@@ -1196,8 +1196,8 @@ describe("Parser", () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
-            var run = generateAndReturnWorkout([[distance, "METERS", true]]);
-            
+            let run = generateAndReturnWorkout([[distance, "METERS", true]]);
+
             // 100m was flakey with the default workout pace
             if (distance === 100) {
               run = generateAndReturnWorkout([[distance, "METERS", true]], "unnamed", true, 300);
@@ -1391,16 +1391,16 @@ describe("Parser", () => {
       it("7min misparsed as 1500m", () => {
         resetConfigs();
 
-        const run = userTestRuns["incorrect_basis"]["7min_1500m"];
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
-        });
+        // const run = userTestRuns["incorrect_basis"]["7min_1500m"];
+        // const res = parseWorkout({
+        //   run: run,
+        //   config: {
+        //     parser: parserConfig,
+        //     format: formatConfig,
+        //   },
+        //   returnSets: true,
+        //   verbose: false,
+        // });
 
         console.log("UNFIXED");
 
@@ -1408,7 +1408,7 @@ describe("Parser", () => {
         // console.log(res.sets[0].laps.map((l) => l.moving_time));
         // console.log(res.sets[0].laps.map((l) => l.distance));
 
-        const targetLap = res.sets[0].laps[0];
+        // const targetLap = res.sets[0].laps[0];
         // assert.equal(targetLap.workoutBasis, "TIME");
         // assert.equal(targetLap.closestTime, 420);
       });

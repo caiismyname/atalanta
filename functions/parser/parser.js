@@ -588,6 +588,9 @@ function assignNearestDistance(lap) {
     1200,
     1500,
     // 1600,
+    // 2400,
+    2800,
+    // 3200
   ];
 
   // Separate from meters for display purposes
