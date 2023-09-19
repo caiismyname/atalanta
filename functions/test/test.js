@@ -1053,6 +1053,26 @@ describe("Formatter", () => {
         assert.equal(countOccurances(" ", condensedSplits), 12);
         assert.ok(outputIsTime(condensedSplits));
       });
+
+      it("Range with equal min and max", () => {
+        resetConfigs();
+
+        const run = userTestRuns["formatting"]["range_with_equal_min_max"];
+        formatConfig.detailsStructure = "RANGE";
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const splits = formatter.determineSetDetails(res.sets[0]);
+        assert.equal(splits.split("—")[0].trim(), splits.split("—")[1].trim())
+      })
     });
   });
 
