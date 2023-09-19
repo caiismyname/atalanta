@@ -57,7 +57,7 @@ function determineRunIsWorkout(laps, debug=false) {
     return (false);
   }
 
-  // 2. Remove last lap for two reasons:
+  // 2. Remove last lap because:
   //   - If there are strides, they are commonly at the end, and it'll read as a fast lap even though there's no lap data
   //   - Even if a workout has a workout lap as its last lap (unlikely), this will only be a problem if there's exactly one workout lap (and it's at the end)
 
@@ -66,9 +66,11 @@ function determineRunIsWorkout(laps, debug=false) {
     laps = laps.slice(0, -1);
   }
 
-  // Then slice off the last "real" lap
-  laps = laps.slice(0, -1);
 
+  // Then slice off the last "real" lap
+  if (laps.length > 3) {
+    laps = laps.slice(0, -1);
+  }
 
   // 3. If any lap's average pace is faster than 6min/mi, it's probably a workout
   // (regardless of the person. No one recovers at < 6min)

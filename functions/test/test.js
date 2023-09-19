@@ -1676,6 +1676,29 @@ describe("Parser", () => {
         assert.equal(res.sets[0].laps[0].closestDistanceUnit, "km");
       });
     });
+
+    describe("Is workout detection", () => {
+      it("Vicente 2-lap 5mi tempo", () => {
+        resetConfigs();
+
+        const run = userTestRuns["false_negative"]["2_lap_workout"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.ok(res.isWorkout);
+        assert.equal(res.sets.length, 1);
+        assert.equal(res.sets[0].laps[0].closestDistance, 5);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+      });
+    });
   });
 
   describe("FALSE POSITIVES", () => {
