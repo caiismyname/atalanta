@@ -430,7 +430,6 @@ describe("Formatter", () => {
       });
     });
 
-
     describe("Seconds", () => {
       it("Default — minute:second", () => {
         resetConfigs();
@@ -1071,8 +1070,8 @@ describe("Formatter", () => {
         });
 
         const splits = formatter.determineSetDetails(res.sets[0]);
-        assert.equal(splits.split("—")[0].trim(), splits.split("—")[1].trim())
-      })
+        assert.equal(splits.split("—")[0].trim(), splits.split("—")[1].trim());
+      });
     });
   });
 
@@ -1193,7 +1192,7 @@ describe("Parser", () => {
   describe("BASIS AND VALUE", () => {
     const dominentWorkoutTypes = ["BALANCED", "DISTANCE", "TIME"];
     const meters = [100, 200, 300, 400, 500, 600, 800, 1500, 2800];
-    const kilometers = [1000, 2000, 3000, 5000, 10000];
+    const kilometers = [1000, 2000, 3000, 4000, 5000, 6000, 8000, 10000];
     const miles = [];
     for (let i = 1; i <= 10; i++) {
       miles.push(i * 1609);
@@ -1347,6 +1346,29 @@ describe("Parser", () => {
     }
 
     describe("IRL Examples of Incorrect Basis", () => {
+      it("6km misparsed as 4mi", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["4mi_vs_6km"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 3);
+        assert.equal(res.sets[0].laps[0].closestDistance, 6);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "km");
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[1].laps[0].closestDistance, 5);
+        assert.equal(res.sets[1].laps[0].closestDistanceUnit, "km");
+        assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
+      });
+
       it("800m misparsed as 3min", () => {
         resetConfigs();
 

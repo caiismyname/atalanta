@@ -602,6 +602,8 @@ function assignNearestDistance(lap) {
     3000,
     4000,
     5000,
+    6000,
+    8000,
     10000,
   ];
 
