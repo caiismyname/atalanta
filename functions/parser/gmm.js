@@ -1,7 +1,6 @@
-const GMM = require("gaussian-mixture-model");
-const userTestRuns = require("../test/user_test_runs.json");
-const defaultTestRuns = require("../test/test_runs.json");
+const GMM = require("./gmm_implementation.js");
 const Helpers = require("./parser_helpers.js");
+const isDebugging = false;
 
 // Expects an object with one property, `features`, that is an array of all features to be evaluated.
 // Returns the inputs array (same order) with the cluster assignments added as property `knn_temp_assignment`
@@ -106,7 +105,6 @@ function allValuesEqual(cluster) {
 }
 
 function initialGMMParams(laps, numClusters) {
-  const isDebugging = true;
   const kmeansLaps = laps.map((lap) => {
     return {
       "features": [lap[0]],
@@ -119,7 +117,7 @@ function initialGMMParams(laps, numClusters) {
   const slowLaps = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 0);
   slowLaps.sort((a, b) => a.speed - b.speed);
   if (numClusters === 3) {
-    let slowLapsAverage = slowLaps.reduce((a, b) => a + b.speed, 0) / slowLaps.length;
+    const slowLapsAverage = slowLaps.reduce((a, b) => a + b.speed, 0) / slowLaps.length;
     const cluster0 = [];
     const cluster1 = [];
     for (let idx = 0; idx < slowLaps.length; idx++) {
@@ -133,14 +131,14 @@ function initialGMMParams(laps, numClusters) {
 
     // If the slowlaps are all the same speed (thus equal to average), then it's a 2-cluster situation
     if (cluster1.length === 0) {
-      console.log('setting to 2')
-      numClusters = 2
+      console.log("setting to 2");
+      numClusters = 2;
     }
 
     // // If both slowlap groups are homogenous, then it's a 2 cluster situation
     // if (allValuesEqual(cluster0.map((x) => x.speed)) && allValuesEqual(cluster1.map((x) => x.speed))) {
     //   numClusters = 2;
-    // } 
+    // }
 
     const cluster2 = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 1);
 
@@ -149,12 +147,12 @@ function initialGMMParams(laps, numClusters) {
     cluster2.sort((a, b) => a.speed - b.speed);
 
     if (isDebugging) {
-      console.debug("Pre balancing")
+      console.debug("Pre balancing");
       console.debug(cluster0.map((x) => x.speed));
       console.debug(cluster1.map((x) => x.speed));
       console.debug(cluster2.map((x) => x.speed));
     }
-    
+
     if (numClusters === 3) { // short circuit
       if (allValuesEqual(cluster0.map((x) => x.speed))) {
         // swapEnds(cluster0, cluster1);
@@ -179,7 +177,7 @@ function initialGMMParams(laps, numClusters) {
       }
 
       if (isDebugging) {
-        console.debug("Post balancing")
+        console.debug("Post balancing");
         console.debug(cluster0.map((x) => x.speed));
         console.debug(cluster1.map((x) => x.speed));
         console.debug(cluster2.map((x) => x.speed));
@@ -201,7 +199,7 @@ function initialGMMParams(laps, numClusters) {
   }
 
   if (numClusters === 2) {
-    console.log("2 cluster size")
+    console.log("2 cluster size");
     const cluster2 = kmeansClustered.filter((lap) => lap.knn_temp_assignment === 1);
 
     slowLaps.sort((a, b) => a.speed - b.speed);
@@ -237,7 +235,6 @@ function formatLapForGMM(lap, minSpeed, maxSpeed, minDistance, maxDistance ) {
 
 // https://github.com/lukapopijac/gaussian-mixture-model
 function runGMM(laps) {
-  const isDebugging = true;
   let succeededWithoutSingularity = true;
   let startedWithSingularity = false;
 
@@ -370,18 +367,6 @@ function runGMM(laps) {
 
   return laps;
 }
-
-// const run = userTestRuns["known_good"]["10x_alternating_miles"];
-
-// runGMM(userTestRuns["known_good"]["4mi_with_long_warmup"].laps.slice(0, -1));
-// runGMM(userTestRuns["known_good"]["2mi_8x300"].laps);
-// runGMM(userTestRuns["known_good"]["3x2mi"].laps);
-// runGMM(userTestRuns["known_good"]["2x(1,2,3,2,1min)"].laps);
-// runGMM(defaultTestRuns["4mi"].laps);
-
-
-// runGMM(run.laps);
-
 
 module.exports = {
   runGMM,

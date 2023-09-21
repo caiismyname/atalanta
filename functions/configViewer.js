@@ -10,7 +10,7 @@ const db = firebase.database();
 db.ref(`users`).once("value", (snapshot) => {
   const allUsers = snapshot.val();
   const combinedConfigs = {};
-  var stravaConnectedCount = 0;
+  let stravaConnectedCount = 0;
 
   Object.keys(allUsers).forEach((userID) => {
     const userFormatConfig = allUsers[userID]["preferences"]["format"];
@@ -26,7 +26,7 @@ db.ref(`users`).once("value", (snapshot) => {
         combinedConfigs[option][value] = 1;
       }
     }
-    if (allUsers[userID]["stravaConnected"]){
+    if (allUsers[userID]["stravaConnected"]) {
       stravaConnectedCount += 1;
     }
   });

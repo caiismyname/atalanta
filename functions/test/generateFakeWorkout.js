@@ -7,29 +7,29 @@ const defaultWorkoutSecondsPerMile = 330;
 const defaultRestSecondsPerMile = 430;
 
 // Structure: [(value, "METERS" or "SECONDS", isWorkout), ...]
-const desiredLaps = [
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-  [75, "SECONDS", true],
-  [75, "SECONDS", false],
-];
+// const desiredLaps = [
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+//   [75, "SECONDS", true],
+//   [75, "SECONDS", false],
+// ];
 
 
 // [
@@ -140,7 +140,7 @@ function saveToTests(run) {
 }
 
 function fuzz(value) {
-  let direction = Math.random() > 0.5 ? 1 : -1;
+  const direction = Math.random() > 0.5 ? 1 : -1;
   let fuzzPercentage = 0.045; // Maybe a constant value at the limit of reasonable variation makes testing easier?
 
 
