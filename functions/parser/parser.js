@@ -450,37 +450,35 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
 function extractPatterns(laps) {
   let i = 0;
   const patterns = [];
-  let patternLength = 1;
 
   while (i < laps.length) {
-    const patternGuess = laps.slice(i, i + patternLength).map((lap) => lap.workoutType);
-    const attemptedReduction = patternReducer(patternGuess, laps.slice(i + patternLength).map((lap) => lap.workoutType)); // start at `+ patternLength` to avoid matching the initial pattern
+    let longestFoundPattern = {
+      "pattern": [laps[i].workoutType],
+      "count": 1,
+      "laps": [laps[i]],
+    };
 
-    if (attemptedReduction.matchCount > 0) {
-      patterns.push({
-        "pattern": patternGuess,
-        "count": attemptedReduction.matchCount + 1, // + 1 to include the initial pattern
-        "laps": laps.slice(i, i + (patternLength * (attemptedReduction.matchCount + 1))),
-      });
+    let patternLength = 1;
+    while (patternLength < laps.length - i) {
+      const patternGuess = laps.slice(i, i + patternLength).map((lap) => lap.workoutType);
+      const attemptedReduction = patternReducer(patternGuess, laps.slice(i + patternLength).map((lap) => lap.workoutType)); // start at `+ patternLength` to avoid matching the initial pattern
+      // attemptedReduction.matchCount returns the count not including the original pattern, fyi
 
-      i += patternLength * (attemptedReduction.matchCount + 1); // + 1 to include the initial pattern
-      patternLength = 1;
-    } else {
-      // Keep increasing the pattern length to try longer patterns
-      if (patternLength < laps.length - i) {
-        patternLength = patternLength + 1;
-      } else {
-        // If no pattern starting here is found, add as a single element and move on
-        patterns.push({
-          "pattern": [laps[i].workoutType],
-          "count": 1,
-          "laps": [laps[i]],
-        });
 
-        i += 1;
-        patternLength = 1;
+      const totalElementsCovered = (attemptedReduction.matchCount + 1) * patternLength;
+      if (attemptedReduction.matchCount >= 1 && totalElementsCovered > (longestFoundPattern.pattern.length * longestFoundPattern.count)) {
+        longestFoundPattern = {
+          "pattern": patternGuess,
+          "count": attemptedReduction.matchCount + 1, // + 1 to include the initial pattern
+          "laps": laps.slice(i, i + (patternLength * (attemptedReduction.matchCount + 1))),
+        };
       }
+
+      patternLength++;
     }
+
+    patterns.push(longestFoundPattern);
+    i += longestFoundPattern.pattern.length * (longestFoundPattern.count); // + 1 to include the initial pattern
   }
 
   return patterns;
