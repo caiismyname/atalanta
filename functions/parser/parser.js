@@ -27,7 +27,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
   const typeTaggedLaps = tagWorkoutTypes(mergedLaps);
   const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
-  const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps);
+  const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
   const sets = extractPatterns(basisHomogeneityCheckedValueAssignedLaps.filter((lap) => lap.isWorkout));
 
   const formatter = new Formatter(config.format);
@@ -341,7 +341,6 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
 
 
     const biasFactor = 2.0;
-    const homogeneityAdjustmentFactor = 2.0;
 
     switch (parserConfig.dominantWorkoutType) {
       case "DISTANCE":
@@ -360,14 +359,14 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
         break;
     }
 
-    if (parserConfig.homogeneityAdvantage != undefined) {
-      switch (parserConfig.homogeneityAdvantage) {
+    if (parserConfig.homogeneityAdvantageDirection != undefined) {
+      switch (parserConfig.homogeneityAdvantageDirection) {
         case "DISTANCE":
-          timeDisadvantageFactor *= homogeneityAdjustmentFactor;
+          timeDisadvantageFactor *= parserConfig.homogeneityAdvantageValue;
           // aggregateBasis = (aggregateLap.closestDistanceDifference <= (biasFactor * aggregateLap.closestTimeDifference) ? "DISTANCE" : "TIME");
           break;
         case "TIME":
-          distanceDisadvantageFactor *= homogeneityAdjustmentFactor;
+          distanceDisadvantageFactor *= parserConfig.homogeneityAdvantageValue;
           // aggregateBasis = (aggregateLap.closestTimeDifference <= (biasFactor * aggregateLap.closestDistanceDifference) ? "TIME" : "DISTANCE");
           break;
         default:
@@ -761,7 +760,7 @@ function assignTimeGuess(lap, time, difference) {
   lap.closestTimeDifference = difference;
 }
 
-function checkBasisHomogeneity(laps) {
+function checkBasisHomogeneity(laps, parserConfig) {
   // If all sets except one are of a particular basis, re-parse that set with an increased threshold
 
   const groupedByWorkoutType = lapsByWorkoutType(laps);
@@ -791,22 +790,20 @@ function checkBasisHomogeneity(laps) {
     return laps;
   }
 
-  console.log(timeCount, distCount);
-
+  const homogeneityAdjustmentFactor = 2.0;
   if (timeCount === 1) {
-    // const offendingSet = correspondingLaps.filter((set) => set.laps[0].workoutBasis === "TIME")[0]
-    const parserConfig = {...defaultParserConfig};
-    parserConfig.homogeneityAdvantage = "DISTANCE";
+    const modifiedParserConfig = {...parserConfig};
+    modifiedParserConfig.homogeneityAdvantageDirection = "DISTANCE";
+    modifiedParserConfig.homogeneityAdvantageValue = distCount * homogeneityAdjustmentFactor; // The more of the other one there is, the more likely this is a mistake
 
-    const retagged = tagWorkoutBasisAndValue(laps, parserConfig);
+    const retagged = tagWorkoutBasisAndValue(laps, modifiedParserConfig);
     return retagged;
   } else if (distCount === 1) {
-    // const offendingSet = correspondingLaps.filter((set) => set.laps[0].workoutBasis === "DISTANCE")[0]
+    const modifiedParserConfig = {...parserConfig};
+    modifiedParserConfig.homogeneityAdvantageDirection = "TIME";
+    modifiedParserConfig.homogeneityAdvantageValue = timeCount * homogeneityAdjustmentFactor;
 
-    const parserConfig = {...defaultParserConfig};
-    parserConfig.homogeneityAdvantage = "TIME";
-
-    const retagged = tagWorkoutBasisAndValue(laps, parserConfig);
+    const retagged = tagWorkoutBasisAndValue(laps, modifiedParserConfig);
     return retagged;
   } else { // No outlier basis detected
     return laps;

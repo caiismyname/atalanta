@@ -1347,6 +1347,23 @@ describe("Parser", () => {
     }
 
     describe("IRL Examples of Incorrect Basis", () => {
+      it.only("vicente", () => {
+        resetConfigs();
+
+        const run = userTestRuns["uncategorized"][2];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        console.log(res);
+      });
+      
       it("Maria", () => {
         resetConfigs();
 
@@ -1403,7 +1420,7 @@ describe("Parser", () => {
         assert.equal(secondLap.closestDistanceUnit, "m");
       });
 
-      it("800m misparsed as 3min", () => {
+      it("800m misparsed as 3min (ladder)", () => {
         resetConfigs();
 
         const run = userTestRuns["incorrect_basis"]["3min_vs_800m_ladder"];
