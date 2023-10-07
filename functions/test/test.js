@@ -1396,6 +1396,11 @@ describe("Parser", () => {
           assert.equal(rep.closestDistance, 400);
           assert.equal(rep.closestDistanceUnit, "m");
         }
+
+        const secondLap = res.sets[1].laps[0];
+        assert.equal(secondLap.workoutBasis, "DISTANCE");
+        assert.equal(secondLap.closestDistance, 1500);
+        assert.equal(secondLap.closestDistanceUnit, "m");
       });
 
       it("800m misparsed as 3min", () => {
@@ -1412,7 +1417,6 @@ describe("Parser", () => {
           verbose: false,
         });
 
-        console.log(res.sets[0].laps);
         const correctDistances = [400, 800, 1200, 800, 400];
 
         for (let i = 0; i < correctDistances.length; i++) {
@@ -1459,7 +1463,11 @@ describe("Parser", () => {
         });
 
         assert.ok(res.summary.title.includes("800m"));
-        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 800);
+          assert.equal(rep.closestDistanceUnit, "m");
+        }
       });
 
       it("400m misparsed as 69sec", () => {
@@ -1479,10 +1487,23 @@ describe("Parser", () => {
         });
 
         assert.equal(res.sets.length, 3);
+
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 800);
+          assert.equal(rep.closestDistanceUnit, "m");
+        }
+
         const targetSet = res.sets[1];
         assert.equal(targetSet.laps[0].workoutBasis, "DISTANCE");
         assert.equal(targetSet.laps[0].closestDistance, 400);
         assert.equal(targetSet.laps[0].closestDistanceUnit, "m");
+
+        for (const rep of res.sets[2].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 200);
+          assert.equal(rep.closestDistanceUnit, "m");
+        }
       });
 
       it("2mi misparsed as 12min", () => {
@@ -1499,10 +1520,18 @@ describe("Parser", () => {
           verbose: false,
         });
 
+        assert.equal(res.sets.length, 2);
+
         const targetLap = res.sets[0].laps[0];
         assert.equal(targetLap.workoutBasis, "DISTANCE");
         assert.equal(targetLap.closestDistance, "2");
         assert.equal(targetLap.closestDistanceUnit, "mi");
+
+        for (const rep of res.sets[1].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 1);
+          assert.equal(rep.closestDistanceUnit, "mi");
+        }
       });
 
       it("7min misparsed as 1500m", () => {
@@ -1551,6 +1580,18 @@ describe("Parser", () => {
           assert.equal(lap.workoutBasis, "DISTANCE");
           assert.equal(lap.closestDistance, 2);
           assert.equal(lap.closestDistanceUnit, "km");
+        }
+
+        for (const rep of res.sets[1].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 1);
+          assert.equal(rep.closestDistanceUnit, "mi");
+        }
+
+        for (const rep of res.sets[2].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 1200);
+          assert.equal(rep.closestDistanceUnit, "m");
         }
       });
 
@@ -1699,6 +1740,12 @@ describe("Parser", () => {
       assert.ok(!("component_laps" in res.sets[0].laps[0]));
       assert.equal(countOccurances(",", res.summary.description.split("\n")[0]), 0);
       assert.ok(res.sets[0].laps.reduce((a, b) => a && !("component_laps" in b), true)); // No rep has component laps
+
+      for (const rep of res.sets[res.sets.length -1].laps) {
+        assert.equal(rep.workoutBasis, "DISTANCE");
+        assert.equal(rep.closestDistance, 400);
+        assert.equal(rep.closestDistanceUnit, "m");
+      }
     });
 
     it("Track correction generated 2 — continuous 5k (km)", () => {
@@ -1715,12 +1762,19 @@ describe("Parser", () => {
         verbose: false,
       });
 
-      assert.equal(res.sets[0].laps[0].component_laps.length, 5);
+      assert.equal(res.sets.length, 1);
+      const targetRep = res.sets[0].laps[0];
+
+      assert.equal(targetRep.component_laps.length, 5);
       assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
       assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true)); // Ensure every element has a ":", imply there are no seconds, which means we didn't display any correction components
+
+      assert.equal(targetRep.workoutBasis, "DISTANCE");
+      assert.equal(targetRep.closestDistance, 5);
+      assert.equal(targetRep.closestDistanceUnit, "km");
     });
 
-    it("Track correction generated 3 — 5 x 1mi (mile)", () => {
+    it("Track correction generated 3 — 5 x 1mi (mile)", () => {
       resetConfigs();
       const errorMargin = 0.038;
 
@@ -1746,6 +1800,12 @@ describe("Parser", () => {
       assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
       assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true));
       assert.ok(res.sets[0].laps.reduce((a, b) => a && !("component_laps" in b), true)); // No rep has component laps
+
+      for (const rep of res.sets[0].laps) {
+        assert.equal(rep.workoutBasis, "DISTANCE");
+        assert.equal(rep.closestDistance, 1);
+        assert.equal(rep.closestDistanceUnit, "mi");
+      }
     });
   });
 
@@ -1765,11 +1825,25 @@ describe("Parser", () => {
           verbose: false,
         });
 
-        const intervals = res.sets[1];
+        assert.equal(res.sets.length, 2);
+
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 4);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
 
         // Should be 4 x (15sec, 30sec)
+        const intervals = res.sets[1];
         assert.equal(intervals.pattern.length, 2);
         assert.equal(intervals.count, 4);
+        for (let repIdx = 0; repIdx < intervals.laps.length; repIdx++) {
+          const rep = intervals.laps[repIdx];
+          assert.equal(rep.workoutBasis, "TIME");
+          if (repIdx % 2 === 0) {
+            assert.equal(rep.closestTime, 15);
+          } else {
+            assert.equal(rep.closestTime, 30);
+          }
+        }
       });
 
       it("Moderately fast warmup lap combined into workout to make 6x1k misparse as 1mi + 5x1k", () => {
@@ -1788,9 +1862,11 @@ describe("Parser", () => {
 
         assert.equal(res.sets.length, 1);
         assert.equal(res.sets[0].count, 6);
-        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
-        assert.equal(res.sets[0].laps[0].closestDistance, 1);
-        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "km");
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.closestDistance, 1);
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistanceUnit, "km");
+        }
       });
     });
 
