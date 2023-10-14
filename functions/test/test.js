@@ -1375,119 +1375,6 @@ describe("Parser", () => {
     }
 
     describe("IRL Examples of Incorrect Basis", () => {
-      it("200m misparsed as 30sec, basis homogeneity check", () => {
-        resetConfigs();
-
-        const run = userTestRuns["incorrect_basis"]["200m_vs_30sec_basis_homogeneity"];
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
-        });
-
-        assert.equal(res.sets.length, 3);
-        assert.equal(res.sets[0].pattern.toString(), [0, 0, 1, 2].toString());
-        assert.equal(res.sets[0].laps[0].closestDistance, 200);
-        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
-        assert.equal(res.sets[0].laps[1].closestDistance, 200);
-        assert.equal(res.sets[0].laps[1].workoutBasis, "DISTANCE");
-        assert.equal(res.sets[0].laps[2].closestDistance, 400);
-        assert.equal(res.sets[0].laps[2].workoutBasis, "DISTANCE");
-        assert.equal(res.sets[0].laps[3].closestDistance, 800);
-        assert.equal(res.sets[0].laps[3].workoutBasis, "DISTANCE");
-
-        assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
-        assert.equal(res.sets[1].laps[0].closestDistance, 2);
-        assert.equal(res.sets[1].laps[0].closestDistanceUnit, "mi");
-
-        assert.equal(res.sets[2].laps[0].workoutBasis, "DISTANCE");
-        assert.equal(res.sets[2].laps[0].closestDistance, 1.5);
-        assert.equal(res.sets[2].laps[0].closestDistanceUnit, "mi");
-      });
-
-      it("300m misparsed as 1min, basis homogeneity check", () => {
-        resetConfigs();
-
-        const run = userTestRuns["incorrect_basis"]["300m_vs_1min_basis_homogeneity"];
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
-        });
-
-        // Check that 1200m's are all parsed as DISTANCE
-        for (const rep of res.sets[0].laps) {
-          assert.equal(rep.workoutBasis, "DISTANCE");
-          assert.equal(rep.closestDistance, 1200);
-          assert.equal(rep.closestDistanceUnit, "m");
-        }
-
-        // Check that 300m's are parsing as DISTANCE rather than 60sec
-        for (const rep of res.sets[1].laps) {
-          assert.equal(rep.workoutBasis, "DISTANCE");
-          assert.equal(rep.closestDistance, 300);
-          assert.equal(rep.closestDistanceUnit, "m");
-        }
-      });
-
-      it("1km misparsed as 4min, basis homogeneity check", () => {
-        resetConfigs();
-
-        const run = userTestRuns["incorrect_basis"]["4min_vs_1km_basis_homogeneity"];
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
-        });
-
-        assert.equal(res.sets.length, 1);
-        const correctDistances = [1, 400, 1, 400, 1, 400];
-        for (let idx = 0; idx < res.sets[0].laps.length; idx++) {
-          const lap = res.sets[0].laps[idx];
-          assert.equal(lap.workoutBasis, "DISTANCE");
-          assert.equal(lap.closestDistance, correctDistances[idx]);
-        }
-      });
-
-      it("Non homogenous basis within workoutType", () => {
-        resetConfigs();
-
-        const run = userTestRuns["incorrect_basis"]["400m_vs_2min"];
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
-        });
-
-        // Previously half of them were parsed as "TIME"
-        for (const rep of res.sets[0].laps) {
-          assert.equal(rep.workoutBasis, "DISTANCE");
-          assert.equal(rep.closestDistance, 400);
-          assert.equal(rep.closestDistanceUnit, "m");
-        }
-
-        const secondLap = res.sets[1].laps[0];
-        assert.equal(secondLap.workoutBasis, "DISTANCE");
-        assert.equal(secondLap.closestDistance, 1500);
-        assert.equal(secondLap.closestDistanceUnit, "m");
-      });
-
       it("800m misparsed as 3min (ladder)", () => {
         resetConfigs();
 
@@ -1700,6 +1587,155 @@ describe("Parser", () => {
           assert.equal(rep.workoutBasis, "DISTANCE");
           assert.equal(rep.closestDistanceUnit, "km");
         }
+      });
+
+      describe("Basis homogeneity check", () => {
+        it("200m misparsed as 30sec, basis homogeneity check", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["200m_vs_30sec_basis_homogeneity"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          assert.equal(res.sets.length, 3);
+          assert.equal(res.sets[0].pattern.toString(), [0, 0, 1, 2].toString());
+          assert.equal(res.sets[0].laps[0].closestDistance, 200);
+          assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[0].laps[1].closestDistance, 200);
+          assert.equal(res.sets[0].laps[1].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[0].laps[2].closestDistance, 400);
+          assert.equal(res.sets[0].laps[2].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[0].laps[3].closestDistance, 800);
+          assert.equal(res.sets[0].laps[3].workoutBasis, "DISTANCE");
+
+          assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[1].laps[0].closestDistance, 2);
+          assert.equal(res.sets[1].laps[0].closestDistanceUnit, "mi");
+
+          assert.equal(res.sets[2].laps[0].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[2].laps[0].closestDistance, 1.5);
+          assert.equal(res.sets[2].laps[0].closestDistanceUnit, "mi");
+        });
+
+        it("300m misparsed as 1min, basis homogeneity check", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["300m_vs_1min_basis_homogeneity"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          // Check that 1200m's are all parsed as DISTANCE
+          for (const rep of res.sets[0].laps) {
+            assert.equal(rep.workoutBasis, "DISTANCE");
+            assert.equal(rep.closestDistance, 1200);
+            assert.equal(rep.closestDistanceUnit, "m");
+          }
+
+          // Check that 300m's are parsing as DISTANCE rather than 60sec
+          for (const rep of res.sets[1].laps) {
+            assert.equal(rep.workoutBasis, "DISTANCE");
+            assert.equal(rep.closestDistance, 300);
+            assert.equal(rep.closestDistanceUnit, "m");
+          }
+        });
+
+        it("1km misparsed as 4min, basis homogeneity check", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["4min_vs_1km_basis_homogeneity"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          assert.equal(res.sets.length, 1);
+          const correctDistances = [1, 400, 1, 400, 1, 400];
+          for (let idx = 0; idx < res.sets[0].laps.length; idx++) {
+            const lap = res.sets[0].laps[idx];
+            assert.equal(lap.workoutBasis, "DISTANCE");
+            assert.equal(lap.closestDistance, correctDistances[idx]);
+          }
+        });
+
+        it("1km as 4min, basis homogeneity check", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["4min_vs_1km_basis_homogeneity_2"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          assert.equal(res.sets.length, 3);
+          for (const lap of res.sets[0].laps) {
+            assert.equal(lap.workoutBasis, "DISTANCE");
+            assert.equal(lap.closestDistance, 1);
+            assert.equal(lap.closestDistanceUnit, "km");
+          }
+
+          for (const lap of res.sets[1].laps) {
+            assert.equal(lap.workoutBasis, "DISTANCE");
+            assert.equal(lap.closestDistance, 800);
+            assert.equal(lap.closestDistanceUnit, "m");
+          }
+
+          for (const lap of res.sets[2].laps) {
+            assert.equal(lap.workoutBasis, "DISTANCE");
+            assert.equal(lap.closestDistance, 600);
+            assert.equal(lap.closestDistanceUnit, "m");
+          }
+        });
+
+        it("Non homogenous basis within workoutType", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["400m_vs_2min"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          // Previously half of them were parsed as "TIME"
+          for (const rep of res.sets[0].laps) {
+            assert.equal(rep.workoutBasis, "DISTANCE");
+            assert.equal(rep.closestDistance, 400);
+            assert.equal(rep.closestDistanceUnit, "m");
+          }
+
+          const secondLap = res.sets[1].laps[0];
+          assert.equal(secondLap.workoutBasis, "DISTANCE");
+          assert.equal(secondLap.closestDistance, 1500);
+          assert.equal(secondLap.closestDistanceUnit, "m");
+        });
       });
     });
 

@@ -129,8 +129,6 @@ function determineRunIsWorkout(laps, debug=false) {
 }
 
 function tagWorkoutLaps(laps) {
-  console.log(laps.map((lap) => `${lap.moving_time} _ ${lap.elapsed_time}`));
-
   const maxSlowness = Helpers.milesToMeters(6) / (60.0 * 60.0); // 10 minute mile, in m/s
   // Adjust super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
   const maxSpeed =
@@ -147,8 +145,6 @@ function tagWorkoutLaps(laps) {
       lap.average_speed = maxSpeed;
     }
   }
-
-  console.log(laps.map((lap) => lap.average_speed));
 
   // //
   // // Start experiment — speed as percentage of min and max paces found, instead of actual speeds
