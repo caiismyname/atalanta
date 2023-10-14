@@ -1438,6 +1438,29 @@ describe("Parser", () => {
         }
       });
 
+      it("1km misparsed as 4min, basis homogeneity check", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["4min_vs_1km_basis_homogeneity"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+        const correctDistances = [1, 400, 1, 400, 1, 400];
+        for (let idx = 0; idx < res.sets[0].laps.length; idx++) {
+          const lap = res.sets[0].laps[idx];
+          assert.equal(lap.workoutBasis, "DISTANCE");
+          assert.equal(lap.closestDistance, correctDistances[idx]);
+        }
+      });
+
       it("Non homogenous basis within workoutType", () => {
         resetConfigs();
 
@@ -1619,6 +1642,64 @@ describe("Parser", () => {
         // const targetLap = res.sets[0].laps[0];
         // assert.equal(targetLap.workoutBasis, "TIME");
         // assert.equal(targetLap.closestTime, 420);
+      });
+
+      it("Vicente 15/30 second sprints", () => {
+        resetConfigs();
+
+        const run = userTestRuns["pattern_reducer"]["vicente_1"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 2);
+
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 4);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+
+        // Should be 4 x (15sec, 30sec)
+        const intervals = res.sets[1];
+        assert.equal(intervals.pattern.length, 2);
+        assert.equal(intervals.count, 4);
+        for (let repIdx = 0; repIdx < intervals.laps.length; repIdx++) {
+          const rep = intervals.laps[repIdx];
+          assert.equal(rep.workoutBasis, "TIME");
+          if (repIdx % 2 === 0) {
+            assert.equal(rep.closestTime, 15);
+          } else {
+            assert.equal(rep.closestTime, 30);
+          }
+        }
+      });
+
+      it("Moderately fast warmup lap combined into workout to make 6x1k misparse as 1mi + 5x1k", () => {
+        resetConfigs();
+
+        const run = userTestRuns["workout_lap_tagger"]["6x1k"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+        assert.equal(res.sets[0].count, 6);
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.closestDistance, 1);
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistanceUnit, "km");
+        }
       });
     });
 
@@ -1874,66 +1955,6 @@ describe("Parser", () => {
   });
 
   describe("IRL WORKOUTS", () => {
-    describe("Basis tagging", () => {
-      it("Vicente 15/30 second sprints", () => {
-        resetConfigs();
-
-        const run = userTestRuns["pattern_reducer"]["vicente_1"];
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
-        });
-
-        assert.equal(res.sets.length, 2);
-
-        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
-        assert.equal(res.sets[0].laps[0].closestDistance, 4);
-        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
-
-        // Should be 4 x (15sec, 30sec)
-        const intervals = res.sets[1];
-        assert.equal(intervals.pattern.length, 2);
-        assert.equal(intervals.count, 4);
-        for (let repIdx = 0; repIdx < intervals.laps.length; repIdx++) {
-          const rep = intervals.laps[repIdx];
-          assert.equal(rep.workoutBasis, "TIME");
-          if (repIdx % 2 === 0) {
-            assert.equal(rep.closestTime, 15);
-          } else {
-            assert.equal(rep.closestTime, 30);
-          }
-        }
-      });
-
-      it("Moderately fast warmup lap combined into workout to make 6x1k misparse as 1mi + 5x1k", () => {
-        resetConfigs();
-
-        const run = userTestRuns["workout_lap_tagger"]["6x1k"];
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
-        });
-
-        assert.equal(res.sets.length, 1);
-        assert.equal(res.sets[0].count, 6);
-        for (const rep of res.sets[0].laps) {
-          assert.equal(rep.closestDistance, 1);
-          assert.equal(rep.workoutBasis, "DISTANCE");
-          assert.equal(rep.closestDistanceUnit, "km");
-        }
-      });
-    });
-
     describe("Is workout detection", () => {
       it("Vicente 2-lap 5mi tempo", () => {
         resetConfigs();
@@ -1956,9 +1977,53 @@ describe("Parser", () => {
         assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
       });
     });
+
+    it("600m_400m_200m", () => {
+      resetConfigs();
+
+      const run = userTestRuns["general_irl_examples"]["600m_400m_200m"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets.length, 1);
+      const correctDistances = [600, 400, 200];
+      for (let idx = 0; idx < res.sets[0].length; idx++) {
+        const lap = res.sets[0].laps[idx];
+        assert.equal(lap.workoutBasis, "DISTANCE");
+        assert.equal(lap.closestDistance, correctDistances[idx % 3]);
+        assert.equal(lap.closestDistanceUnit, "m");
+      }
+    });
   });
 
   describe("FALSE POSITIVES", () => {
 
+  });
+
+  describe("Test", () => {
+    it("james undefined", () => {
+      resetConfigs();
+
+      const run = userTestRuns["uncategorized"][1];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // console.log(res.sets[1]);
+      console.log(res);
+    });
   });
 });

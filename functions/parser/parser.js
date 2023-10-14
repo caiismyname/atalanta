@@ -129,11 +129,26 @@ function determineRunIsWorkout(laps, debug=false) {
 }
 
 function tagWorkoutLaps(laps) {
+  console.log(laps.map((lap) => `${lap.moving_time} _ ${lap.elapsed_time}`));
+
   const maxSlowness = Helpers.milesToMeters(6) / (60.0 * 60.0); // 10 minute mile, in m/s
   // Adjust super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
+  const maxSpeed =
+    laps
+        .filter((lap) => lapIsReasonable(lap))
+        .reduce((fastestFoundSpeed, curLap) => Math.max(curLap.distance / curLap.moving_time, fastestFoundSpeed), 0);
+
   for (const lap of laps) {
     lap.average_speed = Math.max(lap.average_speed, maxSlowness);
+    if (!lapIsReasonable(lap)) {
+      // If the lap is impossible, adjust it's time so it matches the speed of the fastest reasonable lap
+
+      lap.moving_time = lap.distance / maxSpeed;
+      lap.average_speed = maxSpeed;
+    }
   }
+
+  console.log(laps.map((lap) => lap.average_speed));
 
   // //
   // // Start experiment — speed as percentage of min and max paces found, instead of actual speeds
@@ -831,6 +846,13 @@ function patternReducer(pattern, list) {
     "matchCount": matchesFound,
     "unmatchedRemainder": list.slice(listIdx),
   };
+}
+
+function lapIsReasonable(lap) {
+  const worldRecordSpeed = 100 / 9.58; // Bolt's 100m record
+  const lapSpeed = lap.distance / lap.moving_time;
+
+  return lapSpeed < worldRecordSpeed;
 }
 
 function print(x) {
