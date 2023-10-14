@@ -117,17 +117,17 @@ describe("Formatter", () => {
       it("Sub 90sec — 10 x 1:15", () => {
         resetConfigs();
         const run = testRuns["10 x 75sec"];
-        const title = parseWorkout({
+        const res = parseWorkout({
           run: run,
           config: {
             parser: parserConfig,
             format: formatConfig,
           },
-          returnSets: false,
+          returnSets: true,
           verbose: false,
-        }).summary.title;
+        });
 
-        assert.equal(title, "10 x 1:15");
+        assert.equal(res.summary.title, "10 x 1:15");
       });
 
       it("Greater than 90sec — 4 x 2:30", () => {
@@ -1075,6 +1075,64 @@ describe("Formatter", () => {
     });
   });
 
+  describe("PATTERN EXTRACTION", () => {
+    it("200,200,400,800", () => {
+      resetConfigs();
+      const distances = [200, 200, 400, 800, 200, 200, 400, 800];
+      const inputLaps = [];
+      for (const dist of distances) {
+        inputLaps.push([dist, "METERS", true]);
+        inputLaps.push([dist, "METERS", false]);
+      }
+      const run = generateAndReturnWorkout(inputLaps);
+
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // Make sure we don't mark it as (2 x 200m) + 400m + ...
+      assert.equal(res.sets.length, 1);
+      assert.equal(res.sets[0].pattern.toString(), [0, 0, 1, 2].toString());
+      assert.equal(res.sets[0].count, 2);
+    });
+
+    it("200,200,400,200,200,400,800,800", () => {
+      resetConfigs();
+      const distances = [200, 200, 400, 200, 200, 400, 800, 800];
+      const inputLaps = [];
+      for (const dist of distances) {
+        inputLaps.push([dist, "METERS", true]);
+        inputLaps.push([dist, "METERS", false]);
+      }
+      const run = generateAndReturnWorkout(inputLaps);
+
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // Should be (2 x (200m, 200m, 400m) + (2 x 800m))
+      assert.equal(res.sets.length, 2);
+      assert.equal(res.sets[0].pattern.toString(), [0, 0, 1].toString());
+      assert.equal(res.sets[0].count, 2);
+
+      assert.equal(res.sets[1].pattern.toString(), [2].toString());
+      assert.equal(res.sets[1].count, 2);
+      assert.equal(res.sets[1].laps[0].closestDistance, 800);
+    });
+  });
+
   describe("DEFAULTS FALLTHROUGH", () => {
     const testRunNames = ["4 x 2mi", "4 x 400m", "(4 x (400m, 200m, 100m)) + 4mi", "4 x 2:30"];
     Object.keys(defaultFormatConfig).forEach((configOption) => {
@@ -1232,10 +1290,10 @@ describe("Parser", () => {
               verbose: false,
             }).sets;
 
-            const tokenLap = sets[0].laps[0];
-
-            assert.equal(tokenLap.workoutBasis, "DISTANCE");
-            assert.equal(tokenLap.closestDistanceUnit, "m");
+            for (const rep of sets[0].laps) {
+              assert.equal(rep.workoutBasis, "DISTANCE");
+              assert.equal(rep.closestDistanceUnit, "m");
+            }
           });
         }
 
@@ -1256,10 +1314,11 @@ describe("Parser", () => {
               verbose: false,
             }).sets;
 
-            const tokenLap = sets[0].laps[0];
 
-            assert.equal(tokenLap.workoutBasis, "DISTANCE");
-            assert.equal(tokenLap.closestDistanceUnit, "km");
+            for (const rep of sets[0].laps) {
+              assert.equal(rep.workoutBasis, "DISTANCE");
+              assert.equal(rep.closestDistanceUnit, "km");
+            }
           });
         }
 
@@ -1280,10 +1339,10 @@ describe("Parser", () => {
               verbose: false,
             }).sets;
 
-            const tokenLap = sets[0].laps[0];
-
-            assert.equal(tokenLap.workoutBasis, "DISTANCE");
-            assert.equal(tokenLap.closestDistanceUnit, "mi");
+            for (const rep of sets[0].laps) {
+              assert.equal(rep.workoutBasis, "DISTANCE");
+              assert.equal(rep.closestDistanceUnit, "mi");
+            }
           });
         }
 
@@ -1309,9 +1368,9 @@ describe("Parser", () => {
               verbose: false,
             }).sets;
 
-            const tokenLap = sets[0].laps[0];
-
-            assert.equal(tokenLap.workoutBasis, "TIME");
+            for (const rep of sets[0].laps) {
+              assert.equal(rep.workoutBasis, "TIME");
+            }
           });
         }
 
@@ -1337,15 +1396,37 @@ describe("Parser", () => {
               verbose: false,
             }).sets;
 
-            const tokenLap = sets[0].laps[0];
-
-            assert.equal(tokenLap.workoutBasis, "TIME");
+            for (const rep of sets[0].laps) {
+              assert.equal(rep.workoutBasis, "TIME");
+            }
           });
         }
       });
     }
 
     describe("IRL Examples of Incorrect Basis", () => {
+      it("800m misparsed as 3min (ladder)", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["3min_vs_800m_ladder"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const correctDistances = [400, 800, 1200, 800, 400];
+
+        for (let i = 0; i < correctDistances.length; i++) {
+          assert.equal(correctDistances[i], res.sets[i].laps[0].closestDistance);
+          assert.equal("DISTANCE", res.sets[i].laps[0].workoutBasis);
+        }
+      });
+
       it("6km misparsed as 4mi", () => {
         resetConfigs();
 
@@ -1384,7 +1465,11 @@ describe("Parser", () => {
         });
 
         assert.ok(res.summary.title.includes("800m"));
-        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 800);
+          assert.equal(rep.closestDistanceUnit, "m");
+        }
       });
 
       it("400m misparsed as 69sec", () => {
@@ -1404,10 +1489,23 @@ describe("Parser", () => {
         });
 
         assert.equal(res.sets.length, 3);
+
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 800);
+          assert.equal(rep.closestDistanceUnit, "m");
+        }
+
         const targetSet = res.sets[1];
         assert.equal(targetSet.laps[0].workoutBasis, "DISTANCE");
         assert.equal(targetSet.laps[0].closestDistance, 400);
         assert.equal(targetSet.laps[0].closestDistanceUnit, "m");
+
+        for (const rep of res.sets[2].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 200);
+          assert.equal(rep.closestDistanceUnit, "m");
+        }
       });
 
       it("2mi misparsed as 12min", () => {
@@ -1424,10 +1522,18 @@ describe("Parser", () => {
           verbose: false,
         });
 
+        assert.equal(res.sets.length, 2);
+
         const targetLap = res.sets[0].laps[0];
         assert.equal(targetLap.workoutBasis, "DISTANCE");
         assert.equal(targetLap.closestDistance, "2");
         assert.equal(targetLap.closestDistanceUnit, "mi");
+
+        for (const rep of res.sets[1].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 1);
+          assert.equal(rep.closestDistanceUnit, "mi");
+        }
       });
 
       it("7min misparsed as 1500m", () => {
@@ -1454,6 +1560,213 @@ describe("Parser", () => {
         // assert.equal(targetLap.workoutBasis, "TIME");
         // assert.equal(targetLap.closestTime, 420);
       });
+
+      it("Vicente 15/30 second sprints", () => {
+        resetConfigs();
+
+        const run = userTestRuns["pattern_reducer"]["vicente_1"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 2);
+
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 4);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "mi");
+
+        // Should be 4 x (15sec, 30sec)
+        const intervals = res.sets[1];
+        assert.equal(intervals.pattern.length, 2);
+        assert.equal(intervals.count, 4);
+        for (let repIdx = 0; repIdx < intervals.laps.length; repIdx++) {
+          const rep = intervals.laps[repIdx];
+          assert.equal(rep.workoutBasis, "TIME");
+          if (repIdx % 2 === 0) {
+            assert.equal(rep.closestTime, 15);
+          } else {
+            assert.equal(rep.closestTime, 30);
+          }
+        }
+      });
+
+      it("Moderately fast warmup lap combined into workout to make 6x1k misparse as 1mi + 5x1k", () => {
+        resetConfigs();
+
+        const run = userTestRuns["workout_lap_tagger"]["6x1k"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+        assert.equal(res.sets[0].count, 6);
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.closestDistance, 1);
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistanceUnit, "km");
+        }
+      });
+
+      describe("Basis homogeneity check", () => {
+        it("200m misparsed as 30sec, basis homogeneity check", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["200m_vs_30sec_basis_homogeneity"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          assert.equal(res.sets.length, 3);
+          assert.equal(res.sets[0].pattern.toString(), [0, 0, 1, 2].toString());
+          assert.equal(res.sets[0].laps[0].closestDistance, 200);
+          assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[0].laps[1].closestDistance, 200);
+          assert.equal(res.sets[0].laps[1].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[0].laps[2].closestDistance, 400);
+          assert.equal(res.sets[0].laps[2].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[0].laps[3].closestDistance, 800);
+          assert.equal(res.sets[0].laps[3].workoutBasis, "DISTANCE");
+
+          assert.equal(res.sets[1].laps[0].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[1].laps[0].closestDistance, 2);
+          assert.equal(res.sets[1].laps[0].closestDistanceUnit, "mi");
+
+          assert.equal(res.sets[2].laps[0].workoutBasis, "DISTANCE");
+          assert.equal(res.sets[2].laps[0].closestDistance, 1.5);
+          assert.equal(res.sets[2].laps[0].closestDistanceUnit, "mi");
+        });
+
+        it("300m misparsed as 1min, basis homogeneity check", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["300m_vs_1min_basis_homogeneity"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          // Check that 1200m's are all parsed as DISTANCE
+          for (const rep of res.sets[0].laps) {
+            assert.equal(rep.workoutBasis, "DISTANCE");
+            assert.equal(rep.closestDistance, 1200);
+            assert.equal(rep.closestDistanceUnit, "m");
+          }
+
+          // Check that 300m's are parsing as DISTANCE rather than 60sec
+          for (const rep of res.sets[1].laps) {
+            assert.equal(rep.workoutBasis, "DISTANCE");
+            assert.equal(rep.closestDistance, 300);
+            assert.equal(rep.closestDistanceUnit, "m");
+          }
+        });
+
+        it("1km misparsed as 4min, basis homogeneity check", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["4min_vs_1km_basis_homogeneity"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          assert.equal(res.sets.length, 1);
+          const correctDistances = [1, 400, 1, 400, 1, 400];
+          for (let idx = 0; idx < res.sets[0].laps.length; idx++) {
+            const lap = res.sets[0].laps[idx];
+            assert.equal(lap.workoutBasis, "DISTANCE");
+            assert.equal(lap.closestDistance, correctDistances[idx]);
+          }
+        });
+
+        it("1km as 4min, basis homogeneity check", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["4min_vs_1km_basis_homogeneity_2"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          assert.equal(res.sets.length, 3);
+          for (const lap of res.sets[0].laps) {
+            assert.equal(lap.workoutBasis, "DISTANCE");
+            assert.equal(lap.closestDistance, 1);
+            assert.equal(lap.closestDistanceUnit, "km");
+          }
+
+          for (const lap of res.sets[1].laps) {
+            assert.equal(lap.workoutBasis, "DISTANCE");
+            assert.equal(lap.closestDistance, 800);
+            assert.equal(lap.closestDistanceUnit, "m");
+          }
+
+          for (const lap of res.sets[2].laps) {
+            assert.equal(lap.workoutBasis, "DISTANCE");
+            assert.equal(lap.closestDistance, 600);
+            assert.equal(lap.closestDistanceUnit, "m");
+          }
+        });
+
+        it("Non homogenous basis within workoutType", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["400m_vs_2min"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          // Previously half of them were parsed as "TIME"
+          for (const rep of res.sets[0].laps) {
+            assert.equal(rep.workoutBasis, "DISTANCE");
+            assert.equal(rep.closestDistance, 400);
+            assert.equal(rep.closestDistanceUnit, "m");
+          }
+
+          const secondLap = res.sets[1].laps[0];
+          assert.equal(secondLap.workoutBasis, "DISTANCE");
+          assert.equal(secondLap.closestDistance, 1500);
+          assert.equal(secondLap.closestDistanceUnit, "m");
+        });
+      });
     });
 
     describe("IRL Examples of Incorrect Value", () => {
@@ -1476,6 +1789,18 @@ describe("Parser", () => {
           assert.equal(lap.workoutBasis, "DISTANCE");
           assert.equal(lap.closestDistance, 2);
           assert.equal(lap.closestDistanceUnit, "km");
+        }
+
+        for (const rep of res.sets[1].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 1);
+          assert.equal(rep.closestDistanceUnit, "mi");
+        }
+
+        for (const rep of res.sets[2].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 1200);
+          assert.equal(rep.closestDistanceUnit, "m");
         }
       });
 
@@ -1624,6 +1949,12 @@ describe("Parser", () => {
       assert.ok(!("component_laps" in res.sets[0].laps[0]));
       assert.equal(countOccurances(",", res.summary.description.split("\n")[0]), 0);
       assert.ok(res.sets[0].laps.reduce((a, b) => a && !("component_laps" in b), true)); // No rep has component laps
+
+      for (const rep of res.sets[res.sets.length -1].laps) {
+        assert.equal(rep.workoutBasis, "DISTANCE");
+        assert.equal(rep.closestDistance, 400);
+        assert.equal(rep.closestDistanceUnit, "m");
+      }
     });
 
     it("Track correction generated 2 — continuous 5k (km)", () => {
@@ -1640,12 +1971,19 @@ describe("Parser", () => {
         verbose: false,
       });
 
-      assert.equal(res.sets[0].laps[0].component_laps.length, 5);
+      assert.equal(res.sets.length, 1);
+      const targetRep = res.sets[0].laps[0];
+
+      assert.equal(targetRep.component_laps.length, 5);
       assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
       assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true)); // Ensure every element has a ":", imply there are no seconds, which means we didn't display any correction components
+
+      assert.equal(targetRep.workoutBasis, "DISTANCE");
+      assert.equal(targetRep.closestDistance, 5);
+      assert.equal(targetRep.closestDistanceUnit, "km");
     });
 
-    it("Track correction generated 3 — 5 x 1mi (mile)", () => {
+    it("Track correction generated 3 — 5 x 1mi (mile)", () => {
       resetConfigs();
       const errorMargin = 0.038;
 
@@ -1667,58 +2005,22 @@ describe("Parser", () => {
         verbose: false,
       });
 
+      console.log(res);
+
       assert.equal(res.sets.length, 1);
       assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
       assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true));
       assert.ok(res.sets[0].laps.reduce((a, b) => a && !("component_laps" in b), true)); // No rep has component laps
+
+      for (const rep of res.sets[0].laps) {
+        assert.equal(rep.workoutBasis, "DISTANCE");
+        assert.equal(rep.closestDistance, 1);
+        assert.equal(rep.closestDistanceUnit, "mi");
+      }
     });
   });
 
   describe("IRL WORKOUTS", () => {
-    describe("Basis tagging", () => {
-      it("Vicente 15/30 second sprints", () => {
-        resetConfigs();
-
-        const run = userTestRuns["pattern_reducer"]["vicente_1"];
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
-        });
-
-        const intervals = res.sets[1];
-
-        // Should be 4 x (15sec, 30sec)
-        assert.equal(intervals.pattern.length, 2);
-        assert.equal(intervals.count, 4);
-      });
-
-      it("Moderately fast warmup lap combined into workout to make 6x1k misparse as 1mi + 5x1k", () => {
-        resetConfigs();
-
-        const run = userTestRuns["workout_lap_tagger"]["6x1k"];
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
-        });
-
-        assert.equal(res.sets.length, 1);
-        assert.equal(res.sets[0].count, 6);
-        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
-        assert.equal(res.sets[0].laps[0].closestDistance, 1);
-        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "km");
-      });
-    });
-
     describe("Is workout detection", () => {
       it("Vicente 2-lap 5mi tempo", () => {
         resetConfigs();
@@ -1741,9 +2043,53 @@ describe("Parser", () => {
         assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
       });
     });
+
+    it("600m_400m_200m", () => {
+      resetConfigs();
+
+      const run = userTestRuns["general_irl_examples"]["600m_400m_200m"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets.length, 1);
+      const correctDistances = [600, 400, 200];
+      for (let idx = 0; idx < res.sets[0].length; idx++) {
+        const lap = res.sets[0].laps[idx];
+        assert.equal(lap.workoutBasis, "DISTANCE");
+        assert.equal(lap.closestDistance, correctDistances[idx % 3]);
+        assert.equal(lap.closestDistanceUnit, "m");
+      }
+    });
   });
 
   describe("FALSE POSITIVES", () => {
 
+  });
+
+  describe("Test", () => {
+    it("james undefined", () => {
+      resetConfigs();
+
+      const run = userTestRuns["uncategorized"][1];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // console.log(res.sets[1]);
+      console.log(res);
+    });
   });
 });

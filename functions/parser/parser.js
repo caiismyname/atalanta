@@ -27,7 +27,8 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
   const typeTaggedLaps = tagWorkoutTypes(mergedLaps);
   const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
-  const sets = extractPatterns(valueAssignedLaps.filter((lap) => lap.isWorkout));
+  const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
+  const sets = extractPatterns(basisHomogeneityCheckedValueAssignedLaps.filter((lap) => lap.isWorkout));
 
   const formatter = new Formatter(config.format);
   const summary = formatter.printSets(sets);
@@ -129,9 +130,20 @@ function determineRunIsWorkout(laps, debug=false) {
 
 function tagWorkoutLaps(laps) {
   const maxSlowness = Helpers.milesToMeters(6) / (60.0 * 60.0); // 10 minute mile, in m/s
-  // Discard super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
+  // Adjust super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
+  const maxSpeed =
+    laps
+        .filter((lap) => lapIsReasonable(lap))
+        .reduce((fastestFoundSpeed, curLap) => Math.max(curLap.distance / curLap.moving_time, fastestFoundSpeed), 0);
+
   for (const lap of laps) {
     lap.average_speed = Math.max(lap.average_speed, maxSlowness);
+    if (!lapIsReasonable(lap)) {
+      // If the lap is impossible, adjust it's time so it matches the speed of the fastest reasonable lap
+
+      lap.moving_time = lap.distance / maxSpeed;
+      lap.average_speed = maxSpeed;
+    }
   }
 
   // //
@@ -293,24 +305,31 @@ function tagWorkoutTypes(laps) {
   return laps;
 }
 
-function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
-  const MAX_TIME_DIFF = 5; // The maximum difference allowed between a lap's total time and the guessed time and have it still be considered TIME basis, in seconds.
-
+// HELPER
+function lapsByWorkoutType(laps) {
+  const groupedLaps = [];
   const maxWorkoutType = laps.map((lap) => lap.workoutType === undefined ? 0 : lap.workoutType).reduce((a, b) => Math.max(a, b), 0);
 
   for (let workoutType = 0; workoutType <= maxWorkoutType; workoutType++) {
     const correspondingLaps = laps.filter((lap) => lap.workoutType === workoutType);
+    groupedLaps.push(correspondingLaps);
+  }
 
-    // If we know one format is more common, apply the biasFactor to make for a higher threshold before we categorize a workout's basis as the un-common format.
-    // The differences are normalized (essentially percentages) so the scale is equivalent across time and distance
-    const biasFactor = 2.0;
+  return groupedLaps;
+}
 
+function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
+  const MAX_TIME_DIFF = 5; // The maximum difference allowed between a lap's total time and the guessed time and have it still be considered TIME basis, in seconds.
+  const groupedByWorkoutType = lapsByWorkoutType(laps);
+
+  for (const correspondingLaps of groupedByWorkoutType) {
     // [start] Closest known distance/time basis determination
+
+    // 1. Guess the closest value of each basis for each lap, and for the aggregate lap
     for (const lap of correspondingLaps) {
       assignNearestDistance(lap);
       assignNearestTime(lap);
     }
-
 
     // To smooth differences across the laps, average their values and make the determinations on the aggregate lap
     const aggregateLap = {};
@@ -325,27 +344,57 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
 
     let aggregateBasis = "";
 
+    // If we know one format is more common, apply the biasFactor to make for a higher threshold before we categorize a workout's basis as the un-common format.
+    // The differences are normalized (essentially percentages) so the scale is equivalent across time and distance
+
+    let distanceDisadvantageFactor = 1.0; // Increase the `closest[Distance/Time]Difference` value by this factor to give an advantage to the _other_ basis
+    let timeDisadvantageFactor = 1.0;
+
+
+    const biasFactor = 2.0;
+
     switch (parserConfig.dominantWorkoutType) {
       case "DISTANCE":
-        aggregateBasis = (aggregateLap.closestDistanceDifference <= (biasFactor * aggregateLap.closestTimeDifference) ? "DISTANCE" : "TIME");
+        timeDisadvantageFactor *= biasFactor;
+        // aggregateBasis = (aggregateLap.closestDistanceDifference <= (biasFactor * aggregateLap.closestTimeDifference) ? "DISTANCE" : "TIME");
         break;
       case "TIME":
-        aggregateBasis = (aggregateLap.closestTimeDifference <= (biasFactor * aggregateLap.closestDistanceDifference) ? "TIME" : "DISTANCE");
+        distanceDisadvantageFactor *= biasFactor;
+        // aggregateBasis = (aggregateLap.closestTimeDifference <= (biasFactor * aggregateLap.closestDistanceDifference) ? "TIME" : "DISTANCE");
         break;
       case "BALANCED":
-        aggregateBasis = (aggregateLap.closestDistanceDifference <= aggregateLap.closestTimeDifference ? "DISTANCE" : "TIME");
+        // aggregateBasis = (aggregateLap.closestDistanceDifference <= aggregateLap.closestTimeDifference ? "DISTANCE" : "TIME");
         break;
       default: // Same as balanced
         aggregateBasis = (aggregateLap.closestDistanceDifference <= aggregateLap.closestTimeDifference ? "DISTANCE" : "TIME");
         break;
     }
 
+    if (parserConfig.homogeneityAdvantageDirection != undefined) {
+      switch (parserConfig.homogeneityAdvantageDirection) {
+        case "DISTANCE":
+          timeDisadvantageFactor *= parserConfig.homogeneityAdvantageValue;
+          // aggregateBasis = (aggregateLap.closestDistanceDifference <= (biasFactor * aggregateLap.closestTimeDifference) ? "DISTANCE" : "TIME");
+          break;
+        case "TIME":
+          distanceDisadvantageFactor *= parserConfig.homogeneityAdvantageValue;
+          // aggregateBasis = (aggregateLap.closestTimeDifference <= (biasFactor * aggregateLap.closestDistanceDifference) ? "TIME" : "DISTANCE");
+          break;
+        default:
+          break;
+      }
+    }
+
+    aggregateBasis = (aggregateLap.closestDistanceDifference * distanceDisadvantageFactor) <= (aggregateLap.closestTimeDifference * timeDisadvantageFactor) ? "DISTANCE" : "TIME";
+
+    // 2. Pick the closest basis
+
+    // Because the guesses are inherantly limited because they're compared against a pre-defined list of valid distances/times, it's possible to see a new value that's not on the list. This is guarded for by checking the standard deviation and, if 0, taking that value instead.
 
     const distanceDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestDistanceDifference, 0) / correspondingLaps.length;
     const timeDifferenceAverage = correspondingLaps.reduce((a, b) => a + b.closestTimeDifference, 0) / correspondingLaps.length;
 
-    // Initialize StdDevs to a very large value so they don't override the difference averages by default
-    let distanceStdDev = 999;
+    let distanceStdDev = 999; // Initialize StdDevs to a very large value so they don't override the difference averages by default
     let timeStdDev = 999;
 
     distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
@@ -354,53 +403,49 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
     // console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
     // console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
 
-    for (const lap of correspondingLaps) {
-      // Assign based on lowest average difference
-      // switch (parserConfig.dominantWorkoutType) {
-      //   case "DISTANCE":
-      //     lap.workoutBasis = (distanceDifferenceAverage <= (biasFactor * timeDifferenceAverage) ? "DISTANCE" : "TIME");
-      //     break;
-      //   case "TIME":
-      //     lap.workoutBasis = (timeDifferenceAverage <= (biasFactor * distanceDifferenceAverage) ? "TIME" : "DISTANCE");
-      //     break;
-      //   case "BALANCED":
-      //     lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
-      //     break;
-      //   default: // Same as balanced
-      //     lap.workoutBasis = (distanceDifferenceAverage <= timeDifferenceAverage ? "DISTANCE" : "TIME");
-      //     break;
-      // }
+    // If the opposite basis has zero std dev (even if the value isn't recognized), it's likely intentional
+    if (correspondingLaps.length > 1) {
+      if (distanceStdDev === 0 && aggregateBasis === "TIME") {
+        aggregateBasis = "DISTANCE";
+      } else if (
+        timeStdDev === 0.0.toFixed(4) &&
+          aggregateBasis === "DISTANCE" &&
+          correspondingLaps[0].moving_time % 5 === 0 // Check that the time ends in a 0 or 5, which is more likely to be an intentional time interval
+      ) {
+        aggregateBasis = "TIME";
+        aggregateLap.closestTime = correspondingLaps[0].moving_time; // B/c the formatter pulls from `closestTime`, not `movingTime`
+      }
+    }
 
+    let shouldFlipGroupBasis = false;
+    for (const lap of correspondingLaps) {
       // Give each lap the basis + value determined on the aggregate lap
       lap.workoutBasis = aggregateBasis;
-      lap.closestTime = aggregateLap.closestTime;
-      lap.closestDistance = aggregateLap.closestDistance;
+      lap.closestTime = aggregateLap.closestTime; // Assign values for both basises so we can simply flip the `workoutBasis` value later if needed
+      lap.closestDistance = aggregateLap.closestDistance; // Assign values for both basises so we can simply flip the `workoutBasis` value later if needed
       lap.closestDistanceUnit = aggregateLap.closestDistanceUnit;
 
       // Saving for ease of debugging
       lap.aggregateClosestDistanceDifference = aggregateLap.closestDistanceDifference;
       lap.aggregateClosestTimeDifference = aggregateLap.closestTimeDifference;
 
-      // Double check that time-based laps are reasonably close to the actual time.
-      if (lap.workoutBasis === "TIME") {
+      // Double check that time-based laps are reasonably close to the actual time, but only if it's matched to a known time
+      if (lap.workoutBasis === "TIME" && timeStdDev !== 0.0) {
         if (Math.abs(lap.closestTime - lap.moving_time) > MAX_TIME_DIFF) {
-          lap.workoutBasis = "DISTANCE";
+          shouldFlipGroupBasis = true;
         }
       }
+    }
 
-      // Because the guesses are inherantly limited because they're compared against a pre-defined list of valid distances/times, it's possible to see a new value that's not on the list. This is guarded for by checking the standard deviation and, if 0, taking that value instead.
-      if (lap.workoutBasis === "TIME" && distanceStdDev === 0) {
-        lap.workoutBasis = "DISTANCE";
-        lap.closestDistance = lap.distance;
-        // lap.closestDistanceUnit =
-      } else if (timeStdDev === 0.0.toFixed(4) && correspondingLaps.length > 1) {
-        /* Check taht  the number of seconds ends in 0 or 5, which makes it
-        more likely to be an intentional time interval rather than really consistent reps. */
-        if (lap.moving_time % 5 === 0) {
-          lap.workoutBasis = "TIME";
-          lap.closestTime = lap.moving_time;
-          // Don't need to assign unit because times will be auto formatted
-        }
+    if (shouldFlipGroupBasis) {
+      if (aggregateBasis === "TIME") {
+        aggregateBasis = "DISTANCE";
+      } else if (aggregateBasis === "DISTANCE") {
+        aggregateBasis = "TIME";
+      }
+
+      for (const lap of correspondingLaps) {
+        lap.workoutBasis = aggregateBasis;
       }
     }
 
@@ -416,37 +461,35 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
 function extractPatterns(laps) {
   let i = 0;
   const patterns = [];
-  let patternLength = 1;
 
   while (i < laps.length) {
-    const patternGuess = laps.slice(i, i + patternLength).map((lap) => lap.workoutType);
-    const attemptedReduction = patternReducer(patternGuess, laps.slice(i + patternLength).map((lap) => lap.workoutType)); // start at `+ patternLength` to avoid matching the initial pattern
+    let longestFoundPattern = {
+      "pattern": [laps[i].workoutType],
+      "count": 1,
+      "laps": [laps[i]],
+    };
 
-    if (attemptedReduction.matchCount > 0) {
-      patterns.push({
-        "pattern": patternGuess,
-        "count": attemptedReduction.matchCount + 1, // + 1 to include the initial pattern
-        "laps": laps.slice(i, i + (patternLength * (attemptedReduction.matchCount + 1))),
-      });
+    let patternLength = 1;
+    while (patternLength < laps.length - i) {
+      const patternGuess = laps.slice(i, i + patternLength).map((lap) => lap.workoutType);
+      const attemptedReduction = patternReducer(patternGuess, laps.slice(i + patternLength).map((lap) => lap.workoutType)); // start at `+ patternLength` to avoid matching the initial pattern
+      // attemptedReduction.matchCount returns the count not including the original pattern, fyi
 
-      i += patternLength * (attemptedReduction.matchCount + 1); // + 1 to include the initial pattern
-      patternLength = 1;
-    } else {
-      // Keep increasing the pattern length to try longer patterns
-      if (patternLength < laps.length - i) {
-        patternLength = patternLength + 1;
-      } else {
-        // If no pattern starting here is found, add as a single element and move on
-        patterns.push({
-          "pattern": [laps[i].workoutType],
-          "count": 1,
-          "laps": [laps[i]],
-        });
 
-        i += 1;
-        patternLength = 1;
+      const totalElementsCovered = (attemptedReduction.matchCount + 1) * patternLength;
+      if (attemptedReduction.matchCount >= 1 && totalElementsCovered > (longestFoundPattern.pattern.length * longestFoundPattern.count)) {
+        longestFoundPattern = {
+          "pattern": patternGuess,
+          "count": attemptedReduction.matchCount + 1, // + 1 to include the initial pattern
+          "laps": laps.slice(i, i + (patternLength * (attemptedReduction.matchCount + 1))),
+        };
       }
+
+      patternLength++;
     }
+
+    patterns.push(longestFoundPattern);
+    i += longestFoundPattern.pattern.length * (longestFoundPattern.count); // + 1 to include the initial pattern
   }
 
   return patterns;
@@ -726,6 +769,56 @@ function assignTimeGuess(lap, time, difference) {
   lap.closestTimeDifference = difference;
 }
 
+function checkBasisHomogeneity(laps, parserConfig) {
+  // If all sets except one are of a particular basis, re-parse that set with an increased threshold
+
+  const groupedByWorkoutType = lapsByWorkoutType(laps);
+  if (groupedByWorkoutType.length <= 2) { // Need more than two types of workout to establish a majority
+    return laps;
+  }
+
+  let timeCount = 0;
+  let distCount = 0;
+
+  for (const correspondingLaps of groupedByWorkoutType) {
+    const groupTimeCount = correspondingLaps.reduce((count, lap) => count + (lap.workoutBasis === "TIME" ? 1 : 0), 0);
+    const groupDistCount = correspondingLaps.reduce((count, lap) => count + (lap.workoutBasis === "DISTANCE" ? 1 : 0), 0);
+
+    if (groupTimeCount === 0 && groupDistCount > 0) {
+      distCount++;
+    } else if (groupTimeCount > 0 && groupDistCount === 0) {
+      timeCount++;
+    } else {
+      console.error(`Laps within workout type ${correspondingLaps[0].workoutType} do not have the same basis.`);
+      return laps;
+    }
+  }
+
+  if (timeCount + distCount !== groupedByWorkoutType.length) {
+    console.error(`Basis homogeneity check missed a workout type`);
+    return laps;
+  }
+
+  const homogeneityAdjustmentFactor = 2.0;
+  if (timeCount === 1) {
+    const modifiedParserConfig = {...parserConfig};
+    modifiedParserConfig.homogeneityAdvantageDirection = "DISTANCE";
+    modifiedParserConfig.homogeneityAdvantageValue = distCount * homogeneityAdjustmentFactor; // The more of the other one there is, the more likely this is a mistake
+
+    const retagged = tagWorkoutBasisAndValue(laps, modifiedParserConfig);
+    return retagged;
+  } else if (distCount === 1) {
+    const modifiedParserConfig = {...parserConfig};
+    modifiedParserConfig.homogeneityAdvantageDirection = "TIME";
+    modifiedParserConfig.homogeneityAdvantageValue = timeCount * homogeneityAdjustmentFactor;
+
+    const retagged = tagWorkoutBasisAndValue(laps, modifiedParserConfig);
+    return retagged;
+  } else { // No outlier basis detected
+    return laps;
+  }
+}
+
 function patternReducer(pattern, list) {
   let patternIdx = 0;
   let listIdx = 0;
@@ -749,6 +842,13 @@ function patternReducer(pattern, list) {
     "matchCount": matchesFound,
     "unmatchedRemainder": list.slice(listIdx),
   };
+}
+
+function lapIsReasonable(lap) {
+  const worldRecordSpeed = 100 / 9.58; // Bolt's 100m record
+  const lapSpeed = lap.distance / lap.moving_time;
+
+  return lapSpeed < worldRecordSpeed;
 }
 
 function print(x) {
