@@ -1101,6 +1101,36 @@ describe("Formatter", () => {
       assert.equal(res.sets[0].pattern.toString(), [0, 0, 1, 2].toString());
       assert.equal(res.sets[0].count, 2);
     });
+
+    it("200,200,400,200,200,400,800,800", () => {
+      resetConfigs();
+      const distances = [200, 200, 400, 200, 200, 400, 800, 800];
+      const inputLaps = [];
+      for (const dist of distances) {
+        inputLaps.push([dist, "METERS", true]);
+        inputLaps.push([dist, "METERS", false]);
+      }
+      const run = generateAndReturnWorkout(inputLaps);
+
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // Should be (2 x (200m, 200m, 400m) + (2 x 800m))
+      assert.equal(res.sets.length, 2);
+      assert.equal(res.sets[0].pattern.toString(), [0, 0, 1].toString());
+      assert.equal(res.sets[0].count, 2);
+
+      assert.equal(res.sets[1].pattern.toString(), [2].toString());
+      assert.equal(res.sets[1].count, 2);
+      assert.equal(res.sets[1].laps[0].closestDistance, 800);
+    });
   });
 
   describe("DEFAULTS FALLTHROUGH", () => {
