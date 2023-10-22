@@ -2005,8 +2005,6 @@ describe("Parser", () => {
         verbose: false,
       });
 
-      console.log(res);
-
       assert.equal(res.sets.length, 1);
       assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
       assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true));
@@ -2071,6 +2069,31 @@ describe("Parser", () => {
 
   describe("FALSE POSITIVES", () => {
 
+  });
+
+  describe("FALSE NEGATIVE", () => {
+    it("Amy 2x3mi", () => {
+      resetConfigs();
+
+      const run = userTestRuns["false_negative"]["amy_3mi_repeats"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(res.isWorkout);
+      assert.equal(res.sets.length, 1);
+      for (const rep of res.sets[0].laps) {
+        assert.equal(rep.workoutBasis, "DISTANCE");
+        assert.equal(rep.closestDistance, 3);
+        assert.equal(rep.closestDistanceUnit, "mi");
+      }
+    });
   });
 
   describe("Test", () => {
