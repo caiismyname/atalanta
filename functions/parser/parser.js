@@ -24,7 +24,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   }
 
   const workoutsIdentifiedLaps = tagWorkoutLaps(laps);
-  const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
+  const mergedLaps = mergeAbuttingLaps(workoutsIdentifiedLaps);
   const typeTaggedLaps = tagWorkoutTypes(mergedLaps);
   const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
   const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
@@ -139,25 +139,6 @@ function determineRunIsWorkout(laps, debug=false) {
   return (!allLapsAreStandard || foundJump || existsFastLap);
 }
 
-function winsorizeLapSpeeds(laps) {
-  const maxSlowness = Helpers.milesToMeters(6) / (60.0 * 60.0); // 10 minute mile, in m/s
-  // Adjust super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
-  const maxSpeed =
-    laps
-        .filter((lap) => lapIsNotTooFast(lap))
-        .reduce((fastestFoundSpeed, curLap) => Math.max(curLap.distance / curLap.moving_time, fastestFoundSpeed), 0);
-
-  for (const lap of laps) {
-    lap.average_speed = Math.max(lap.average_speed, maxSlowness);
-    if (!lapIsNotTooFast(lap)) {
-      // If the lap is impossible, adjust its time so it matches the speed of the fastest reasonable lap
-
-      lap.moving_time = lap.distance / maxSpeed;
-      lap.average_speed = maxSpeed;
-    }
-  }
-}
-
 function tagWorkoutLaps(laps) {
   winsorizeLapSpeeds(laps);
 
@@ -211,7 +192,7 @@ function tagWorkoutLaps(laps) {
   return (laps);
 }
 
-function mergeAbutingLaps(laps) {
+function mergeAbuttingLaps(laps) {
   const mergedLaps = [];
 
   let prevLap = laps[0];
@@ -228,7 +209,19 @@ function mergeAbutingLaps(laps) {
   // Include the last lap
   mergedLaps.push(prevLap);
 
-  return mergedLaps;
+  // Remove stub workout laps after merging
+  const stubRemovedLaps = removeStubLaps(mergedLaps);
+
+  return stubRemovedLaps;
+}
+
+function removeStubLaps(laps) {
+  // After abutting workout laps have been merged, any workout laps under 10 sec (the shortest valid lap assuming you ran a 100m in 10 sec) are removed
+  const SHORTEST_ALLOWED_TIME = 10; // seconds
+
+  return laps.filter((lap) => {
+    return !(lap.isWorkout && (lap.moving_time < SHORTEST_ALLOWED_TIME));
+  });
 }
 
 function tagWorkoutTypes(laps) {
@@ -859,6 +852,25 @@ function patternReducer(pattern, list) {
   };
 }
 
+function winsorizeLapSpeeds(laps) {
+  const maxSlowness = Helpers.milesToMeters(6) / (60.0 * 60.0); // 10 minute mile, in m/s
+  // Adjust super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
+  const maxSpeed =
+    laps
+        .filter((lap) => lapIsNotTooFast(lap))
+        .reduce((fastestFoundSpeed, curLap) => Math.max(curLap.distance / curLap.moving_time, fastestFoundSpeed), 0);
+
+  for (const lap of laps) {
+    lap.average_speed = Math.max(lap.average_speed, maxSlowness);
+    if (!lapIsNotTooFast(lap)) {
+      // If the lap is impossible, adjust its time so it matches the speed of the fastest reasonable lap
+
+      lap.moving_time = lap.distance / maxSpeed;
+      lap.average_speed = maxSpeed;
+    }
+  }
+}
+
 function lapIsNotTooFast(lap) {
   const worldRecordSpeed = 100 / 9.58; // Bolt's 100m record
   const lapSpeed = lap.distance / lap.moving_time;
@@ -873,7 +885,7 @@ function print(x) {
 module.exports = {
   parseWorkout,
   determineRunIsWorkout,
-  mergeAbutingLaps,
+  mergeAbutingLaps: mergeAbuttingLaps,
   tagWorkoutLaps,
   tagWorkoutTypes,
   tagWorkoutBasisAndValue,

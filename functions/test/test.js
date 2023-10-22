@@ -1930,6 +1930,31 @@ describe("Parser", () => {
     });
   });
 
+  describe("IS WORKOUT LAP TAGGING", () => {
+    it("Uninclude short workout laps", () => {
+      resetConfigs();
+
+      // This one mis-tagged a 2 second 4:57/mi lap as a workout but other workout laps were all ~8:00/mi pace
+      const run = userTestRuns["workout_lap_tagger"]["4x4min"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(!res.summary.title.includes("undefined"));
+      assert.equal(res.sets.length, 1);
+      for (const rep of res.sets[0].laps) {
+        assert.equal(rep.workoutBasis, "TIME");
+        assert.equal(rep.closestTime, 240);
+      }
+    });
+  });
+
   describe("TRACK AUTOLAP CORRECTION", () => {
     it("Track correction IRL 1", () => {
       resetConfigs();
