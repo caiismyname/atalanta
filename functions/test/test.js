@@ -1619,6 +1619,27 @@ describe("Parser", () => {
         }
       });
 
+      it("2min misparsed as 500m", () => {
+        resetConfigs();
+  
+        const run = userTestRuns["incorrect_basis"]["2min_vs_500m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+  
+        assert.equal(res.sets.length, 1);
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.workoutBasis, "TIME");
+          assert.equal(rep.closestTime, 120);
+        }
+      });
+
       describe("Basis homogeneity check", () => {
         it("200m misparsed as 30sec, basis homogeneity check", () => {
           resetConfigs();

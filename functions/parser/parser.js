@@ -425,6 +425,7 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
       }
     }
 
+    let tooNotCloseCount = 0;
     let shouldFlipGroupBasis = false;
     for (const lap of correspondingLaps) {
       // Give each lap the basis + value determined on the aggregate lap
@@ -438,11 +439,18 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
       lap.aggregateClosestTimeDifference = aggregateLap.closestTimeDifference;
 
       // Double check that time-based laps are reasonably close to the actual time, but only if it's matched to a known time
+      
       if (lap.workoutBasis === "TIME" && timeStdDev !== 0.0) {
         if (Math.abs(lap.closestTime - lap.moving_time) > MAX_TIME_DIFF) {
-          shouldFlipGroupBasis = true;
+          tooNotCloseCount++;
         }
       }
+    }
+
+    if (correspondingLaps.length >= 4) { // Arbitrary limit for how many laps quality for slight leniency 
+      shouldFlipGroupBasis = tooNotCloseCount >= 2;
+    } else {
+      shouldFlipGroupBasis = tooNotCloseCount > 0;
     }
 
     if (shouldFlipGroupBasis) {
