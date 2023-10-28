@@ -405,6 +405,65 @@ describe("Formatter", () => {
         assert.ok(countOccurances(", ", splits), 3);
       });
 
+      it("Reps with non-standard splits", () => {
+        resetConfigs();
+        const run = testRuns["2mi with second mile split into random components"];
+
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        // const splits = formatter.determineSetDetails(res.sets[0]);
+        console.log(res);
+
+        assert.notEqual(res.summary, "");
+      })
+
+      it("Miles split every 400m", () => {
+        resetConfigs();
+        const run = userTestRuns["uncategorized"][2];
+
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        // const splits = formatter.determineSetDetails(res.sets[0]);
+        console.log(res);
+      });
+
+      it.only("2km splits every 400m", () => {
+        resetConfigs();
+        const run = testRuns["2k repeats lapped every 400m"];
+
+        const formatter = new Formatter(formatConfig);
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        // const splits = formatter.determineSetDetails(res.sets[0]);
+        console.log(res);
+      })
+
       it("Heterogeneous rep splits formatting", () => {
         resetConfigs();
         const run = testRuns["4 x (400m, 200m, 100m)"];
