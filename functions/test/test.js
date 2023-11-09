@@ -1,5 +1,6 @@
 const assert = require("assert");
 const {parseWorkout} = require("../parser/parser.js");
+const {detectRaceType} = require("../parser/race_detector.js");
 const {Formatter} = require("../parser/formatter.js");
 const {FormatPrinter} = require("../parser/format_printer.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
@@ -2091,5 +2092,65 @@ describe("Parser", () => {
       // console.log(res.sets[1]);
       console.log(res);
     });
+
+    it("oim", () => {
+      resetConfigs();
+
+      const run = userTestRuns["uncategorized"][2];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+        forceParse: true
+      });
+    });
   });
 });
+
+describe("Race Detection", () => {
+  describe("HALF MARATHONS", () => {
+    for (const run of userTestRuns["race_examples"]["half_marathons"]) {
+      it(`${run.name}`, () => {
+        resetConfigs();
+
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        // assert.ok(!res.isWorkout)
+        assert.ok(res.isRace);
+        assert.equal(detectRaceType(run), "Half Marathon");
+      });
+    }
+
+    for (const run of userTestRuns["race_examples"]["full_marathons"]) {
+      it(`${run.name}`, () => {
+        resetConfigs();
+
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        // assert.ok(!res.isWorkout)
+        assert.ok(res.isRace);
+        assert.equal(detectRaceType(run), "Marathon");
+      });
+    }
+  });
+})

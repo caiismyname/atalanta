@@ -2,6 +2,7 @@
 const {FormatPrinter} = require("./format_printer.js");
 const {defaultFormatConfig} = require("./defaultConfigs.js");
 const {isMile, isKilometer, compareToMile} = require("./parser_helpers.js");
+const {detectRaceType} = require("./race_detector.js");
 
 class Formatter {
   constructor(formatConfig = defaultFormatConfig) {
@@ -149,23 +150,23 @@ class Formatter {
             case "LESS":
               switch (this.formatConfig.subMileDistanceValue) {
                 case "TIME":
-                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `;
+                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time, false)}, `;
                   break;
                 case "PACE":
                   repDetails += `${this.printer.lapPaceFormatted(lap)}, `;
                   break;
                 default:
-                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `;
+                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time, false)}, `;
                   break;
               }
               break;
             case "EQUALS":
-              repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `; // Just show the time, not lapPaceFormatted to avoid the `/mi` suffix
+              repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time, false)}, `; // Just show the time, not lapPaceFormatted to avoid the `/mi` suffix
               break;
             case "MORE":
               switch (this.formatConfig.greaterThanMileDistanceValue) {
                 case "TIME":
-                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `;
+                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time, false)}, `;
                   break;
                 case "PACE":
                   repDetails += `${this.printer.lapPaceFormatted(lap)}, `;
@@ -409,6 +410,13 @@ class Formatter {
       "title": fullTitle,
       "description": fullDescription,
     };
+  }
+
+  printRace(run) {
+    const raceType = detectRaceType(run);
+    const totalTime = this.printer.secondsToTimeFormatted(run.moving_time);
+
+    return `${raceType} — ${totalTime}`;
   }
 }
 
