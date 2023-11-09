@@ -1,4 +1,4 @@
-const {milesToMeters} = require("./parser_helpers.js");
+// const Helpers = require("./parser_helpers.js");
 const {FormatPrinter} = require("./format_printer.js");
 const {defaultFormatConfig} = require("./defaultConfigs.js");
 const {isMile, isKilometer, compareToMile} = require("./parser_helpers.js");
@@ -200,21 +200,18 @@ class Formatter {
 
         lapCounter++;
       }
-    } else if (!isHeterogeneous && this.printer.metersToMiles(set.laps[0].distance) > 1) { // List the splits if the lap is multiple miles
-      console.log("hello")
+    } else if (!isHeterogeneous &&this.printer.metersToMiles(set.laps[0].distance) > 1) { // List the splits if the lap is multiple miles
       const tokenLap = set.laps[0];
       if ("component_laps" in tokenLap) {
-        let componentPrint = this.determineComponentLapSplits(tokenLap);
-        // for (let idx = 0; idx < tokenLap.component_laps.length; idx++) {
-        //   let lap = tokenLap.component_laps[idx];
-        //   if (isKilometer(lap.distance) || isMile(lap.distance)) {
-        //     componentPrint += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `; // force KM  / mile as the split if the component laps are in KM / mile
-        //   } else {
-        //     componentPrint +=
-        //   }
-        // }
-        // componentPrint = componentPrint.slice(0, -2);
-        splits += componentPrint;
+        for (const lap of tokenLap.component_laps) {
+          if (isKilometer(lap.distance) || isMile(lap.distance)) {
+            splits += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `; // force KM  / mile as the split if the component laps are in KM / mile
+          } else {
+            // TODO look at config for this
+            splits += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `;
+          }
+        }
+        splits = splits.slice(0, -2);
       }
     }
 
@@ -227,52 +224,6 @@ class Formatter {
     //   output += `\n${splits}`;
     // }
     // return output;
-  }
-
-  determineComponentLapSplits(parentLap) {
-    if (!("component_laps" in parentLap)) {
-      return "";
-    }
-
-    /*
-    This function takes a parent lap with components that aren't split in MI or KM
-    and groups the component splits into MI/KM if possible.
-
-    For example, a mile split into 400's should read
-    4:00 (60|60|55|65)
-
-    If not, it returns a flat list of the component splits
-    */
-
-    // A "segment" is what we're accumulating up to, either a mile or KM, depending on the parent lap's distance
-    const segmentDistance = parentLap.closestDistanceUnit === "km" ? 1000 : milesToMeters(1);
-
-    let fullResult = "";
-    let segment = "";
-    let segmentAccmulatorDist = 0;
-    let segmentAccmulatorTime = 0;
-
-    let idx = 0;
-
-    while (idx < parentLap.component_laps.length) {
-      let component = parentLap.component_laps[idx];
-      
-      segmentAccmulatorDist += component.distance;
-      segmentAccmulatorTime += component.moving_time;
-      segment += `${this.printer.secondsToTimeFormatted(component.moving_time)}|`; // "|" is the separator for within a segment
-
-      if (segmentDistance - segmentAccmulatorDist < 15) {
-        segment = `${this.printer.secondsToTimeFormatted(segmentAccmulatorTime)} (${segment.slice(0, -1)})`;
-        fullResult += `${segment}, `;
-        segment = 0;
-        segmentAccmulatorDist = 0;
-        segmentAccmulatorTime = 0;
-      }
-
-      idx++
-    }
-
-    return fullResult.slice(0, -2);
   }
 
   condenseSetSplits(nonCondensedSplits) {

@@ -2,33 +2,16 @@ const fs = require("fs");
 const Helpers = require("../parser/parser_helpers.js");
 const testRuns = require("./test_runs.json");
 
-const name = "2k repeats lapped every 400m";
+const name = "";
 const defaultWorkoutSecondsPerMile = 330;
 const defaultRestSecondsPerMile = 480;
 
 // Structure: [(value, "METERS" or "SECONDS", isWorkout), ...]
-const desiredLaps = [
-  [1609.3, "METERS", false],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", false],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", false],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", true],
-  [400, "METERS", false],
-  [1609.3, "METERS", false]
-];
+// const desiredLaps = [
+//   [1609.3, "METERS", false],
+//   [800, "METERS", true],
+//   [1609.3, "METERS", false],
+// ];
 
 //
 // Entrypoints
@@ -37,7 +20,7 @@ const desiredLaps = [
 // Saves to the JSON that powers the unit tests
 // eslint-disable-next-line no-unused-vars
 function generateAndSave(laps, name, workoutSecondsPerMile, restSecondsPerMile) {
-  const run = generate(laps, name, workoutSecondsPerMile, restSecondsPerMile);
+  const run = generate(name, workoutSecondsPerMile, restSecondsPerMile, laps);
   saveToTests(run);
 }
 
@@ -128,7 +111,7 @@ function writeToJSON(run, path) {
 function saveToTests(run) {
   testRuns[name] = run;
 
-  writeToJSON(testRuns, `./test_runs.json`);
+  writeToJSON(testRuns, `./functions/test/test_runs.json`);
 }
 
 function fuzz(value) {
@@ -149,6 +132,7 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
 }
 
-generateAndSave(desiredLaps, name, defaultWorkoutSecondsPerMile, defaultRestSecondsPerMile);
+// generateAndSave(name, defaultWorkoutSecondsPerMile, defaultRestSecondsPerMile, desiredLaps);
+
 
 module.exports = {generateAndReturnWorkout};
