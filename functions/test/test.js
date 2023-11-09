@@ -1620,6 +1620,65 @@ describe("Parser", () => {
         }
       });
 
+      it("2min misparsed as 500m", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["2min_vs_500m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 1);
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.workoutBasis, "TIME");
+          assert.equal(rep.closestTime, 120);
+        }
+      });
+
+      it("0 std. dev distance", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["0_std_dev_dist_50m"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets.length, 3);
+
+        assert.equal(res.sets[0].count, 6);
+        for (const rep of res.sets[0].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 50);
+          assert.equal(rep.closestDistanceUnit, "m");
+        }
+
+        assert.equal(res.sets[1].count, 8);
+        for (const rep of res.sets[1].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 300);
+          assert.equal(rep.closestDistanceUnit, "m");
+        }
+
+        assert.equal(res.sets[2].count, 6);
+        for (const rep of res.sets[2].laps) {
+          assert.equal(rep.workoutBasis, "DISTANCE");
+          assert.equal(rep.closestDistance, 200);
+          assert.equal(rep.closestDistanceUnit, "m");
+        }
+      });
+
       describe("Basis homogeneity check", () => {
         it("200m misparsed as 30sec, basis homogeneity check", () => {
           resetConfigs();
@@ -1931,6 +1990,31 @@ describe("Parser", () => {
     });
   });
 
+  describe("IS WORKOUT LAP TAGGING", () => {
+    it("Uninclude short workout laps", () => {
+      resetConfigs();
+
+      // This one mis-tagged a 2 second 4:57/mi lap as a workout but other workout laps were all ~8:00/mi pace
+      const run = userTestRuns["workout_lap_tagger"]["4x4min"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(!res.summary.title.includes("undefined"));
+      assert.equal(res.sets.length, 1);
+      for (const rep of res.sets[0].laps) {
+        assert.equal(rep.workoutBasis, "TIME");
+        assert.equal(rep.closestTime, 240);
+      }
+    });
+  });
+
   describe("TRACK AUTOLAP CORRECTION", () => {
     it("Track correction IRL 1", () => {
       resetConfigs();
@@ -2006,8 +2090,6 @@ describe("Parser", () => {
         verbose: false,
       });
 
-      console.log(res);
-
       assert.equal(res.sets.length, 1);
       assert.equal(countOccurances(",", res.summary.description.split("\n")[1]), 4);
       assert.ok(res.summary.description.split("\n")[1].split(",").reduce((a, b) => a && b.includes(":"), true));
@@ -2074,8 +2156,33 @@ describe("Parser", () => {
 
   });
 
+  describe("FALSE NEGATIVE", () => {
+    it("Amy 2x3mi", () => {
+      resetConfigs();
+
+      const run = userTestRuns["false_negative"]["amy_3mi_repeats"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(res.isWorkout);
+      assert.equal(res.sets.length, 1);
+      for (const rep of res.sets[0].laps) {
+        assert.equal(rep.workoutBasis, "DISTANCE");
+        assert.equal(rep.closestDistance, 3);
+        assert.equal(rep.closestDistanceUnit, "mi");
+      }
+    });
+  });
+
   describe("Test", () => {
-    it("james undefined", () => {
+    it.only("james undefined", () => {
       resetConfigs();
 
       const run = userTestRuns["uncategorized"][1];

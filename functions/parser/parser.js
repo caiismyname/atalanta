@@ -44,7 +44,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   }
 
   const workoutsIdentifiedLaps = tagWorkoutLaps(laps);
-  const mergedLaps = mergeAbutingLaps(workoutsIdentifiedLaps);
+  const mergedLaps = mergeAbuttingLaps(workoutsIdentifiedLaps);
   const typeTaggedLaps = tagWorkoutTypes(mergedLaps);
   const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
   const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
@@ -86,16 +86,16 @@ function determineRunIsWorkout(laps, debug=false) {
     laps = laps.slice(0, -1);
   }
 
-
   // Then slice off the last "real" lap
   if (laps.length > 3) {
     laps = laps.slice(0, -1);
   }
 
+  winsorizeLapSpeeds(laps);
+
   // 3. If any lap's average pace is faster than 6min/mi, it's probably a workout
   // (regardless of the person. No one recovers at < 6min)
   const existsFastLap = laps.reduce((foundFastLap, curLap) => foundFastLap || (curLap.average_speed > Helpers.sixMinMileAsSpeed), false);
-
 
   // 4. If we find a jump in speed between the laps
   // If the average speed of laps, when ordered by speed, has a big jump, it's probably a workout
@@ -103,7 +103,7 @@ function determineRunIsWorkout(laps, debug=false) {
   // i.e. the slowest WO lap still has to be faster than the fastest recovery lap \
   //      and it reduces the delta between the laps on a recovery run if there's just a random fast lap
 
-  const threshMax = 1.21; // Threshold for jump between second fastest and second slowest laps
+  const threshMax = 1.21; // Threshold for jump between fastest and slowest laps
   const threshSeq = 1.13; // Threshold for jump in sequential laps
 
   let foundSeqJump = false;
@@ -112,7 +112,11 @@ function determineRunIsWorkout(laps, debug=false) {
 
   // Check the global diff if there are enough laps
   if (laps.length >= 4) {
-    foundMaxJump = lapsSortedBySpeed[lapsSortedBySpeed.length - 2].average_speed / lapsSortedBySpeed[1].average_speed >= threshMax;
+    foundMaxJump = lapsSortedBySpeed[lapsSortedBySpeed.length - 1].average_speed / lapsSortedBySpeed[0].average_speed >= threshMax;
+
+    if (debug) {
+      console.log(`Global diff: ${lapsSortedBySpeed[lapsSortedBySpeed.length - 1].average_speed / lapsSortedBySpeed[0].average_speed}`);
+    }
   }
 
   // Look for a sequential jump
@@ -121,6 +125,13 @@ function determineRunIsWorkout(laps, debug=false) {
     const lap = lapsSortedBySpeed[lapIdx];
     const thisComparisonHasJump = lap.average_speed / prevLap.average_speed >= threshSeq;
     foundSeqJump = foundSeqJump || thisComparisonHasJump;
+
+    if (debug) {
+      console.log(`Sequntial ${lapIdx}: ${lap.average_speed / prevLap.average_speed}`);
+      if (thisComparisonHasJump) {
+        console.log(`Sequential jump found between ${lapIdx - 1} and ${lapIdx} of ${lap.average_speed / prevLap.average_speed}`);
+      }
+    }
 
     // // Don't count a jump if the only jump in the run is to the very last lap, and the lap is less than a km.
     // // This is a proxy for strides.
@@ -148,22 +159,7 @@ function determineRunIsWorkout(laps, debug=false) {
 }
 
 function tagWorkoutLaps(laps) {
-  const maxSlowness = Helpers.milesToMeters(6) / (60.0 * 60.0); // 10 minute mile, in m/s
-  // Adjust super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
-  const maxSpeed =
-    laps
-        .filter((lap) => lapIsReasonable(lap))
-        .reduce((fastestFoundSpeed, curLap) => Math.max(curLap.distance / curLap.moving_time, fastestFoundSpeed), 0);
-
-  for (const lap of laps) {
-    lap.average_speed = Math.max(lap.average_speed, maxSlowness);
-    if (!lapIsReasonable(lap)) {
-      // If the lap is impossible, adjust it's time so it matches the speed of the fastest reasonable lap
-
-      lap.moving_time = lap.distance / maxSpeed;
-      lap.average_speed = maxSpeed;
-    }
-  }
+  winsorizeLapSpeeds(laps);
 
   // //
   // // Start experiment — speed as percentage of min and max paces found, instead of actual speeds
@@ -215,7 +211,7 @@ function tagWorkoutLaps(laps) {
   return (laps);
 }
 
-function mergeAbutingLaps(laps) {
+function mergeAbuttingLaps(laps) {
   const mergedLaps = [];
 
   let prevLap = laps[0];
@@ -232,7 +228,19 @@ function mergeAbutingLaps(laps) {
   // Include the last lap
   mergedLaps.push(prevLap);
 
-  return mergedLaps;
+  // Remove stub workout laps after merging
+  const stubRemovedLaps = removeStubLaps(mergedLaps);
+
+  return stubRemovedLaps;
+}
+
+function removeStubLaps(laps) {
+  // After abutting workout laps have been merged, any workout laps under 10 sec (the shortest valid lap assuming you ran a 100m in 10 sec) are removed
+  const SHORTEST_ALLOWED_TIME = 10; // seconds
+
+  return laps.filter((lap) => {
+    return !(lap.isWorkout && (lap.moving_time < SHORTEST_ALLOWED_TIME));
+  });
 }
 
 function tagWorkoutTypes(laps) {
@@ -344,7 +352,7 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
   for (const correspondingLaps of groupedByWorkoutType) {
     // [start] Closest known distance/time basis determination
 
-    // 1. Guess the closest value of each basis for each lap, and for the aggregate lap
+    // 1. Guess the closest value of each basis for each lap
     for (const lap of correspondingLaps) {
       assignNearestDistance(lap);
       assignNearestTime(lap);
@@ -419,13 +427,16 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
     distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
     timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
 
+    // console.log(aggregateLap)
     // console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
     // console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
 
     // If the opposite basis has zero std dev (even if the value isn't recognized), it's likely intentional
     if (correspondingLaps.length > 1) {
-      if (distanceStdDev === 0 && aggregateBasis === "TIME") {
+      if (distanceStdDev === 0.0.toFixed(4) && aggregateBasis === "TIME") {
         aggregateBasis = "DISTANCE";
+        aggregateLap.closestDistance = correspondingLaps[0].distance;
+        aggregateLap.closestDistanceUnit = "m";
       } else if (
         timeStdDev === 0.0.toFixed(4) &&
           aggregateBasis === "DISTANCE" &&
@@ -436,6 +447,7 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
       }
     }
 
+    let tooNotCloseCount = 0;
     let shouldFlipGroupBasis = false;
     for (const lap of correspondingLaps) {
       // Give each lap the basis + value determined on the aggregate lap
@@ -449,11 +461,18 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
       lap.aggregateClosestTimeDifference = aggregateLap.closestTimeDifference;
 
       // Double check that time-based laps are reasonably close to the actual time, but only if it's matched to a known time
+
       if (lap.workoutBasis === "TIME" && timeStdDev !== 0.0) {
         if (Math.abs(lap.closestTime - lap.moving_time) > MAX_TIME_DIFF) {
-          shouldFlipGroupBasis = true;
+          tooNotCloseCount++;
         }
       }
+    }
+
+    if (correspondingLaps.length >= 4) { // Arbitrary limit for how many laps quality for slight leniency
+      shouldFlipGroupBasis = tooNotCloseCount >= 2;
+    } else {
+      shouldFlipGroupBasis = tooNotCloseCount > 0;
     }
 
     if (shouldFlipGroupBasis) {
@@ -693,15 +712,9 @@ function assignNearestDistance(lap) {
     32186.9, // 20 miles
   ];
 
-  // eslint-disable-next-line no-unused-vars
-  const validDistanceMarathons = [
-    21097.5, // half marathon
-    42195, // marathon
-  ];
-
   const lapDist = lap.distance;
   lap.closestDistance = 0;
-  lap.closestDistanceDifference = 1;
+  lap.closestDistanceDifference = 2; // This is a ratio, and if the actual distance is < the smallest distance we recognize, it may be more than 100% off
 
   for (const guess of validDistancesMeters) {
     const difference = Math.abs(lapDist - guess) / lapDist; // Divide by lapDist for a consistent denominator across guesses
@@ -863,7 +876,26 @@ function patternReducer(pattern, list) {
   };
 }
 
-function lapIsReasonable(lap) {
+function winsorizeLapSpeeds(laps) {
+  const maxSlowness = Helpers.milesToMeters(6) / (60.0 * 60.0); // 10 minute mile, in m/s
+  // Adjust super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
+  const maxSpeed =
+    laps
+        .filter((lap) => lapIsNotTooFast(lap))
+        .reduce((fastestFoundSpeed, curLap) => Math.max(curLap.distance / curLap.moving_time, fastestFoundSpeed), 0);
+
+  for (const lap of laps) {
+    lap.average_speed = Math.max(lap.average_speed, maxSlowness);
+    if (!lapIsNotTooFast(lap)) {
+      // If the lap is impossible, adjust its time so it matches the speed of the fastest reasonable lap
+
+      lap.moving_time = lap.distance / maxSpeed;
+      lap.average_speed = maxSpeed;
+    }
+  }
+}
+
+function lapIsNotTooFast(lap) {
   const worldRecordSpeed = 100 / 9.58; // Bolt's 100m record
   const lapSpeed = lap.distance / lap.moving_time;
 
@@ -877,7 +909,7 @@ function print(x) {
 module.exports = {
   parseWorkout,
   determineRunIsWorkout,
-  mergeAbutingLaps,
+  mergeAbutingLaps: mergeAbuttingLaps,
   tagWorkoutLaps,
   tagWorkoutTypes,
   tagWorkoutBasisAndValue,
