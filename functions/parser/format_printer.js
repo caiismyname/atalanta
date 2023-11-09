@@ -110,7 +110,7 @@ class FormatPrinter {
     }
 
     if (minutes + secondsRes.minuteDiff > 0) {
-      minuteDisplay = `${minutes + secondsRes.minuteDiff}`
+      minuteDisplay = `${minutes + secondsRes.minuteDiff}`;
     }
 
     if (secondsRes.seconds === "00" && displayWholeMinutesWithoutSeconds) {
@@ -118,9 +118,9 @@ class FormatPrinter {
       secondsDisplay = ``;
       shouldShowMinuteSecondColon = false;
     }
-    
+
     if (minutes + secondsRes.minuteDiff === 0) {
-      suffixDisplay = `${displayWholeMinutesWithoutSeconds ? " sec" : ""}`
+      suffixDisplay = `${displayWholeMinutesWithoutSeconds ? " sec" : ""}`;
       shouldShowMinuteSecondColon = false;
     }
 

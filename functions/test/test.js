@@ -2105,8 +2105,10 @@ describe("Parser", () => {
         },
         returnSets: true,
         verbose: false,
-        forceParse: true
+        forceParse: true,
       });
+
+      console.log(res);
     });
   });
 });
@@ -2153,4 +2155,4 @@ describe("Race Detection", () => {
       });
     }
   });
-})
+});

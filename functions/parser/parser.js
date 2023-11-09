@@ -9,7 +9,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   const formatter = new Formatter(config.format);
   const runIsWorkout = determineRunIsWorkout(run.laps) || forceParse;
   const runIsRace = isRace(run);
-  
+
   if (!runIsWorkout && runIsRace) {
     if (verbose) {
       print(`${run.id} IS A RACE`);
