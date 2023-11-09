@@ -1,19 +1,39 @@
 const Helpers = require("./parser_helpers.js");
+const {isRace} = require("./race_detector.js");
 const {Formatter} = require("./formatter.js");
 const {defaultParserConfig, defaultFormatConfig} = require("./defaultConfigs.js");
 
 // This is the entrypoint
 // eslint-disable-next-line no-unused-vars
-function parseWorkout({run, config={parser: defaultParserConfig, format: defaultFormatConfig}, verbose=false, returnSets=false, forceParse=false}) {
-  const runIsWorkout = determineRunIsWorkout(run.laps, verbose) || forceParse;
+function parseWorkout({run, config={parser: defaultParserConfig, format: defaultFormatConfig}, verbose=true, returnSets=false, forceParse=false}) {
+  const formatter = new Formatter(config.format);
+  const runIsWorkout = determineRunIsWorkout(run.laps) || forceParse;
+  const runIsRace = isRace(run);
 
-  if (!runIsWorkout) {
+  if (!runIsWorkout && runIsRace) {
     if (verbose) {
-      print(`${run.id} NOT WORKOUT`);
+      print(`${run.id} IS A RACE`);
     }
     return ({
       "isWorkout": false,
+      "isRace": true,
+      "summary": formatter.printRace(run),
+    });
+  } else if (!runIsWorkout && !runIsRace) {
+    if (verbose) {
+      print(`${run.id} NOT WORKOUT NOR RACE`);
+    }
+    return ({
+      "isWorkout": false,
+      "isRace": false,
       "summary": "",
+    });
+  } else if (runIsWorkout && runIsRace) {
+    // For now, treat as a race
+    return ({
+      "isWorkout": false,
+      "isRace": true,
+      "summary": formatter.printRace(run),
     });
   }
 
@@ -30,7 +50,6 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
   const sets = extractPatterns(basisHomogeneityCheckedValueAssignedLaps.filter((lap) => lap.isWorkout));
 
-  const formatter = new Formatter(config.format);
   const summary = formatter.printSets(sets);
 
   if (verbose) {
