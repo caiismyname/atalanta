@@ -333,7 +333,7 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
   for (const correspondingLaps of groupedByWorkoutType) {
     // [start] Closest known distance/time basis determination
 
-    // 1. Guess the closest value of each basis for each lap, and for the aggregate lap
+    // 1. Guess the closest value of each basis for each lap
     for (const lap of correspondingLaps) {
       assignNearestDistance(lap);
       assignNearestTime(lap);
@@ -408,13 +408,16 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
     distanceStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestDistanceDifference - distanceDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
     timeStdDev = Math.sqrt(correspondingLaps.reduce((a, b) => a + Math.pow(b.closestTimeDifference - timeDifferenceAverage, 2), 0) / correspondingLaps.length).toFixed(4);
 
+    // console.log(aggregateLap)
     // console.log(`diff: ${distanceDifferenceAverage}, ${timeDifferenceAverage}`);
     // console.log(`std : ${distanceStdDev}, ${timeStdDev}`);
 
     // If the opposite basis has zero std dev (even if the value isn't recognized), it's likely intentional
     if (correspondingLaps.length > 1) {
-      if (distanceStdDev === 0 && aggregateBasis === "TIME") {
+      if (distanceStdDev === 0.0.toFixed(4) && aggregateBasis === "TIME") {
         aggregateBasis = "DISTANCE";
+        aggregateLap.closestDistance = correspondingLaps[0].distance;
+        aggregateLap.closestDistanceUnit = "m";
       } else if (
         timeStdDev === 0.0.toFixed(4) &&
           aggregateBasis === "DISTANCE" &&
@@ -439,7 +442,7 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
       lap.aggregateClosestTimeDifference = aggregateLap.closestTimeDifference;
 
       // Double check that time-based laps are reasonably close to the actual time, but only if it's matched to a known time
-      
+
       if (lap.workoutBasis === "TIME" && timeStdDev !== 0.0) {
         if (Math.abs(lap.closestTime - lap.moving_time) > MAX_TIME_DIFF) {
           tooNotCloseCount++;
@@ -447,7 +450,7 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
       }
     }
 
-    if (correspondingLaps.length >= 4) { // Arbitrary limit for how many laps quality for slight leniency 
+    if (correspondingLaps.length >= 4) { // Arbitrary limit for how many laps quality for slight leniency
       shouldFlipGroupBasis = tooNotCloseCount >= 2;
     } else {
       shouldFlipGroupBasis = tooNotCloseCount > 0;
@@ -690,15 +693,9 @@ function assignNearestDistance(lap) {
     32186.9, // 20 miles
   ];
 
-  // eslint-disable-next-line no-unused-vars
-  const validDistanceMarathons = [
-    21097.5, // half marathon
-    42195, // marathon
-  ];
-
   const lapDist = lap.distance;
   lap.closestDistance = 0;
-  lap.closestDistanceDifference = 1;
+  lap.closestDistanceDifference = 2; // This is a ratio, and if the actual distance is < the smallest distance we recognize, it may be more than 100% off
 
   for (const guess of validDistancesMeters) {
     const difference = Math.abs(lapDist - guess) / lapDist; // Divide by lapDist for a consistent denominator across guesses
