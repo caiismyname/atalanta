@@ -2182,7 +2182,7 @@ describe("Parser", () => {
   });
 
   describe("Test", () => {
-    it.only("james undefined", () => {
+    it("james undefined", () => {
       resetConfigs();
 
       const run = userTestRuns["uncategorized"][1];
