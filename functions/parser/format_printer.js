@@ -88,25 +88,43 @@ class FormatPrinter {
   }
 
   // eslint-disable-next-line no-unused-vars
-  secondsToTimeFormatted(seconds, displayWholeMinutes = false, roundSeconds = true) {
+  secondsToTimeFormatted(seconds, displayWholeMinutesWithoutSeconds = true, roundSeconds = true) {
     const secondsCutoff = 90;
-    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 60 / 60);
+    const minutes = hours > 0 ? Math.floor(seconds / 60) % 60 : Math.floor(seconds / 60);
     const secondsRes = this.secondsFormatter(seconds % 60, roundSeconds); // shouldRound defaults to true b/c strava doesn't give decimals for laps
 
     // First check if we want to format as only seconds
     if (seconds <= secondsCutoff && this.sub90SecFormat === "SECONDS") {
-      return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}${displayWholeMinutes ? " sec" : ""}`;
+      return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}${displayWholeMinutesWithoutSeconds ? " sec" : ""}`;
     }
 
-    if (minutes + secondsRes.minuteDiff === 0) {
-      return `${secondsRes.seconds}${displayWholeMinutes ? " sec" : ""}`;
-    } else {
-      if (secondsRes.seconds === "00" && displayWholeMinutes) {
-        return `${minutes} min${minutes === 1 ? "" : "s"}`;
-      } else {
-        return `${minutes + secondsRes.minuteDiff}:${secondsRes.seconds}`;
-      }
+    let hourDisplay = "";
+    let minuteDisplay = "";
+    let secondsDisplay = secondsRes.seconds;
+    let shouldShowMinuteSecondColon = true;
+    let suffixDisplay = "";
+
+    if (hours > 0) {
+      hourDisplay = `${hours}:`;
     }
+
+    if (minutes + secondsRes.minuteDiff > 0) {
+      minuteDisplay = `${minutes + secondsRes.minuteDiff}`
+    }
+
+    if (secondsRes.seconds === "00" && displayWholeMinutesWithoutSeconds) {
+      suffixDisplay = ` min${minutes === 1 ? "" : "s"}`;
+      secondsDisplay = ``;
+      shouldShowMinuteSecondColon = false;
+    }
+    
+    if (minutes + secondsRes.minuteDiff === 0) {
+      suffixDisplay = `${displayWholeMinutesWithoutSeconds ? " sec" : ""}`
+      shouldShowMinuteSecondColon = false;
+    }
+
+    return `${hourDisplay}${minuteDisplay}${shouldShowMinuteSecondColon ? ":" : ""}${secondsDisplay}${suffixDisplay}`;
   }
 
   // eslint-disable-next-line no-unused-vars
