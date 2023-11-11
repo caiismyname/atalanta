@@ -7,18 +7,18 @@ const defaultWorkoutSecondsPerMile = 330;
 const defaultRestSecondsPerMile = 480;
 
 // Structure: [(value, "METERS" or "SECONDS", isWorkout), ...]
-const desiredLaps = [
-  [1609.3, "METERS", false],
-  [240, "SECONDS", true],
-  [60, "SECONDS", false],
-  [240, "SECONDS", true],
-  [60, "SECONDS", false],
-  [240, "SECONDS", true],
-  [60, "SECONDS", false],
-  [240, "SECONDS", true],
-  [60, "SECONDS", false],
-  [1609.3, "METERS", false],
-];
+// const desiredLaps = [
+//   [1609.3, "METERS", false],
+//   [240, "SECONDS", true],
+//   [60, "SECONDS", false],
+//   [240, "SECONDS", true],
+//   [60, "SECONDS", false],
+//   [240, "SECONDS", true],
+//   [60, "SECONDS", false],
+//   [240, "SECONDS", true],
+//   [60, "SECONDS", false],
+//   [1609.3, "METERS", false],
+// ];
 
 //
 // Entrypoints
