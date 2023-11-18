@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const input = require("../parser/parser_testing_examples/workout_format_examples.json");
+const input = require("../parser/parser_testing_examples/workout_detection_false_negative.json");
 
 function cleanStravaActivity(activity) {
   const keysToSave = [
@@ -28,6 +28,7 @@ function cleanStravaActivity(activity) {
 
   cleanedActivity.laps = [];
   for (const lap of activity.laps) {
+    // eslint-disable-next-line no-unused-vars
     const {athlete: _, activity: __, ...rest} = lap;
     cleanedActivity.laps.push(rest);
   }
@@ -35,23 +36,24 @@ function cleanStravaActivity(activity) {
   return cleanedActivity;
 }
 
+// eslint-disable-next-line no-unused-vars
 function save(output) {
-    const jsonContent = JSON.stringify(output, null, 4);
-    fs.writeFile("./output.json", jsonContent, "utf8", (err) => {
-        if (err) {
-          console.log("An error occured while writing JSON Object to File.");
-          return console.log(err);
-        }
-    
-        console.log(` saved.`);
-      });
+  const jsonContent = JSON.stringify(output, null, 4);
+  fs.writeFile("./output.json", jsonContent, "utf8", (err) => {
+    if (err) {
+      console.log("An error occured while writing JSON Object to File.");
+      return console.log(err);
+    }
+
+    console.log(` saved.`);
+  });
 }
 
-let res = {};
+const res = {};
 
-for (let run of input["examples"]) {
-    const fixed = cleanStravaActivity(run);
-    res[fixed.name] = fixed
+for (const run of input["examples"]) {
+  const fixed = cleanStravaActivity(run);
+  res[fixed.name] = fixed;
 }
 
 // save(res);
