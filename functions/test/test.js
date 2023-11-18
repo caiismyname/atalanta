@@ -2241,7 +2241,9 @@ describe("Race Detection", () => {
         assert.equal(detectRaceType(run), "Half Marathon");
       });
     }
+  });
 
+  describe("FULL MARATHONS", () => {
     for (const run of userTestRuns["race_examples"]["full_marathons"]) {
       it(`${run.name}`, () => {
         resetConfigs();
