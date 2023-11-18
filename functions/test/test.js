@@ -2264,4 +2264,30 @@ describe("Race Detection", () => {
       });
     }
   });
+
+  describe("RACE FALSE POSITIVES", () => {
+    const doNotSearch = ["uncategorized", "race_examples"];
+
+    for (const category of Object.keys(userTestRuns)) {
+      if (!doNotSearch.includes(category)) {
+        for (const run of Object.values(userTestRuns[category])) {
+          it(`${run.name}`, () => {
+            resetConfigs();
+
+            const res = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            });
+
+            assert.ok(!res.isRace);
+          });
+        }
+      }
+    }
+  });
 });

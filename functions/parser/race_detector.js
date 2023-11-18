@@ -3,7 +3,7 @@ const {milesToMeters} = require("./parser_helpers.js");
 const raceDistances = {
   "halfMarathon": 21097.5,
   "fullMarathon": 42195,
-}
+};
 
 function isHalfMarathon(run) {
   const isGreaterThan13 = run.distance >= milesToMeters(13);
@@ -30,7 +30,7 @@ function detectRaceType(run) {
   }
 
   if (isFullMarathon(run)) {
-    return "Marathon"
+    return "Marathon";
   }
 
   return "";
