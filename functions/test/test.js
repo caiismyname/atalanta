@@ -2239,6 +2239,7 @@ describe("Race Detection", () => {
         // assert.ok(!res.isWorkout)
         assert.ok(res.isRace);
         assert.equal(detectRaceType(run), "Half Marathon");
+        assert.ok(res.summary.title.includes("Half Marathon"));
       });
     }
   });
@@ -2261,6 +2262,7 @@ describe("Race Detection", () => {
         // assert.ok(!res.isWorkout)
         assert.ok(res.isRace);
         assert.equal(detectRaceType(run), "Marathon");
+        assert.ok(res.summary.title.includes("Marathon"));
       });
     }
   });

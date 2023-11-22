@@ -211,8 +211,24 @@ function processActivity(activityID, userStravaID, isTest) {
                   dbInterface.storeWrittenWorkout(activityID, userID, output.summary);
                 }
               }, 0); // Keep the timeout framework but no timeout for now
+            } else if (output.isRace) {
+              console.log(`ACTIVITY ${activityID} is a race. Title: [${output.summary.title}] Description: [${output.summary.description.replace(new RegExp("\n", "g"), " || ")}]`);
+              if (!isTest) {
+                logAnalytics(ANALYTICS_EVENTS.RACE_DETECTED, db);
+              }
+              setTimeout(() => {
+                if (isTest) {
+                  output.summary.title += ` ${new Date()}`;
+                  output.summary.description += `\n${new Date()}`;
+                }
+                StravaInterface.writeSummaryToStrava(activityID, output.summary, stravaToken);
+                if (!isTest) {
+                  logAnalytics(ANALYTICS_EVENTS.RACE_WRITTEN, db);
+                  dbInterface.storeWrittenWorkout(activityID, userID, output.summary);
+                }
+              }, 0); // Keep the timeout framework but no timeout for now
             } else {
-              console.log(`ACTIVITY ${activityID} is NOT a workout, no action taken.`);
+              console.log(`ACTIVITY ${activityID} is NOT a workout nor race — no action taken.`);
             }
           });
         } else {

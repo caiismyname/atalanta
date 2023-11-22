@@ -4,6 +4,8 @@ const ANALYTICS_EVENTS = {
   ACTIVITY_IS_ELIGIBLE: "activity_is_eligible",
   WORKOUT_DETECTED: "workout_detected",
   WORKOUT_WRITTEN: "workout_written",
+  RACE_DETECTED: "race_detected",
+  RACE_WRITTEN: "race_written",
   USER_STRAVA_CONNECTION: "user_strava_connection",
   USER_STRAVA_DEACTIVATION: "user_strava_deactivation",
   USER_ACCOUNT_SIGNUP: "user_account_signup",

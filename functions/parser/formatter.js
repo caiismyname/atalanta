@@ -416,7 +416,10 @@ class Formatter {
     const raceType = detectRaceType(run);
     const totalTime = this.printer.secondsToTimeFormatted(run.moving_time);
 
-    return `${raceType} — ${totalTime}`;
+    return {
+      "title": `${raceType} — ${totalTime}`,
+      "description": ``,
+    };
   }
 }
 
