@@ -1,6 +1,6 @@
 const Helpers = require("./parser_helpers.js");
 const {isRace} = require("./race_detector.js");
-const {isWorkout} = require("./workout_detector.js");
+const {isWorkout, verifyIsWorkout} = require("./workout_detector.js");
 const {Formatter} = require("./formatter.js");
 const {defaultParserConfig, defaultFormatConfig} = require("./defaultConfigs.js");
 
@@ -50,6 +50,18 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
   const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
   const sets = extractPatterns(basisHomogeneityCheckedValueAssignedLaps.filter((lap) => lap.isWorkout));
+
+  // Check the extracted workout structure for reasonableness as a backup for the initial workout detection
+  if (!verifyIsWorkout(laps, sets)) {
+    if (verbose) {
+      print(`${run.id} FAILED WORKOUT CHECK`);
+    }
+    return ({
+      "isWorkout": false,
+      "isRace": false,
+      "summary": "",
+    });
+  }
 
   const summary = formatter.printSets(sets);
 

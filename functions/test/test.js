@@ -2154,29 +2154,28 @@ describe("Parser", () => {
 
   describe.only("FALSE POSITIVES", () => {
     for (const run of Object.values(userTestRuns["false_positive"])) {
-
       if (run.id === 10273619951) {
-      it(`${run.name}`, () => {
-        resetConfigs();
+        it(`${run.name}`, () => {
+          resetConfigs();
 
-        const res = parseWorkout({
-          run: run,
-          config: {
-            parser: parserConfig,
-            format: formatConfig,
-          },
-          returnSets: true,
-          verbose: false,
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          if (res.isWorkout) {
+            console.log(res.summary.title);
+          }
+
+          assert.ok(!res.isWorkout);
         });
-
-        if (res.isWorkout) {
-          console.log(res.summary.title);
-        }
-
-        assert.ok(!res.isWorkout);        
-      });
+      }
     }
-  }
   });
 
   describe("FALSE NEGATIVE", () => {

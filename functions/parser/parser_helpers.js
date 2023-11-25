@@ -156,5 +156,5 @@ module.exports = {
   compareToMile,
   isAutolap,
   winsorizeLapSpeeds,
-  lapIsNotTooFast
+  lapIsNotTooFast,
 };
