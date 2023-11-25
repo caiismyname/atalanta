@@ -2154,7 +2154,7 @@ describe("Parser", () => {
 
   describe.only("FALSE POSITIVES", () => {
     for (const run of Object.values(userTestRuns["false_positive"])) {
-      if (run.id === 10273619951) {
+      // if (run.id === 9984277300) {
         it(`${run.name}`, () => {
           resetConfigs();
 
@@ -2174,7 +2174,7 @@ describe("Parser", () => {
 
           assert.ok(!res.isWorkout);
         });
-      }
+      // }
     }
   });
 

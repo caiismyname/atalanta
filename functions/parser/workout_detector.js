@@ -88,7 +88,20 @@ function isWorkout(laps, debug=false) {
 }
 
 function verifyIsWorkout(laps, sets, debug=false) {
-  return true;
+    const workoutLaps = laps.filter(x => x.isWorkout);
+
+    var allDistanceLapsCloseToActual = true;
+
+    // Check that the distance guesses are within 5% of the actual distance
+    for (let lap of workoutLaps) {
+        if (lap.workoutBasis === "DISTANCE") {
+            if (lap.closestDistanceDifference > 0.05) {
+                allDistanceLapsCloseToActual = false;
+            }
+        }
+    }
+  
+    return allDistanceLapsCloseToActual;
 }
 
 module.exports = {
