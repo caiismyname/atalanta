@@ -116,6 +116,32 @@ function isAutolap(lap) {
   return isMile(lap.distance) || isKilometer(lap.distance);
 }
 
+function lapIsNotTooFast(lap) {
+  const worldRecordSpeed = 100 / 9.58; // Bolt's 100m record
+  const lapSpeed = lap.distance / lap.moving_time;
+
+  return lapSpeed < worldRecordSpeed;
+}
+
+function winsorizeLapSpeeds(laps) {
+  const maxSlowness = milesToMeters(6) / (60.0 * 60.0); // 10 minute mile, in m/s
+  // Adjust super slow laps as they're probably standing rest, and it messes with the workout classifier by skewing the average speed
+  const maxSpeed =
+    laps
+        .filter((lap) => lapIsNotTooFast(lap))
+        .reduce((fastestFoundSpeed, curLap) => Math.max(curLap.distance / curLap.moving_time, fastestFoundSpeed), 0);
+
+  for (const lap of laps) {
+    lap.average_speed = Math.max(lap.average_speed, maxSlowness);
+    if (!lapIsNotTooFast(lap)) {
+      // If the lap is impossible, adjust its time so it matches the speed of the fastest reasonable lap
+
+      lap.moving_time = lap.distance / maxSpeed;
+      lap.average_speed = maxSpeed;
+    }
+  }
+}
+
 module.exports = {
   arraysAreEqual,
   averageDistanceToCluster,
@@ -129,4 +155,6 @@ module.exports = {
   isKilometer,
   compareToMile,
   isAutolap,
+  winsorizeLapSpeeds,
+  lapIsNotTooFast
 };
