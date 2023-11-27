@@ -10,6 +10,7 @@ const defaultFormatConfig = {
 };
 
 const defaultParserConfig = {
+  "workoutPace": 7, // 7, 6, 8, 9, 10 — references the slow end of the per-mile pace range for workouts
   "dominantWorkoutType": "BALANCED", //  "BALANCED", "DISTANCE", "TIME"
 };
 

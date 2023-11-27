@@ -326,6 +326,7 @@ app.post("/update_preferences", (req, res) => {
     const updatedPreferences = {
       parser: {
         dominantWorkoutType: data.dominantWorkoutType,
+        workoutPace: data.workoutPace,
       },
       format: {
         paceUnits: data.paceUnits,
