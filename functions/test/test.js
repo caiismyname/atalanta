@@ -451,6 +451,35 @@ describe("Formatter", () => {
 
         assert.ok(!outputIsPace(splitsOutput));
       });
+
+      it("Ensure paces always :00 if whole minute", () => {
+        const kmConfig = {...defaultFormatConfig};
+        kmConfig.paceUnits = "KM";
+        const mileConfig = {...defaultFormatConfig};
+
+        const kmPrinter = new FormatPrinter(kmConfig);
+        const milePrinter = new FormatPrinter(mileConfig);
+
+        const lapMile = {
+          "elapsed_time": 20,
+          "moving_time": 20,
+          "distance": 107.2,
+          "average_speed": 5.36,
+          "max_speed": 6.042,
+          "lap_index": 3,
+          "split": 3,
+        };
+        const lapKm = {
+          "elapsed_time": 180,
+          "moving_time": 180,
+          "distance": 1000,
+          "lap_index": 3,
+          "split": 3,
+        };
+
+        assert.ok(outputIsPace(milePrinter.lapPaceFormatted(lapMile)));
+        assert.ok(outputIsPace(kmPrinter.lapPaceFormatted(lapKm)));
+      });
     });
 
     describe("Seconds", () => {
