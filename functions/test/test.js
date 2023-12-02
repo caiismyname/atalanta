@@ -429,6 +429,28 @@ describe("Formatter", () => {
         assert.ok(countOccurances("\n", splits), 3);
         assert.ok(splits.includes("1. 1:20, 42, 20\n"));
       });
+
+      it("Mile split showing as pace", () => {
+        // Note that this was happening because the split's distance was so off from the rest that it fell into a different case on the less/is/greater than mile switch statement.
+        // Fixed it by switching off of the matched distance instead of actual distance
+        resetConfigs();
+
+        const run = userTestRuns["general_irl_examples"]["mile_split_showing_pace"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const formatter = new Formatter(formatConfig);
+        const splitsOutput = formatter.determineSetSplits(res.sets[0]);
+
+        assert.ok(!outputIsPace(splitsOutput));
+      });
     });
 
     describe("Seconds", () => {
