@@ -1097,9 +1097,12 @@ describe("Formatter", () => {
         verbose: false,
       });
 
-      // Make sure we don't mark it as (2 x 200m) + 400m + ...
+      // Make sure we don't mark it as "(2 x 200m) + 400m + 800m + (2 x 200m) + 400m + 800m"
+      // Should be "2 x ((2 x 200m) + 400m + 800m)"
       assert.equal(res.sets.length, 1);
-      assert.equal(res.sets[0].pattern.toString(), [0, 0, 1, 2].toString());
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].pattern[0].map((x) => x.pattern[0]).toString(), [0, 1, 2].toString());
+      assert.equal(res.sets[0].pattern[0][0].count, 2);
       assert.equal(res.sets[0].count, 2);
     });
 
@@ -1124,13 +1127,94 @@ describe("Formatter", () => {
       });
 
       // Should be (2 x (200m, 200m, 400m) + (2 x 800m))
-      assert.equal(res.sets.length, 2);
-      assert.equal(res.sets[0].pattern.toString(), [0, 0, 1].toString());
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].pattern[0].map((x) => x.pattern[0]).toString(), [0, 1].toString());
+      assert.equal(res.sets[0].pattern[0][0].count, 2);
       assert.equal(res.sets[0].count, 2);
 
       assert.equal(res.sets[1].pattern.toString(), [2].toString());
       assert.equal(res.sets[1].count, 2);
       assert.equal(res.sets[1].laps[0].closestDistance, 800);
+    });
+
+    it("2x(2x100m, 3x800m)", () => {
+      resetConfigs();
+      const distances = [100, 100, 800, 800, 800, 100, 100, 800, 800, 800];
+      const inputLaps = [];
+      for (const dist of distances) {
+        inputLaps.push([dist, "METERS", true]);
+        inputLaps.push([dist, "METERS", false]);
+      }
+      const run = generateAndReturnWorkout(inputLaps);
+
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // Formatting
+      assert.equal(res.summary.title.split("x").length - 1, 3); // Ensure title has the right number of x's
+      assert.equal(res.summary.title.split("(").length - 1, 3); // Ensure we don't wrap the "2 x ((2 x 100m) + (3 x 800m))" in parens
+
+      assert.equal(res.sets.length, 1);
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].count, 2);
+      assert.equal(res.sets[0].pattern.length, 2);
+      // The "2x100m"
+      assert.equal(res.sets[0].pattern[0][0].pattern.toString(), [0].toString());
+      assert.equal(res.sets[0].pattern[0][0].count, 2);
+      assert.equal(res.sets[0].pattern[0][0].hasSubPattern, false);
+      // The "3x800m"
+      assert.equal(res.sets[0].pattern[0][1].pattern.toString(), [1].toString());
+      assert.equal(res.sets[0].pattern[0][1].count, 3);
+      assert.equal(res.sets[0].pattern[0][1].hasSubPattern, false);
+    });
+
+    it("2x(2x100m, 3x800m) + (2 x 1mi)", () => {
+      resetConfigs();
+      const distances = [100, 100, 800, 800, 800, 100, 100, 800, 800, 800, 1600, 1600];
+      const inputLaps = [];
+      for (const dist of distances) {
+        inputLaps.push([dist, "METERS", true]);
+        inputLaps.push([dist, "METERS", false]);
+      }
+      const run = generateAndReturnWorkout(inputLaps);
+
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // Formatting
+      assert.equal(res.summary.title.split("x").length - 1, 4); // Ensure title has the right number of x's
+      assert.equal(res.summary.title.split("(").length - 1, 5); // Ensure we wrap the "2 x ((2 x 100m) + (3 x 800m))" in parens
+
+      assert.equal(res.sets.length, 2);
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].count, 2);
+      assert.equal(res.sets[0].pattern.length, 2);
+      // The "2x100m"
+      assert.equal(res.sets[0].pattern[0][0].pattern.toString(), [0].toString());
+      assert.equal(res.sets[0].pattern[0][0].count, 2);
+      assert.equal(res.sets[0].pattern[0][0].hasSubPattern, false);
+      // The "3x800m"
+      assert.equal(res.sets[0].pattern[0][1].pattern.toString(), [1].toString());
+      assert.equal(res.sets[0].pattern[0][1].count, 3);
+      assert.equal(res.sets[0].pattern[0][1].hasSubPattern, false);
+      // The "2 x 1mi"
+      assert.ok(!res.sets[1].hasSubPattern);
+      assert.equal(res.sets[1].laps[0].closestDistance, "1");
+      assert.equal(res.sets[1].laps[0].closestDistanceUnit, "mi");
     });
   });
 
@@ -1695,7 +1779,7 @@ describe("Parser", () => {
           });
 
           assert.equal(res.sets.length, 3);
-          assert.equal(res.sets[0].pattern.toString(), [0, 0, 1, 2].toString());
+          assert.ok(res.sets[0].hasSubPattern);
           assert.equal(res.sets[0].laps[0].closestDistance, 200);
           assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
           assert.equal(res.sets[0].laps[1].closestDistance, 200);
