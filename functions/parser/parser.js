@@ -505,6 +505,7 @@ function extractPatterns(laps) {
       "pattern": [laps[i].workoutType],
       "count": 1,
       "laps": [laps[i]],
+      "hasSubPattern": false,
     };
 
     let patternLength = 1;
@@ -520,14 +521,43 @@ function extractPatterns(laps) {
           "pattern": patternGuess,
           "count": attemptedReduction.matchCount + 1, // + 1 to include the initial pattern
           "laps": laps.slice(i, i + (patternLength * (attemptedReduction.matchCount + 1))),
+          "hasSubPattern": false,
         };
       }
 
       patternLength++;
     }
 
+    // Detect sub pattern
+    // e.g. 2 x (2 x 1km, 3 x 800m)
+
+    if (longestFoundPattern.count > 1) {
+      const subPatterns = [];
+      for (let i = 0; i < longestFoundPattern.count; i++) {
+        const singlePatternIteration = longestFoundPattern.laps.slice(
+            i * longestFoundPattern.pattern.length,
+            (i * longestFoundPattern.pattern.length) + longestFoundPattern.pattern.length,
+        );
+        const subPattern = extractPatterns(singlePatternIteration);
+
+        // If there is no subpattern, the resulting pattern should break the components into individual elements,
+        // so check that each "pattern" only have one iteration.
+        // If any "pattern" goes on for more than 1 iteration, then there's a subpattern
+        const subPatternIsRepeat = subPattern.map((x) => x.count).reduce((accum, cur) => accum || cur !== 1, false);
+
+        if (subPatternIsRepeat) {
+          longestFoundPattern.hasSubPattern = true;
+          subPatterns.push(subPattern);
+        }
+      }
+
+      if (longestFoundPattern.hasSubPattern) {
+        longestFoundPattern.pattern = subPatterns;
+      }
+    }
+
     patterns.push(longestFoundPattern);
-    i += longestFoundPattern.pattern.length * (longestFoundPattern.count); // + 1 to include the initial pattern
+    i += longestFoundPattern.laps.length;
   }
 
   return patterns;
