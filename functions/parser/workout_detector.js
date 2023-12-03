@@ -109,11 +109,15 @@ function verifyIsWorkout(laps, sets, parserConfig, debug=false) {
     // Check workout laps are close to or under the stated workout pace threshold
     // Workout pace is specified as the slowest pace that they consider a workout, in minutes
     const paceThreshold = parserConfig.workoutPace * 60;
-
-    for (let lap of workoutLaps) {
-      const perMilePace = Helpers.secondsPerMile(lap);
-      if (perMilePace >= paceThreshold) { // If the workout lap is slower
-        workoutLapsUnderWorkoutPaceThreshold = false;
+    
+    // 0 is the default value, meaning it hasn't been set. 
+    // We ignore this check if it hasn't been set.
+    if (paceThreshold !== 0) { 
+      for (let lap of workoutLaps) {
+        const perMilePace = Helpers.secondsPerMile(lap);
+        if (perMilePace >= paceThreshold) { // If the workout lap is slower
+          workoutLapsUnderWorkoutPaceThreshold = false;
+        }
       }
     }
   

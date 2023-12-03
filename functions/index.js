@@ -323,10 +323,17 @@ app.post("/update_preferences", (req, res) => {
   const userToken = req.cookies["__session"];
   validateUserToken(userToken, res, (userID) => {
     const data = req.body;
+    
+    // workoutPace defaults to 0, which means it won't be returned in the form if it's not set
+    let workoutPace = 0;
+    if ("workoutPace" in data) {
+      workoutPace = Number(data.workoutPace); // The value is returned as a string but we need to store it as a number since it represents minutes
+    }
+
     const updatedPreferences = {
       parser: {
         dominantWorkoutType: data.dominantWorkoutType,
-        workoutPace: data.workoutPace,
+        workoutPace: workoutPace,
       },
       format: {
         paceUnits: data.paceUnits,
