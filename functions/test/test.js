@@ -2359,31 +2359,11 @@ describe("Parser", () => {
         assert.equal(rep.closestDistanceUnit, "mi");
       }
     });
-  });
 
-  describe("Test", () => {
-    it("james undefined", () => {
+    it("Amy 7mi", () => {
       resetConfigs();
 
-      const run = userTestRuns["uncategorized"][1];
-      const res = parseWorkout({
-        run: run,
-        config: {
-          parser: parserConfig,
-          format: formatConfig,
-        },
-        returnSets: true,
-        verbose: false,
-      });
-
-      // console.log(res.sets[1]);
-      console.log(res);
-    });
-
-    it("oim", () => {
-      resetConfigs();
-
-      const run = userTestRuns["uncategorized"][2];
+      const run = userTestRuns["false_negative"]["amy_7_mile"];
       const res = parseWorkout({
         run: run,
         config: {
@@ -2395,9 +2375,11 @@ describe("Parser", () => {
         forceParse: true,
       });
 
-      console.log(res);
+      assert.ok(res.isWorkout);
     });
+  });
 
+  describe("Test", () => {
     it("default", () => {
       resetConfigs();
 
