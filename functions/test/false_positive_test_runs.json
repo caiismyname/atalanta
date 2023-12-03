@@ -1,0 +1,13 @@
+{
+    "sergio_i": {
+        "isWorkout": {},
+        "notWorkout": {},
+        "unknown": {}
+    },
+    "brian_l": {
+        "isWorkout": {},
+        "notWorkout": {},
+        "unknown": {
+        }
+    }
+}

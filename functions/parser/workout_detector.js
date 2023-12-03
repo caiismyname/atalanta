@@ -87,21 +87,37 @@ function isWorkout(laps, debug=false) {
   return (!allLapsAreStandard || foundJump || existsFastLap);
 }
 
-function verifyIsWorkout(laps, sets, debug=false) {
+function verifyIsWorkout(laps, sets, parserConfig, debug=false) {
     const workoutLaps = laps.filter(x => x.isWorkout);
 
     var allDistanceLapsCloseToActual = true;
+    var workoutLapsUnderWorkoutPaceThreshold = true;
+
+    /*
+      So it turns out causes a bunch of false flags.
+    */
 
     // Check that the distance guesses are within 5% of the actual distance
+    // for (let lap of workoutLaps) {
+    //     if (lap.workoutBasis === "DISTANCE") {
+    //         if (lap.closestDistanceDifference > 0.05) {
+    //             allDistanceLapsCloseToActual = false;
+    //         }
+    //     }
+    // }
+
+    // Check workout laps are close to or under the stated workout pace threshold
+    // Workout pace is specified as the slowest pace that they consider a workout, in minutes
+    const paceThreshold = parserConfig.workoutPace * 60;
+
     for (let lap of workoutLaps) {
-        if (lap.workoutBasis === "DISTANCE") {
-            if (lap.closestDistanceDifference > 0.05) {
-                allDistanceLapsCloseToActual = false;
-            }
-        }
+      const perMilePace = Helpers.secondsPerMile(lap);
+      if (perMilePace >= paceThreshold) { // If the workout lap is slower
+        workoutLapsUnderWorkoutPaceThreshold = false;
+      }
     }
   
-    return allDistanceLapsCloseToActual;
+    return allDistanceLapsCloseToActual && workoutLapsUnderWorkoutPaceThreshold;
 }
 
 module.exports = {

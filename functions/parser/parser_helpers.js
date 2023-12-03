@@ -94,6 +94,20 @@ function isMile(distance) {
   return Math.abs((distance * 0.000621371) - 1.0) <= marginOfError;
 }
 
+function secondsPerMile(lap) {
+  const distanceMiles = this.metersToMiles(lap.distance);
+  const secondsPerMile = lap.moving_time / distanceMiles;
+
+  return secondsPerMile;
+}
+
+function secondsPerKilometer(lap) {
+  const secondsPerKilometer = lap.moving_time / (lap.distance / 1000.0); // lap distance is in meters
+
+  return secondsPerKilometer;
+}
+
+
 function isLongerThanMile(distance) {
   const marginOfError = 0.02; // miles
   return (distance * 0.000621371) - (1.0 - marginOfError) >= 0;
@@ -153,6 +167,8 @@ module.exports = {
   milesToMeters,
   isMile,
   isKilometer,
+  secondsPerMile,
+  secondsPerKilometer,
   compareToMile,
   isAutolap,
   winsorizeLapSpeeds,

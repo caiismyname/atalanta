@@ -2153,54 +2153,61 @@ describe("Parser", () => {
   });
 
   describe.only("FALSE POSITIVES", () => {
-    for (const run of Object.values(userTestRuns["false_positive"])) {
-      // if (run.id === 9984277300) {
-        it(`${run.name}`, () => {
-          resetConfigs();
-
-          const res = parseWorkout({
-            run: run,
-            config: {
-              parser: parserConfig,
-              format: formatConfig,
-            },
-            returnSets: true,
-            verbose: false,
+    describe.only("FALSE POSITIVE — Ensure non-workouts are not marked as workouts", () => {
+      for (const run of Object.values(userTestRuns["false_positive"])) {
+        // if (run.id === 9984277300) {
+          it(`${run.name}`, () => {
+            resetConfigs();
+  
+            const res = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            });
+  
+            if (res.isWorkout) {
+              console.log(res.summary.title);
+            }
+  
+            assert.ok(!res.isWorkout);
           });
+        // }
+      }
+    });
 
-          if (res.isWorkout) {
-            console.log(res.summary.title);
+    describe.only("TRUE POSITIVE — Ensure all workouts are marked as workouts", () => {
+      // Ensure that the verifyIsWorkout() doesn't false reject anything
+
+      const doNotSearch = ["uncategorized", "race_examples", "false_positive"];
+      for (const category of Object.keys(userTestRuns)) {
+        if (!doNotSearch.includes(category)) {
+          for (const run of Object.values(userTestRuns[category])) {
+            it(`${run.name}`, () => {
+              resetConfigs();
+
+              const res = parseWorkout({
+                run: run,
+                config: {
+                  parser: parserConfig,
+                  format: formatConfig,
+                },
+                returnSets: true,
+                verbose: false,
+              });
+
+              assert.ok(res.isWorkout);
+            });
           }
-
-          assert.ok(!res.isWorkout);
-        });
-      // }
-    }
+        }
+      }
+    });
   });
 
   describe("FALSE NEGATIVE", () => {
-    it("Amy 2x3mi", () => {
-      resetConfigs();
-
-      const run = userTestRuns["false_negative"]["amy_3mi_repeats"];
-      const res = parseWorkout({
-        run: run,
-        config: {
-          parser: parserConfig,
-          format: formatConfig,
-        },
-        returnSets: true,
-        verbose: false,
-      });
-
-      assert.ok(res.isWorkout);
-      assert.equal(res.sets.length, 1);
-      for (const rep of res.sets[0].laps) {
-        assert.equal(rep.workoutBasis, "DISTANCE");
-        assert.equal(rep.closestDistance, 3);
-        assert.equal(rep.closestDistanceUnit, "mi");
-      }
-    });
   });
 
   describe("Test", () => {

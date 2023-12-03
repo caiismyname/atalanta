@@ -5,6 +5,9 @@ const {DbInterface} = require("../db_interface.js");
 const userTestActivities = require("./user_test_runs.json");
 const userTestRunsPath = "./test/user_test_runs.json";
 
+const specificTestActivities = require("./false_positive_test_runs.json");
+const specificTestRunsPath = "./test/false_positive_test_runs.json";
+
 const fs = require("fs");
 const admin = require("firebase-admin");
 const serviceAccount = require("../serviceAccountKey.json");
@@ -62,6 +65,12 @@ function saveToTests(activity) {
   writeToJSON(userTestActivities, userTestRunsPath);
 }
 
+function saveToSpecificFile(activity) {
+  const groupingKey = "brian_l";
+  specificTestActivities[groupingKey]["unknown"][activity.id] = activity;
+  writeToJSON(specificTestActivities, specificTestRunsPath);
+}
+
 function writeToJSON(run, path) {
   const jsonContent = JSON.stringify(run, null, 4);
   fs.writeFile(path, jsonContent, "utf8", (err) => {
@@ -90,16 +99,47 @@ function saveActivityForUser(userID, activityID) {
   });
 }
 
+function saveMultipleActivitiesForUser(userID, numRuns) {
+  dbInterface.getDataUsageOptIn(userID, (allowed) => {
+    if (allowed) {
+      dbInterface.getStravaTokenForID(userID, (stravaToken) => {
+        StravaInterface.getRecentRuns(stravaToken, numRuns, (activityIDs) => {
+          console.log(activityIDs);
+          for (let activityID of activityIDs) {
+            console.log(`Saving ${activityID}`);
+            StravaInterface.getActivity(activityID, stravaToken, (activity) => {
+              saveToSpecificFile(cleanStravaActivity(activity));
+            });
+          }
+          firebase.delete();
+        });
+      });
+      
+    } else {
+      console.error(`User ${userID} opted out of data usage.`);
+      firebase.delete();
+    }
+  });
+}
+
 
 const args = process.argv.slice(2); // skip `node` and the script name
 
-if (args[0] === "-h" || args[0] === "h") {
-  console.log("Usage: [activity ID] [userID (firebase)]");
-} else if (args.length === 2) {
-  const testActivityID = args[0];
-  const testUserID = args[1];
+if (args[0] === "-h" || args[0] === "h") { // help
+  console.log("Usage: \n -i [activity ID] [userID (firebase)]\n -m [userID (firebase)] [number of runs to save]");
+} else if (args[0] === "-i" || args[0] === "i") { // save individual activity
+  const testActivityID = args[1];
+  const testUserID = args[2];
+  
+  console.log(`Saving activity ${testActivityID} for ${testUserID}`);
 
   saveActivityForUser(testUserID, testActivityID);
+} else if (args[0] === "-m" || args[0] === "m") { // save multiple activities
+  const userID = args[1];
+  const numRuns = args[2];
+
+  console.log(`Saving ${numRuns} activities for ${userID}`);
+  saveMultipleActivitiesForUser(userID, numRuns);
 }
 
 module.exports = {
