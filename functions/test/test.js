@@ -1859,6 +1859,34 @@ describe("Parser", () => {
         }
       });
 
+      it("8min", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["8min"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+          forceParse: true,
+        });
+
+        assert.equal(res.sets.length, 2);
+        assert.equal(res.sets[0].count, 4);
+        for (const lap of res.sets[0].laps) {
+          assert.equal(lap.workoutBasis, "TIME");
+          assert.equal(lap.closestTime, 480);
+        }
+        assert.equal(res.sets[1].count, 4);
+        for (const lap of res.sets[1].laps) {
+          assert.equal(lap.workoutBasis, "TIME");
+          assert.equal(lap.closestTime, 90);
+        }
+      });
+
       describe("Basis homogeneity check", () => {
         it("200m misparsed as 30sec, basis homogeneity check", () => {
           resetConfigs();
@@ -2380,23 +2408,7 @@ describe("Parser", () => {
   });
 
   describe("Test", () => {
-    it("default", () => {
-      resetConfigs();
 
-      const run = userTestRuns["uncategorized"][userTestRuns["uncategorized"].length - 1];
-      const res = parseWorkout({
-        run: run,
-        config: {
-          parser: parserConfig,
-          format: formatConfig,
-        },
-        returnSets: true,
-        verbose: false,
-        forceParse: true,
-      });
-
-      console.log(res);
-    });
   });
 });
 
