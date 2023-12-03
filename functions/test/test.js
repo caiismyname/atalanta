@@ -163,6 +163,26 @@ describe("Formatter", () => {
         assert.equal(title, "4 x 4 mins");
       });
     });
+
+    it("60sec in summary instead of 1min", () => {
+      resetConfigs();
+
+      const run = userTestRuns["formatting"]["60sec_in_title"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+        forceParse: true,
+      });
+
+      console.log(res);
+
+      assert.equal(res.summary.title, "3 x (3 mins, 2 mins, 1 min)");
+    });
   });
 
   describe("AVERAGE FORMATTING", () => {
