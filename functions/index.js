@@ -323,7 +323,7 @@ app.post("/update_preferences", (req, res) => {
   const userToken = req.cookies["__session"];
   validateUserToken(userToken, res, (userID) => {
     const data = req.body;
-    
+
     // workoutPace defaults to 0, which means it won't be returned in the form if it's not set
     let workoutPace = 0;
     if ("workoutPace" in data) {

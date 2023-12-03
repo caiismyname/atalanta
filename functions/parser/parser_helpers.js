@@ -95,7 +95,7 @@ function isMile(distance) {
 }
 
 function secondsPerMile(lap) {
-  const distanceMiles = this.metersToMiles(lap.distance);
+  const distanceMiles = metersToMiles(lap.distance);
   const secondsPerMile = lap.moving_time / distanceMiles;
 
   return secondsPerMile;

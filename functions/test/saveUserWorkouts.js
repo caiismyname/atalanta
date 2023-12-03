@@ -45,12 +45,15 @@ function cleanStravaActivity(activity) {
   }
 
   cleanedActivity.laps = [];
-  for (const lap of activity.laps) {
-    const {athlete: _, activity: __, ...rest} = lap;
-    cleanedActivity.laps.push(rest);
+  if ("laps" in activity) {
+    for (const lap of activity.laps) {
+      const {athlete: _, activity: __, ...rest} = lap;
+      cleanedActivity.laps.push(rest);
+    }
+    return cleanedActivity;
+  } else {
+    return {};
   }
-
-  return cleanedActivity;
 }
 
 function saveToTests(activity) {
@@ -105,7 +108,7 @@ function saveMultipleActivitiesForUser(userID, numRuns) {
       dbInterface.getStravaTokenForID(userID, (stravaToken) => {
         StravaInterface.getRecentRuns(stravaToken, numRuns, (activityIDs) => {
           console.log(activityIDs);
-          for (let activityID of activityIDs) {
+          for (const activityID of activityIDs) {
             console.log(`Saving ${activityID}`);
             StravaInterface.getActivity(activityID, stravaToken, (activity) => {
               saveToSpecificFile(cleanStravaActivity(activity));
@@ -114,7 +117,6 @@ function saveMultipleActivitiesForUser(userID, numRuns) {
           firebase.delete();
         });
       });
-      
     } else {
       console.error(`User ${userID} opted out of data usage.`);
       firebase.delete();
@@ -130,7 +132,7 @@ if (args[0] === "-h" || args[0] === "h") { // help
 } else if (args[0] === "-i" || args[0] === "i") { // save individual activity
   const testActivityID = args[1];
   const testUserID = args[2];
-  
+
   console.log(`Saving activity ${testActivityID} for ${testUserID}`);
 
   saveActivityForUser(testUserID, testActivityID);
