@@ -2372,6 +2372,24 @@ describe("Parser", () => {
 
       console.log(res);
     });
+
+    it.only("default", () => {
+      resetConfigs();
+
+      const run = userTestRuns["uncategorized"][userTestRuns["uncategorized"].length - 1];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+        forceParse: true,
+      });
+
+      console.log(res);
+    });
   });
 });
 
