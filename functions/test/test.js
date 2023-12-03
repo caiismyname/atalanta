@@ -163,6 +163,26 @@ describe("Formatter", () => {
         assert.equal(title, "4 x 4 mins");
       });
     });
+
+    it("60sec in summary instead of 1min", () => {
+      resetConfigs();
+
+      const run = userTestRuns["formatting"]["60sec_in_title"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+        forceParse: true,
+      });
+
+      console.log(res);
+
+      assert.equal(res.summary.title, "3 x (3 mins, 2 mins, 1 min)");
+    });
   });
 
   describe("AVERAGE FORMATTING", () => {
@@ -428,6 +448,57 @@ describe("Formatter", () => {
         });
         assert.ok(countOccurances("\n", splits), 3);
         assert.ok(splits.includes("1. 1:20, 42, 20\n"));
+      });
+
+      it("Mile split showing as pace", () => {
+        // Note that this was happening because the split's distance was so off from the rest that it fell into a different case on the less/is/greater than mile switch statement.
+        // Fixed it by switching off of the matched distance instead of actual distance
+        resetConfigs();
+
+        const run = userTestRuns["general_irl_examples"]["mile_split_showing_pace"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const formatter = new Formatter(formatConfig);
+        const splitsOutput = formatter.determineSetSplits(res.sets[0]);
+
+        assert.ok(!outputIsPace(splitsOutput));
+      });
+
+      it("Ensure paces always :00 if whole minute", () => {
+        const kmConfig = {...defaultFormatConfig};
+        kmConfig.paceUnits = "KM";
+        const mileConfig = {...defaultFormatConfig};
+
+        const kmPrinter = new FormatPrinter(kmConfig);
+        const milePrinter = new FormatPrinter(mileConfig);
+
+        const lapMile = {
+          "elapsed_time": 20,
+          "moving_time": 20,
+          "distance": 107.2,
+          "average_speed": 5.36,
+          "max_speed": 6.042,
+          "lap_index": 3,
+          "split": 3,
+        };
+        const lapKm = {
+          "elapsed_time": 180,
+          "moving_time": 180,
+          "distance": 1000,
+          "lap_index": 3,
+          "split": 3,
+        };
+
+        assert.ok(outputIsPace(milePrinter.lapPaceFormatted(lapMile)));
+        assert.ok(outputIsPace(kmPrinter.lapPaceFormatted(lapKm)));
       });
     });
 
@@ -1216,6 +1287,31 @@ describe("Formatter", () => {
       assert.equal(res.sets[1].laps[0].closestDistance, "1");
       assert.equal(res.sets[1].laps[0].closestDistanceUnit, "mi");
     });
+
+    it("(2 x ((3 x 1km) + (4 x 300m)))", () => {
+      resetConfigs();
+
+      const run = userTestRuns["pattern_reducer"]["subpattern_1"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+        forceParse: true,
+      });
+
+      assert.equal(res.summary.title.split("(").length - 1, 4);
+
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].count, 2);
+      assert.equal(res.sets[0].pattern[0][0].count, 3);
+      assert.ok(!res.sets[0].pattern[0][0].hasSubPattern);
+      assert.equal(res.sets[0].pattern[0][1].count, 4);
+      assert.ok(!res.sets[0].pattern[0][1].hasSubPattern);
+    });
   });
 
   describe("DEFAULTS FALLTHROUGH", () => {
@@ -1763,6 +1859,34 @@ describe("Parser", () => {
         }
       });
 
+      it("8min", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["8min"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+          forceParse: true,
+        });
+
+        assert.equal(res.sets.length, 2);
+        assert.equal(res.sets[0].count, 4);
+        for (const lap of res.sets[0].laps) {
+          assert.equal(lap.workoutBasis, "TIME");
+          assert.equal(lap.closestTime, 480);
+        }
+        assert.equal(res.sets[1].count, 4);
+        for (const lap of res.sets[1].laps) {
+          assert.equal(lap.workoutBasis, "TIME");
+          assert.equal(lap.closestTime, 90);
+        }
+      });
+
       describe("Basis homogeneity check", () => {
         it("200m misparsed as 30sec, basis homogeneity check", () => {
           resetConfigs();
@@ -2263,31 +2387,11 @@ describe("Parser", () => {
         assert.equal(rep.closestDistanceUnit, "mi");
       }
     });
-  });
 
-  describe("Test", () => {
-    it("james undefined", () => {
+    it("Amy 7mi", () => {
       resetConfigs();
 
-      const run = userTestRuns["uncategorized"][1];
-      const res = parseWorkout({
-        run: run,
-        config: {
-          parser: parserConfig,
-          format: formatConfig,
-        },
-        returnSets: true,
-        verbose: false,
-      });
-
-      // console.log(res.sets[1]);
-      console.log(res);
-    });
-
-    it("oim", () => {
-      resetConfigs();
-
-      const run = userTestRuns["uncategorized"][2];
+      const run = userTestRuns["false_negative"]["amy_7_mile"];
       const res = parseWorkout({
         run: run,
         config: {
@@ -2299,8 +2403,12 @@ describe("Parser", () => {
         forceParse: true,
       });
 
-      console.log(res);
+      assert.ok(res.isWorkout);
     });
+  });
+
+  describe("Test", () => {
+
   });
 });
 

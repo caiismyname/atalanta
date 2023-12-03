@@ -1,7 +1,7 @@
 // const Helpers = require("./parser_helpers.js");
 const {FormatPrinter} = require("./format_printer.js");
 const {defaultFormatConfig} = require("./defaultConfigs.js");
-const {isMile, isKilometer, compareToMile} = require("./parser_helpers.js");
+const {isMile, isKilometer, compareToMile, lapDetectedDistance} = require("./parser_helpers.js");
 const {detectRaceType} = require("./race_detector.js");
 
 class Formatter {
@@ -146,7 +146,7 @@ class Formatter {
       let lapCounter = 0;
       for (const lap of set.laps) {
         if (lap.workoutBasis === "DISTANCE") {
-          switch (compareToMile(lap.distance)) {
+          switch (compareToMile(lapDetectedDistance(lap))) {
             case "LESS":
               switch (this.formatConfig.subMileDistanceValue) {
                 case "TIME":
