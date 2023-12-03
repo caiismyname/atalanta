@@ -1287,6 +1287,31 @@ describe("Formatter", () => {
       assert.equal(res.sets[1].laps[0].closestDistance, "1");
       assert.equal(res.sets[1].laps[0].closestDistanceUnit, "mi");
     });
+
+    it("(2 x ((3 x 1km) + (4 x 300m)))", () => {
+      resetConfigs();
+
+      const run = userTestRuns["pattern_reducer"]["subpattern_1"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+        forceParse: true,
+      });
+
+      assert.equal(res.summary.title.split("(").length - 1, 4);
+
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].count, 2);
+      assert.equal(res.sets[0].pattern[0][0].count, 3);
+      assert.ok(!res.sets[0].pattern[0][0].hasSubPattern);
+      assert.equal(res.sets[0].pattern[0][1].count, 4);
+      assert.ok(!res.sets[0].pattern[0][1].hasSubPattern);
+    });
   });
 
   describe("DEFAULTS FALLTHROUGH", () => {
@@ -2373,7 +2398,7 @@ describe("Parser", () => {
       console.log(res);
     });
 
-    it.only("default", () => {
+    it("default", () => {
       resetConfigs();
 
       const run = userTestRuns["uncategorized"][userTestRuns["uncategorized"].length - 1];
