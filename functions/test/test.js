@@ -2153,7 +2153,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("FALSE POSITIVES", () => {
+  describe.only("FALSE POSITIVES", () => {
     describe("FALSE POSITIVE — Ensure non-workouts are not marked as workouts", () => {
       for (const run of Object.values(userTestRuns["false_positive"])) {
         // if (run.id === 9984277300) {
@@ -2207,7 +2207,7 @@ describe("Parser", () => {
       }
     });
 
-    describe.only("User specific tests", () => {
+    describe("User specific tests", () => {
       for (const personId of Object.keys(falsePositiveTestRuns)) {
         describe(`${personId}`, () => {
           const person = falsePositiveTestRuns[personId];
