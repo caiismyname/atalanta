@@ -69,7 +69,7 @@ function saveToTests(activity) {
 }
 
 function saveToSpecificFile(activity) {
-  const groupingKey = "brian_l";
+  const groupingKey = "sergio_i";
   specificTestActivities[groupingKey]["unknown"][activity.id] = activity;
   writeToJSON(specificTestActivities, specificTestRunsPath);
 }

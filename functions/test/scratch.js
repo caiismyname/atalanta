@@ -1,29 +1,33 @@
 const fs = require("fs");
 const falsePositiveTestRuns = require("./false_positive_test_runs.json");
+const {parseWorkout} = require("../parser/parser.js");
+const personKey = "sergio_i";
 
 
-const ids = [10311087585, 10107597674, 10095673270, 10085144069, 10078104948, 10054718896, 9975109172, 9936566462, 9923312013, 9912811330];
+const ids = [10322228001, 10018407096, 9984606690, 10087111776, 10284906238, 10066404017, 10308953607, 10118621313, 10222318016, 10294704248, 9974837118, 9971985735, 10072110268, 10095285725, 9965197008, 10135715793, 10058321572, 10077720122, 10292581635];
 
-for (const runId of Object.keys(falsePositiveTestRuns["brian_l"]["unknown"])) {
-  const run = falsePositiveTestRuns["brian_l"]["unknown"][runId];
 
-  // const res = parseWorkout({run: run, verbose: false});
+// maybe:
+// [10278790993, 10000149515]
 
-  // console.log(`${res.isWorkout} — ${run.name}`);
-  // if (res.isWorkout) {
-  //     // console.log(`\t ${res.summary.title}`);
-  //     console.log(`\t ${runId}`)
-  // }
+for (const runId of Object.keys(falsePositiveTestRuns[personKey]["unknown"])) {
+  const run = falsePositiveTestRuns[personKey]["unknown"][runId];
+//   const res = parseWorkout({run: run, verbose: false});
+
+//   console.log(`${res.isWorkout} — ${run.name}`);
+//   if (res.isWorkout) {
+      // console.log(`\t ${res.summary.title}`);
+    //   console.log(`strava.com/activities/${runId}`)
+//   }
 
   if (ids.includes(Number(runId))) {
-    falsePositiveTestRuns["brian_l"]["isWorkout"][runId] = run;
+    falsePositiveTestRuns[personKey]["isWorkout"][runId] = run;
   } else {
-    falsePositiveTestRuns["brian_l"]["notWorkout"][runId] = run;
+    falsePositiveTestRuns[personKey]["notWorkout"][runId] = run;
   }
 }
 
-falsePositiveTestRuns["brian_l"]["unknown"] = {};
-
+falsePositiveTestRuns[personKey]["unknown"] = {};
 writeToJSON(falsePositiveTestRuns, "./false_positive_test_runs.json");
 
 

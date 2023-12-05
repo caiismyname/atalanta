@@ -2207,56 +2207,59 @@ describe("Parser", () => {
       }
     });
 
-    describe("User specific tests", () => {
-      for (const person of Object.values(falsePositiveTestRuns)) {
-        describe("Is workout", () => {
-          for (const run of Object.values(person["isWorkout"])) {
-            it(`${run.id}`, () => {
-              resetConfigs();
-              parserConfig.workoutPace = person.workoutPace;
+    describe.only("User specific tests", () => {
+      for (const personId of Object.keys(falsePositiveTestRuns)) {
+        describe(`${personId}`, () => {
+          const person = falsePositiveTestRuns[personId];
+          describe(`Is workout`, () => {
+            for (const run of Object.values(person.isWorkout)) {
+              it(`${run.id}`, () => {
+                resetConfigs();
+                parserConfig.workoutPace = person.workoutPace;
 
-              const res = parseWorkout({
-                run: run,
-                config: {
-                  parser: parserConfig,
-                  format: formatConfig,
-                },
-                returnSets: true,
-                verbose: false,
+                const res = parseWorkout({
+                  run: run,
+                  config: {
+                    parser: parserConfig,
+                    format: formatConfig,
+                  },
+                  returnSets: true,
+                  verbose: false,
+                });
+
+                if (!res.isWorkout) {
+                  console.log(`${run.name} — ${run.id}`);
+                }
+
+                assert.ok(res.isWorkout);
               });
+            }
+          });
 
-              if (!res.isWorkout) {
-                console.log(`${run.id}`);
-              }
+          describe("Is NOT workout", () => {
+            for (const run of Object.values(person.notWorkout)) {
+              it(`${run.id}`, () => {
+                resetConfigs();
+                parserConfig.workoutPace = person.workoutPace;
 
-              assert.ok(res.isWorkout);
-            });
-          }
-        });
+                const res = parseWorkout({
+                  run: run,
+                  config: {
+                    parser: parserConfig,
+                    format: formatConfig,
+                  },
+                  returnSets: true,
+                  verbose: false,
+                });
 
-        describe("Is NOT workout", () => {
-          for (const run of Object.values(person["notWorkout"])) {
-            it(`${run.id}`, () => {
-              resetConfigs();
-              parserConfig.workoutPace = person.workoutPace;
+                if (res.isWorkout) {
+                  console.log(`${res.summary.title} — ${run.id}`);
+                }
 
-              const res = parseWorkout({
-                run: run,
-                config: {
-                  parser: parserConfig,
-                  format: formatConfig,
-                },
-                returnSets: true,
-                verbose: false,
+                assert.ok(!res.isWorkout);
               });
-
-              if (res.isWorkout) {
-                console.log(`${res.summary.title} — ${run.id}`);
-              }
-
-              assert.ok(!res.isWorkout);
-            });
-          }
+            }
+          });
         });
       }
     });
