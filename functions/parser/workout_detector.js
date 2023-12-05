@@ -113,12 +113,16 @@ function verifyIsWorkout(laps, sets, parserConfig, debug=false) {
   // 0 is the default value, meaning it hasn't been set.
   // We ignore this check if it hasn't been set.
   if (paceThreshold !== 0) {
+    let tooSlowCount = 0;
     for (const lap of workoutLaps) {
       const perMilePace = Helpers.secondsPerMile(lap);
       if (perMilePace >= paceThreshold) { // If the workout lap is slower
-        workoutLapsUnderWorkoutPaceThreshold = false;
+        tooSlowCount++;
       }
     }
+
+    // At least half of the workout laps must be faster than the workoutPace
+    workoutLapsUnderWorkoutPaceThreshold = tooSlowCount / workoutLaps.length <= 0.3;
   }
 
   return allDistanceLapsCloseToActual && workoutLapsUnderWorkoutPaceThreshold;
