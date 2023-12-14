@@ -2474,6 +2474,46 @@ describe("Parser", () => {
   });
 
   describe("FALSE NEGATIVE", () => {
+    it("Amy 2x3mi", () => {
+      resetConfigs();
+
+      const run = userTestRuns["false_negative"]["amy_3mi_repeats"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(res.isWorkout);
+      assert.equal(res.sets.length, 1);
+      for (const rep of res.sets[0].laps) {
+        assert.equal(rep.workoutBasis, "DISTANCE");
+        assert.equal(rep.closestDistance, 3);
+        assert.equal(rep.closestDistanceUnit, "mi");
+      }
+    });
+
+    it("Amy 7mi", () => {
+      resetConfigs();
+
+      const run = userTestRuns["false_negative"]["amy_7_mile"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+        forceParse: true,
+      });
+
+      assert.ok(res.isWorkout);
+    });
   });
 
   describe("Test", () => {
