@@ -156,6 +156,23 @@ function winsorizeLapSpeeds(laps) {
   }
 }
 
+function lapDetectedDistance(lap) {
+  if (lap.workoutBasis === "TIME") {
+    return null;
+  } else if (lap.workoutBasis === "DISTANCE") {
+    switch (lap.closestDistanceUnit) {
+      case "mi":
+        return (milesToMeters(lap.closestDistance));
+      case "km":
+        return lap.closestDistance * 1000;
+      case "m":
+        return lap.closestDistance;
+    }
+  }
+
+  return null;
+}
+
 module.exports = {
   arraysAreEqual,
   averageDistanceToCluster,
@@ -173,4 +190,5 @@ module.exports = {
   isAutolap,
   winsorizeLapSpeeds,
   lapIsNotTooFast,
+  lapDetectedDistance,
 };

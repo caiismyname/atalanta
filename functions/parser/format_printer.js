@@ -99,6 +99,7 @@ class FormatPrinter {
       return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}${displayWholeMinutesWithoutSeconds ? " sec" : ""}`;
     }
 
+    // Compose the hour:minute:seconds
     let hourDisplay = "";
     let minuteDisplay = "";
     let secondsDisplay = secondsRes.seconds;
@@ -148,12 +149,12 @@ class FormatPrinter {
 
   // eslint-disable-next-line no-unused-vars
   pacePerMileFormatted(lap) {
-    return `${this.secondsToTimeFormatted(this.secondsPerMile(lap))}/mi`;
+    return `${this.secondsToTimeFormatted(this.secondsPerMile(lap), false)}/mi`;
   }
 
   // eslint-disable-next-line no-unused-vars
   pacePerKilometerFormatted(lap) {
-    return `${this.secondsToTimeFormatted(this.secondsPerKilometer(lap))}/km`;
+    return `${this.secondsToTimeFormatted(this.secondsPerKilometer(lap), false)}/km`;
   }
 
   // eslint-disable-next-line no-unused-vars

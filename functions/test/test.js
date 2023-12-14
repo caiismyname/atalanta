@@ -164,6 +164,26 @@ describe("Formatter", () => {
         assert.equal(title, "4 x 4 mins");
       });
     });
+
+    it("60sec in summary instead of 1min", () => {
+      resetConfigs();
+
+      const run = userTestRuns["formatting"]["60sec_in_title"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+        forceParse: true,
+      });
+
+      console.log(res);
+
+      assert.equal(res.summary.title, "3 x (3 mins, 2 mins, 1 min)");
+    });
   });
 
   describe("AVERAGE FORMATTING", () => {
@@ -429,6 +449,57 @@ describe("Formatter", () => {
         });
         assert.ok(countOccurances("\n", splits), 3);
         assert.ok(splits.includes("1. 1:20, 42, 20\n"));
+      });
+
+      it("Mile split showing as pace", () => {
+        // Note that this was happening because the split's distance was so off from the rest that it fell into a different case on the less/is/greater than mile switch statement.
+        // Fixed it by switching off of the matched distance instead of actual distance
+        resetConfigs();
+
+        const run = userTestRuns["general_irl_examples"]["mile_split_showing_pace"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        const formatter = new Formatter(formatConfig);
+        const splitsOutput = formatter.determineSetSplits(res.sets[0]);
+
+        assert.ok(!outputIsPace(splitsOutput));
+      });
+
+      it("Ensure paces always :00 if whole minute", () => {
+        const kmConfig = {...defaultFormatConfig};
+        kmConfig.paceUnits = "KM";
+        const mileConfig = {...defaultFormatConfig};
+
+        const kmPrinter = new FormatPrinter(kmConfig);
+        const milePrinter = new FormatPrinter(mileConfig);
+
+        const lapMile = {
+          "elapsed_time": 20,
+          "moving_time": 20,
+          "distance": 107.2,
+          "average_speed": 5.36,
+          "max_speed": 6.042,
+          "lap_index": 3,
+          "split": 3,
+        };
+        const lapKm = {
+          "elapsed_time": 180,
+          "moving_time": 180,
+          "distance": 1000,
+          "lap_index": 3,
+          "split": 3,
+        };
+
+        assert.ok(outputIsPace(milePrinter.lapPaceFormatted(lapMile)));
+        assert.ok(outputIsPace(kmPrinter.lapPaceFormatted(lapKm)));
       });
     });
 
@@ -1098,9 +1169,12 @@ describe("Formatter", () => {
         verbose: false,
       });
 
-      // Make sure we don't mark it as (2 x 200m) + 400m + ...
+      // Make sure we don't mark it as "(2 x 200m) + 400m + 800m + (2 x 200m) + 400m + 800m"
+      // Should be "2 x ((2 x 200m) + 400m + 800m)"
       assert.equal(res.sets.length, 1);
-      assert.equal(res.sets[0].pattern.toString(), [0, 0, 1, 2].toString());
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].pattern[0].map((x) => x.pattern[0]).toString(), [0, 1, 2].toString());
+      assert.equal(res.sets[0].pattern[0][0].count, 2);
       assert.equal(res.sets[0].count, 2);
     });
 
@@ -1125,13 +1199,119 @@ describe("Formatter", () => {
       });
 
       // Should be (2 x (200m, 200m, 400m) + (2 x 800m))
-      assert.equal(res.sets.length, 2);
-      assert.equal(res.sets[0].pattern.toString(), [0, 0, 1].toString());
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].pattern[0].map((x) => x.pattern[0]).toString(), [0, 1].toString());
+      assert.equal(res.sets[0].pattern[0][0].count, 2);
       assert.equal(res.sets[0].count, 2);
 
       assert.equal(res.sets[1].pattern.toString(), [2].toString());
       assert.equal(res.sets[1].count, 2);
       assert.equal(res.sets[1].laps[0].closestDistance, 800);
+    });
+
+    it("2x(2x100m, 3x800m)", () => {
+      resetConfigs();
+      const distances = [100, 100, 800, 800, 800, 100, 100, 800, 800, 800];
+      const inputLaps = [];
+      for (const dist of distances) {
+        inputLaps.push([dist, "METERS", true]);
+        inputLaps.push([dist, "METERS", false]);
+      }
+      const run = generateAndReturnWorkout(inputLaps);
+
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // Formatting
+      assert.equal(res.summary.title.split("x").length - 1, 3); // Ensure title has the right number of x's
+      assert.equal(res.summary.title.split("(").length - 1, 3); // Ensure we don't wrap the "2 x ((2 x 100m) + (3 x 800m))" in parens
+
+      assert.equal(res.sets.length, 1);
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].count, 2);
+      assert.equal(res.sets[0].pattern.length, 2);
+      // The "2x100m"
+      assert.equal(res.sets[0].pattern[0][0].pattern.toString(), [0].toString());
+      assert.equal(res.sets[0].pattern[0][0].count, 2);
+      assert.equal(res.sets[0].pattern[0][0].hasSubPattern, false);
+      // The "3x800m"
+      assert.equal(res.sets[0].pattern[0][1].pattern.toString(), [1].toString());
+      assert.equal(res.sets[0].pattern[0][1].count, 3);
+      assert.equal(res.sets[0].pattern[0][1].hasSubPattern, false);
+    });
+
+    it("2x(2x100m, 3x800m) + (2 x 1mi)", () => {
+      resetConfigs();
+      const distances = [100, 100, 800, 800, 800, 100, 100, 800, 800, 800, 1600, 1600];
+      const inputLaps = [];
+      for (const dist of distances) {
+        inputLaps.push([dist, "METERS", true]);
+        inputLaps.push([dist, "METERS", false]);
+      }
+      const run = generateAndReturnWorkout(inputLaps);
+
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // Formatting
+      assert.equal(res.summary.title.split("x").length - 1, 4); // Ensure title has the right number of x's
+      assert.equal(res.summary.title.split("(").length - 1, 5); // Ensure we wrap the "2 x ((2 x 100m) + (3 x 800m))" in parens
+
+      assert.equal(res.sets.length, 2);
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].count, 2);
+      assert.equal(res.sets[0].pattern.length, 2);
+      // The "2x100m"
+      assert.equal(res.sets[0].pattern[0][0].pattern.toString(), [0].toString());
+      assert.equal(res.sets[0].pattern[0][0].count, 2);
+      assert.equal(res.sets[0].pattern[0][0].hasSubPattern, false);
+      // The "3x800m"
+      assert.equal(res.sets[0].pattern[0][1].pattern.toString(), [1].toString());
+      assert.equal(res.sets[0].pattern[0][1].count, 3);
+      assert.equal(res.sets[0].pattern[0][1].hasSubPattern, false);
+      // The "2 x 1mi"
+      assert.ok(!res.sets[1].hasSubPattern);
+      assert.equal(res.sets[1].laps[0].closestDistance, "1");
+      assert.equal(res.sets[1].laps[0].closestDistanceUnit, "mi");
+    });
+
+    it("(2 x ((3 x 1km) + (4 x 300m)))", () => {
+      resetConfigs();
+
+      const run = userTestRuns["pattern_reducer"]["subpattern_1"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+        forceParse: true,
+      });
+
+      assert.equal(res.summary.title.split("(").length - 1, 4);
+
+      assert.ok(res.sets[0].hasSubPattern);
+      assert.equal(res.sets[0].count, 2);
+      assert.equal(res.sets[0].pattern[0][0].count, 3);
+      assert.ok(!res.sets[0].pattern[0][0].hasSubPattern);
+      assert.equal(res.sets[0].pattern[0][1].count, 4);
+      assert.ok(!res.sets[0].pattern[0][1].hasSubPattern);
     });
   });
 
@@ -1680,6 +1860,34 @@ describe("Parser", () => {
         }
       });
 
+      it("8min", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["8min"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+          forceParse: true,
+        });
+
+        assert.equal(res.sets.length, 2);
+        assert.equal(res.sets[0].count, 4);
+        for (const lap of res.sets[0].laps) {
+          assert.equal(lap.workoutBasis, "TIME");
+          assert.equal(lap.closestTime, 480);
+        }
+        assert.equal(res.sets[1].count, 4);
+        for (const lap of res.sets[1].laps) {
+          assert.equal(lap.workoutBasis, "TIME");
+          assert.equal(lap.closestTime, 90);
+        }
+      });
+
       describe("Basis homogeneity check", () => {
         it("200m misparsed as 30sec, basis homogeneity check", () => {
           resetConfigs();
@@ -1696,7 +1904,7 @@ describe("Parser", () => {
           });
 
           assert.equal(res.sets.length, 3);
-          assert.equal(res.sets[0].pattern.toString(), [0, 0, 1, 2].toString());
+          assert.ok(res.sets[0].hasSubPattern);
           assert.equal(res.sets[0].laps[0].closestDistance, 200);
           assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
           assert.equal(res.sets[0].laps[1].closestDistance, 200);
@@ -2269,41 +2477,7 @@ describe("Parser", () => {
   });
 
   describe("Test", () => {
-    it("james undefined", () => {
-      resetConfigs();
 
-      const run = userTestRuns["uncategorized"][1];
-      const res = parseWorkout({
-        run: run,
-        config: {
-          parser: parserConfig,
-          format: formatConfig,
-        },
-        returnSets: true,
-        verbose: false,
-      });
-
-      // console.log(res.sets[1]);
-      console.log(res);
-    });
-
-    it("oim", () => {
-      resetConfigs();
-
-      const run = userTestRuns["uncategorized"][2];
-      const res = parseWorkout({
-        run: run,
-        config: {
-          parser: parserConfig,
-          format: formatConfig,
-        },
-        returnSets: true,
-        verbose: false,
-        forceParse: true,
-      });
-
-      console.log(res);
-    });
   });
 });
 
