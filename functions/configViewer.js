@@ -13,7 +13,36 @@ db.ref(`users`).once("value", (snapshot) => {
 
   Object.keys(allUsers).forEach((userID) => {
     const userFormatConfig = allUsers[userID]["preferences"]["format"];
+    const userParserConfig = allUsers[userID]["preferences"]["parser"];
+    const userAccountSettings = allUsers[userID]["preferences"]["account"];
+
     for (const [option, value] of Object.entries(userFormatConfig)) {
+      if (option in combinedConfigs) {
+        if (value in combinedConfigs[option]) {
+          combinedConfigs[option][value] += 1;
+        } else {
+          combinedConfigs[option][value] = 1;
+        }
+      } else {
+        combinedConfigs[option] = {};
+        combinedConfigs[option][value] = 1;
+      }
+    }
+
+    for (const [option, value] of Object.entries(userParserConfig)) {
+      if (option in combinedConfigs) {
+        if (value in combinedConfigs[option]) {
+          combinedConfigs[option][value] += 1;
+        } else {
+          combinedConfigs[option][value] = 1;
+        }
+      } else {
+        combinedConfigs[option] = {};
+        combinedConfigs[option][value] = 1;
+      }
+    }
+
+    for (const [option, value] of Object.entries(userAccountSettings)) {
       if (option in combinedConfigs) {
         if (value in combinedConfigs[option]) {
           combinedConfigs[option][value] += 1;
