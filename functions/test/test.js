@@ -8,6 +8,7 @@ const {generateAndReturnWorkout} = require("./generateFakeWorkout.js");
 
 const defaultTestRuns = require("./test_runs.json");
 const userTestRuns = require("./user_test_runs.json");
+const falsePositiveTestRuns = require("./false_positive_test_runs.json");
 
 // Set these as global
 let parserConfig = {...defaultParserConfig};
@@ -2361,7 +2362,115 @@ describe("Parser", () => {
   });
 
   describe("FALSE POSITIVES", () => {
+    describe("FALSE POSITIVE — Ensure non-workouts are not marked as workouts", () => {
+      for (const run of Object.values(userTestRuns["false_positive"])) {
+        // if (run.id === 9984277300) {
+        it(`${run.name}`, () => {
+          resetConfigs();
 
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          if (res.isWorkout) {
+            console.log(res.summary.title);
+          }
+
+          assert.ok(!res.isWorkout);
+        });
+        // }
+      }
+    });
+
+    describe("TRUE POSITIVE — Ensure all workouts are marked as workouts", () => {
+      // Ensure that the verifyIsWorkout() doesn't false reject anything
+
+      const doNotSearch = ["uncategorized", "race_examples", "false_positive"];
+      for (const category of Object.keys(userTestRuns)) {
+        if (!doNotSearch.includes(category)) {
+          for (const run of Object.values(userTestRuns[category])) {
+            it(`${run.name}`, () => {
+              resetConfigs();
+
+              const res = parseWorkout({
+                run: run,
+                config: {
+                  parser: parserConfig,
+                  format: formatConfig,
+                },
+                returnSets: true,
+                verbose: false,
+              });
+
+              assert.ok(res.isWorkout);
+            });
+          }
+        }
+      }
+    });
+
+    describe("User specific tests", () => {
+      for (const personId of Object.keys(falsePositiveTestRuns)) {
+        describe(`${personId}`, () => {
+          const person = falsePositiveTestRuns[personId];
+          describe(`Is workout`, () => {
+            for (const run of Object.values(person.isWorkout)) {
+              it(`${run.id}`, () => {
+                resetConfigs();
+                parserConfig.workoutPace = person.workoutPace;
+
+                const res = parseWorkout({
+                  run: run,
+                  config: {
+                    parser: parserConfig,
+                    format: formatConfig,
+                  },
+                  returnSets: true,
+                  verbose: false,
+                });
+
+                if (!res.isWorkout) {
+                  console.log(`${run.name} — ${run.id}`);
+                }
+
+                assert.ok(res.isWorkout);
+              });
+            }
+          });
+
+          describe("Is NOT workout", () => {
+            for (const run of Object.values(person.notWorkout)) {
+              it(`${run.id}`, () => {
+                resetConfigs();
+                parserConfig.workoutPace = person.workoutPace;
+
+                const res = parseWorkout({
+                  run: run,
+                  config: {
+                    parser: parserConfig,
+                    format: formatConfig,
+                  },
+                  returnSets: true,
+                  verbose: false,
+                });
+
+                if (res.isWorkout) {
+                  console.log(`${res.summary.title} — ${run.id}`);
+                }
+
+                assert.ok(!res.isWorkout);
+              });
+            }
+          });
+        });
+      }
+    });
   });
 
   describe("FALSE NEGATIVE", () => {

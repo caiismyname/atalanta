@@ -51,9 +51,10 @@ class StravaInterface {
         });
   }
 
-  static getRecentRuns(accessToken, callback) {
+  // Returns a list of IDs of activities, to then retrieve one-by-one
+  static getRecentRuns(accessToken, numActivities, callback) {
     const stravaConfigDetails = this.stravaConfigDetails();
-    const activitiesPerPage = 80;
+    const activitiesPerPage = numActivities; // Making it clear that this doesn't actually paginate, it just sets a large page size
     const config = {
       headers: {Accept: "application/json", Authorization: `Bearer ${accessToken}`},
     };

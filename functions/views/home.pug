@@ -43,11 +43,44 @@ html(lang="en")
           <stripe-buy-button buy-button-id="buy_btn_1NZ1ohK0AQtnORqn6q0PCfxp" publishable-key="pk_live_51NYzE1K0AQtnORqnHWbv6FnpnWzYh0rBDeaHNs3xa2ExcfbGMIiZYmb7qE11cl7zrsmV4I2S4T5l48WlngkmFKHV00M3QQiFrB" >
           </stripe-buy-button>
     
-      .card
-        h2.section-title Preferences
-        form(action="/update_preferences", method="POST")
-          h3 Primary Workout Style
-          p This will help Splitz determine how to interpret your workout structure.
+      form(action="/update_preferences", method="POST")
+        .card(style={'text-align': 'left'})
+          h2.section-title Workout Settings
+          h3 
+            b Workout Paces
+          p During workouts, I usually run at:
+          .radio-container
+            input(type="radio", name="workoutPace", value=6, id="6", checked=(preferences.parser.workoutPace === 6))
+            label(for="6") 6:00/mi or faster
+            br
+            
+            input(type="radio", name="workoutPace", value=7, id="7", checked=(preferences.parser.workoutPace === 7))
+            label(for="7") 6:00 - 7:00/mi 
+            br
+            
+            input(type="radio", name="workoutPace", value=8, id="8", checked=(preferences.parser.workoutPace === 8))
+            label(for="8") 7:00 - 8:00/mi
+            br
+            
+            input(type="radio", name="workoutPace", value=9, id="9", checked=(preferences.parser.workoutPace === 9))
+            label(for="9") 8:00 - 9:00/mi
+            br
+            
+            input(type="radio", name="workoutPace", value=10, id="10", checked=(preferences.parser.workoutPace === 10))
+            label(for="10") 9:00 - 10:00/mi
+            br
+            
+          br
+          p 
+            i If you're in between choices, choose the slower option
+
+          hr
+          br
+
+          h3 
+            b Primary Workout Style
+          p 
+            i This will help Splitz determine how to interpret your workout structure.
           label.radio-label
             input(type="radio", name="dominantWorkoutType", value="DISTANCE", checked=(preferences.parser.dominantWorkoutType === "DISTANCE"))
             | Usually distance based
@@ -61,93 +94,89 @@ html(lang="en")
             | Mix of both
           br
           
-          br
-          hr
-          br
-
-          h3 Summary Display Format
-          p Configure how your summaries and splits are formatted.
-          br
-          p 
-           b Display all paces in minutes per:
-          label.radio-label
-            input(type="radio", name="paceUnits", value="MILE", checked=(preferences.format.paceUnits === "MILE"))
-            | Mile
-          br
-          label.radio-label
-            input(type="radio", name="paceUnits", value="KM", checked=(preferences.format.paceUnits === "KM"))
-            | Kilometer
-          br
-          br
-          p 
-            b For times under 90 seconds, show as: 
-          label.radio-label
-            input(type="radio", name="sub90SecFormat", value="MINUTE", checked=(preferences.format.sub90SecFormat === "MINUTE"))
-            | minute:second (e.g. "1:12")
-          br
-          label.radio-label
-            input(type="radio", name="sub90SecFormat", value="SECONDS", checked=(preferences.format.sub90SecFormat === "SECONDS"))
-            | seconds only (e.g. "72")
-          br
-          br
-          p 
-            b For laps under a mile, show: 
-          label.radio-label
-            input(type="radio", name="subMileDistanceValue", value="PACE", checked=(preferences.format.subMileDistanceValue === "PACE"))
-            | pace
-          br
-          label.radio-label
-            input(type="radio", name="subMileDistanceValue", value="TIME", checked=(preferences.format.subMileDistanceValue === "TIME"))
-            | total time
-          br
-          br
-          p 
-            b For laps over a mile, show:
-          label.radio-label
-            input(type="radio", name="greaterThanMileDistanceValue", value="PACE", checked=(preferences.format.greaterThanMileDistanceValue === "PACE"))
-            | pace
-          br
-          label.radio-label
-            input(type="radio", name="greaterThanMileDistanceValue", value="TIME", checked=(preferences.format.greaterThanMileDistanceValue === "TIME"))
-            | total time
-          br
-          br
-          p 
-            b Display all splits or just show the range:
-          label.radio-label
-            input(type="radio", name="detailsStructure", value="SPLITS", checked=(preferences.format.detailsStructure === "SPLITS"))
-            | All splits (e.g. "5:38, 5:41, 5:42, 5:39")
-          br
-          label.radio-label
-            input(type="radio", name="detailsStructure", value="RANGE", checked=(preferences.format.detailsStructure === "RANGE"))
-            | Range (e.g. "5:38 — 5:42")
-          br
-          br
-          p 
-            b Display splits in full or condensed:
-          label.radio-label
-            input(type="radio", name="detailsLength", value="FULL", checked=(preferences.format.detailsLength === "FULL"))
-            | Full (e.g. "5:38, 5:41, 5:42, 5:39")
-          br
-          label.radio-label
-            input(type="radio", name="detailsLength", value="CONDENSED", checked=(preferences.format.detailsLength === "CONDENSED"))
-            | Condensed (e.g. "5:38,41,42,39")
-          
-          
-          br
-          br
-          br
-
           button(type="submit") Save
-  
-      .card
+
+        .card(style={'text-align': 'left'})
+            h2.section-title Summary Display Format
+            p 
+              b Display all paces in minutes per:
+            label.radio-label
+              input(type="radio", name="paceUnits", value="MILE", checked=(preferences.format.paceUnits === "MILE"))
+              | Mile
+            br
+            label.radio-label
+              input(type="radio", name="paceUnits", value="KM", checked=(preferences.format.paceUnits === "KM"))
+              | Kilometer
+            br
+            br
+            p 
+              b For times under 90 seconds, show as: 
+            label.radio-label
+              input(type="radio", name="sub90SecFormat", value="MINUTE", checked=(preferences.format.sub90SecFormat === "MINUTE"))
+              | minute:second (e.g. "1:12")
+            br
+            label.radio-label
+              input(type="radio", name="sub90SecFormat", value="SECONDS", checked=(preferences.format.sub90SecFormat === "SECONDS"))
+              | seconds only (e.g. "72")
+            br
+            br
+            p 
+              b For laps under a mile, show: 
+            label.radio-label
+              input(type="radio", name="subMileDistanceValue", value="PACE", checked=(preferences.format.subMileDistanceValue === "PACE"))
+              | pace
+            br
+            label.radio-label
+              input(type="radio", name="subMileDistanceValue", value="TIME", checked=(preferences.format.subMileDistanceValue === "TIME"))
+              | total time
+            br
+            br
+            p 
+              b For laps over a mile, show:
+            label.radio-label
+              input(type="radio", name="greaterThanMileDistanceValue", value="PACE", checked=(preferences.format.greaterThanMileDistanceValue === "PACE"))
+              | pace
+            br
+            label.radio-label
+              input(type="radio", name="greaterThanMileDistanceValue", value="TIME", checked=(preferences.format.greaterThanMileDistanceValue === "TIME"))
+              | total time
+            br
+            br
+            p 
+              b Display all splits or just show the range:
+            label.radio-label
+              input(type="radio", name="detailsStructure", value="SPLITS", checked=(preferences.format.detailsStructure === "SPLITS"))
+              | All splits (e.g. "5:38, 5:41, 5:42, 5:39")
+            br
+            label.radio-label
+              input(type="radio", name="detailsStructure", value="RANGE", checked=(preferences.format.detailsStructure === "RANGE"))
+              | Range (e.g. "5:38 — 5:42")
+            br
+            br
+            p 
+              b Display splits in full or condensed:
+            label.radio-label
+              input(type="radio", name="detailsLength", value="FULL", checked=(preferences.format.detailsLength === "FULL"))
+              | Full (e.g. "5:38, 5:41, 5:42, 5:39")
+            br
+            label.radio-label
+              input(type="radio", name="detailsLength", value="CONDENSED", checked=(preferences.format.detailsLength === "CONDENSED"))
+              | Condensed (e.g. "5:38,41,42,39")
+              
+            
+            br
+            br
+
+            button(type="submit") Save
+    
+      .card(style={'text-align': 'left'})
         h2.section-title Account Settings
-        form(action="/update_account_settings", method="POST")
+        form(action="/update_account_settings", method="POST", style={'text-align': 'left'})
           p 
             b Data Usage and Communication
           label.radio-label
             input(type="checkbox", name="accountSettings", value="dataUsageOptIn", checked=(preferences.account.dataUsageOptIn))
-            | Allow my workout data to occasionally be used to improve Splitz's accuracy
+            | Allow my workout data to be used to improve Splitz's accuracy
           br
           label.radio-label
             input(type="checkbox", name="accountSettings", value="emailOptIn", checked=(preferences.account.emailOptIn))
