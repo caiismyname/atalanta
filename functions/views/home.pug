@@ -171,12 +171,12 @@ html(lang="en")
     
       .card(style={'text-align': 'left'})
         h2.section-title Account Settings
-        form(action="/update_account_settings", method="POST")
+        form(action="/update_account_settings", method="POST", style={'text-align': 'left'})
           p 
             b Data Usage and Communication
           label.radio-label
             input(type="checkbox", name="accountSettings", value="dataUsageOptIn", checked=(preferences.account.dataUsageOptIn))
-            | Allow my workout data to occasionally be used to improve Splitz's accuracy
+            | Allow my workout data to be used to improve Splitz's accuracy
           br
           label.radio-label
             input(type="checkbox", name="accountSettings", value="emailOptIn", checked=(preferences.account.emailOptIn))

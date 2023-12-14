@@ -2153,7 +2153,7 @@ describe("Parser", () => {
     });
   });
 
-  describe.only("FALSE POSITIVES", () => {
+  describe("FALSE POSITIVES", () => {
     describe("FALSE POSITIVE — Ensure non-workouts are not marked as workouts", () => {
       for (const run of Object.values(userTestRuns["false_positive"])) {
         // if (run.id === 9984277300) {
