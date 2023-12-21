@@ -13,21 +13,47 @@ const ANALYTICS_EVENTS = {
   TEST: "test_event",
 };
 
-function logAnalytics(event, db) {
+const USER_EVENTS = {
+  WEBHOOK: "webhook_count",
+  RUN: "run_count",
+  WORKOUT: "workout_count",
+  MOST_RECENT_WORKOUT: "most_recent_workout",
+  MOST_RECENT_WEBHOOK: "most_recent_webhook"
+}
+
+function getDatestamp() {
   const now = new Date();
   const datestamp = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  return datestamp;
+}
 
-  if (!isEmulator) {
-    const eventRef = db.ref(`analytics/${datestamp}/${event}`);
-    eventRef.transaction((currentValue) => {
-      return (currentValue || 0) + 1; // Initalize if null, then increment
-    });
-  } else {
-    console.log(`ANALYTICS NOT SAVED B/C EMULATOR: ${datestamp} | ${event}`);
+function logAnalytics(event, db) {
+  const datestamp = getDatestamp();
+  const eventRef = db.ref(`analytics/${datestamp}/${event}`);
+  eventRef.transaction((currentValue) => {
+    return (currentValue || 0) + 1; // Initalize if null, then increment
+  });
+}
+
+function logUserEvent(event, userID, db) {
+  const eventRef = db.ref(`userEvents/${userID}/${event}`);
+  switch(event) {
+    case USER_EVENTS.WEBHOOK, USER_EVENTS.RUN, USER_EVENTS.WORKOUT: 
+      eventRef.transaction((currentValue) => {
+        return (currentValue || 0) + 1; // Initalize if null, then increment
+      });
+      break;
+    
+    case USER_EVENTS.MOST_RECENT_WEBHOOK, USER_EVENTS.MOST_RECENT_WORKOUT:
+      eventRef.update(getDatestamp());
+      break;
   }
 }
 
+
 module.exports = {
   ANALYTICS_EVENTS,
+  USER_EVENTS,
   logAnalytics,
+  logUserEvent
 };
