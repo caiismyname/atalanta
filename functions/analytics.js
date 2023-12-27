@@ -36,6 +36,7 @@ function logAnalytics(event, db) {
 }
 
 function logUserEvent(event, userID, db) {
+  console.log(`logging user event ${event}`)
   const eventRef = db.ref(`userEvents/${userID}/${event}`);
   switch(event) {
     case USER_EVENTS.WEBHOOK, USER_EVENTS.RUN, USER_EVENTS.WORKOUT: 
