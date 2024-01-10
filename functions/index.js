@@ -7,8 +7,9 @@ const favicon = require("serve-favicon");
 
 const {parseWorkout} = require("./parser/parser.js");
 const {StravaInterface} = require("./strava_interface.js");
+const {MockStravaInterface} = require("./mock_strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
-const {ANALYTICS_EVENTS, logAnalytics} = require("./analytics.js");
+const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
 const {defaultAccountSettingsConfig, knownStravaDefaultRunNames} = require("./parser/defaultConfigs.js");
 
 const functions = require("firebase-functions");
@@ -25,6 +26,7 @@ app.use(express.static("public"));
 app.use(cors());
 app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 
+const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const serviceAccount = require("./serviceAccountKey.json");
 const firebase = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -148,6 +150,17 @@ app.get("/admin/analytics", (req, res) => {
   });
 });
 
+app.get("/admin/mock_strava", (req, res) => {
+  if (isEmulator) {
+    MockStravaInterface.initialize(dbInterface);
+    // MockStravaInterface.sendNonWorkoutRun(processActivity)
+    MockStravaInterface.sendWorkoutRun(processActivity);
+    res.send("mock strava!");
+  } else {
+    res.render("/");
+  }
+});
+
 // Adds support for GET requests to the webhook for webhook subscription creation
 app.get("/strava_webhook", (req, res) => {
   StravaInterface.webhookCreationResponse(req, res);
@@ -184,9 +197,13 @@ function processActivity(activityID, userStravaID, isTest) {
   dbInterface.getUserIDForStravaID(userStravaID, (userID) => {
     dbInterface.getStravaTokenForID(userID, (stravaToken) => {
       StravaInterface.getActivity(activityID, stravaToken, (activity) => {
+        logUserEvent(USER_EVENTS.WEBHOOK, userID, db);
+        logUserEvent(USER_EVENTS.MOST_RECENT_WEBHOOK, userID, db);
+
         if (activity.type === "Run") {
           if (!isTest) {
             logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
+            logUserEvent(USER_EVENTS.RUN, userID, db);
           }
 
           dbInterface.getPreferencesForUser(userID, (config) => {
@@ -199,6 +216,8 @@ function processActivity(activityID, userStravaID, isTest) {
               console.log(`ACTIVITY ${activityID} is a workout. Title: [${output.summary.title}] Description: [${output.summary.description.replace(new RegExp("\n", "g"), " || ")}]`);
               if (!isTest) {
                 logAnalytics(ANALYTICS_EVENTS.WORKOUT_DETECTED, db);
+                logUserEvent(USER_EVENTS.WORKOUT, userID, db);
+                logUserEvent(USER_EVENTS.MOST_RECENT_WORKOUT, userID, db);
               }
               setTimeout(() => {
                 if (isTest) {
