@@ -36,21 +36,26 @@ function logAnalytics(event, db) {
 }
 
 function logUserEvent(event, userID, db) {
-  console.log(`logging user event ${event}`)
   const eventRef = db.ref(`userEvents/${userID}/${event}`);
   switch(event) {
-    case USER_EVENTS.WEBHOOK, USER_EVENTS.RUN, USER_EVENTS.WORKOUT: 
+    case USER_EVENTS.WEBHOOK:
+    case USER_EVENTS.RUN:
+    case USER_EVENTS.WORKOUT: 
       eventRef.transaction((currentValue) => {
         return (currentValue || 0) + 1; // Initalize if null, then increment
       });
       break;
     
-    case USER_EVENTS.MOST_RECENT_WEBHOOK, USER_EVENTS.MOST_RECENT_WORKOUT:
-      eventRef.update(getDatestamp());
+    case USER_EVENTS.MOST_RECENT_WEBHOOK:
+    case USER_EVENTS.MOST_RECENT_WORKOUT:
+      eventRef.transaction((currentValue) => {
+        return (getDatestamp());
+      });
       break;
+    default:
+      console.log(`Unknown user event: [${event}]`);
   }
 }
-
 
 module.exports = {
   ANALYTICS_EVENTS,

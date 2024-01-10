@@ -1,10 +1,4 @@
 const assert = require("assert");
-const projectConfig = {
-  projectId: 'atalanta-12c63',
-  databaseURL: 'https://atalanta-12c63-default-rtdb.firebaseio.com'
-};
-// const firebaseTest = require('firebase-functions-test')(projectConfig, '../service-account-key.json');
-const firebaseTest = require('firebase-functions-test')//(projectConfig, '../service-account-key.json');
 
 const {parseWorkout} = require("../parser/parser.js");
 const {detectRaceType} = require("../parser/race_detector.js");
@@ -2599,44 +2593,5 @@ describe("Race Detection", () => {
         }
       }
     }
-  });
-});
-
-describe.only("User handling in DB", () => {
-  let myFunction = require('../index');
-  
-  before(async () => {
-    // myFunction = require('../index');
-
-    // await db.ref('example').set({ value: 'initial' });
-  });
-
-  after(() => {
-    // Do cleanup tasks.
-    firebaseTest.cleanup();
-    // Reset the database.
-    // TODO
-  });
-
-  describe("New User Creation", () => {
-    it("example", async () => {
-      const req = { method: 'GET', path: '/test' };
-
-      // Mock response object with tests
-      const res = {
-        redirect: (code, url) => {
-          console.log("In the redirect!");
-          // assert.equal(code, 303);
-          // assert.equal(url, 'new_ref');
-          done();
-        }
-      };
-
-      // Call your Cloud Function with the mock request and response
-      await myFunction.app(req, res);
-
-      // Assert the response
-      // expect(res.send).to.have.been.calledWith('Hello, World from path2!');
-    })
   });
 });

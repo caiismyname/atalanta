@@ -1,17 +1,13 @@
-const functions = require("firebase-functions");
-const express = require("express");
-const axios = require("axios");
-// const {DbInterface} = require("./db_interface.js");
-
-const mockStravaApp = express();
+const nock = require("nock");
+const defaultTestRuns = require("./test/test_runs.json");
 
 class MockStravaInterface {
-    static initialize(db) {
+    static initialize(inputDbInterface) {
         this.userID = 123456789;
         this.stravaID = 987654321
         this.activityID = 1111;
 
-        const dbInterface = new DbInterface(db);
+        const dbInterface = inputDbInterface;
 
         dbInterface.createNewUser({
             userID: this.userID,
@@ -19,40 +15,51 @@ class MockStravaInterface {
             email: "foobar@splitz.com",
         })
 
+        console.log("Test user created");
+
         dbInterface.saveStravaCredentialsForUser(
             this.userID,
             this.stravaID,
             "fake_access_token",
             "fake_refresh_token",
-            new Date("2030-12-31")
+            new Date("2030-12-31").getTime()
         );
 
-        this.sendNonWorkoutRunWebhook();
+        console.log("Test user strava credentials saved")
     }
 
-    static sendNonWorkoutRunWebhook() {
-        let req = {
-            "object_type": "activity",
-            "aspect_type": "create",
-            "object_id": this.activityID,
-            "owner_id": this.stravaID
-        }
+    static sendNonWorkoutRun(processActivityFunc) {
+      const res = defaultTestRuns["(4 x 1mi) + (4 x 400m)"];
+      res.type = "Run";
 
-        axios({
-            method: "post",
-            url: `http://localhost:5002/strava_webhook`,
-            headers: "application/json",
-            data: req
-          }).then((res) => {
-            console.log("Sent mock non workout run webhook")
-          });
+        var scope = nock('https://www.strava.com')
+          .get(`/api/v3/activities/${this.activityID}`)
+          .reply(200, {
+            foo: "bar",
+            type: "Run"
+          }
+        );
+
+        processActivityFunc(this.activityID, this.stravaID, false);
     }
   
-    static sendWorkoutRun() {
-  
+    static sendWorkoutRun(processActivityFunc) {
+
+      const res = defaultTestRuns["(4 x 1mi) + (4 x 400m)"];
+      res.type = "Run";
+
+      var scopeGet = nock('https://www.strava.com')
+        .get(`/api/v3/activities/${this.activityID}`)
+        .reply(200, res);
+
+      var scopePut = nock('https://www.strava.com')
+        .put(`/api/v3/activities/${this.activityID}`)
+        .reply(200, {});
+
+      processActivityFunc(this.activityID, this.stravaID, false);
     }
   
-    static sendBikeActivity() {
+    static sendBikeActivity(processActivityFunc) {
       let req = {
         "body": {
           "object_type": "",
@@ -62,25 +69,11 @@ class MockStravaInterface {
       }
     }
   
-    static sendActivityNameUpdate() {
+    static sendActivityNameUpdate(processActivityFunc) {
         
     }  
-
-    static returnNonWorkoutRun() {
-        return {
-            "type": "Run",
-            "laps": []
-        }
-    }
 }
 
-mockStravaApp.get("/", (req, res) => {
-  res.send("Mock strava app")
-});
-
-exports.mockStravaApp = functions.https.onRequest(mockStravaApp); // Exporting the app for Firebase
-
-  
-// module.exports = {
-//     MockStravaInterface
-// }
+module.exports = {
+    MockStravaInterface
+}
