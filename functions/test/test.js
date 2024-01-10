@@ -1,5 +1,4 @@
 const assert = require("assert");
-
 const {parseWorkout} = require("../parser/parser.js");
 const {detectRaceType} = require("../parser/race_detector.js");
 const {Formatter} = require("../parser/formatter.js");

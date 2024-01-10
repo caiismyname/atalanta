@@ -1,4 +1,3 @@
-const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const ANALYTICS_EVENTS = {
   INBOUND_WEBHOOK: "inbound_webhook",
   ACTIVITY_IS_ELIGIBLE: "activity_is_eligible",
@@ -18,8 +17,8 @@ const USER_EVENTS = {
   RUN: "run_count",
   WORKOUT: "workout_count",
   MOST_RECENT_WORKOUT: "most_recent_workout",
-  MOST_RECENT_WEBHOOK: "most_recent_webhook"
-}
+  MOST_RECENT_WEBHOOK: "most_recent_webhook",
+};
 
 function getDatestamp() {
   const now = new Date();
@@ -37,15 +36,15 @@ function logAnalytics(event, db) {
 
 function logUserEvent(event, userID, db) {
   const eventRef = db.ref(`userEvents/${userID}/${event}`);
-  switch(event) {
+  switch (event) {
     case USER_EVENTS.WEBHOOK:
     case USER_EVENTS.RUN:
-    case USER_EVENTS.WORKOUT: 
+    case USER_EVENTS.WORKOUT:
       eventRef.transaction((currentValue) => {
         return (currentValue || 0) + 1; // Initalize if null, then increment
       });
       break;
-    
+
     case USER_EVENTS.MOST_RECENT_WEBHOOK:
     case USER_EVENTS.MOST_RECENT_WORKOUT:
       eventRef.transaction((currentValue) => {
@@ -61,5 +60,5 @@ module.exports = {
   ANALYTICS_EVENTS,
   USER_EVENTS,
   logAnalytics,
-  logUserEvent
+  logUserEvent,
 };

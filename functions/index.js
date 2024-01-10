@@ -154,7 +154,7 @@ app.get("/admin/mock_strava", (req, res) => {
   if (isEmulator) {
     MockStravaInterface.initialize(dbInterface);
     // MockStravaInterface.sendNonWorkoutRun(processActivity)
-    MockStravaInterface.sendWorkoutRun(processActivity)
+    MockStravaInterface.sendWorkoutRun(processActivity);
     res.send("mock strava!");
   } else {
     res.render("/");
@@ -199,7 +199,7 @@ function processActivity(activityID, userStravaID, isTest) {
       StravaInterface.getActivity(activityID, stravaToken, (activity) => {
         logUserEvent(USER_EVENTS.WEBHOOK, userID, db);
         logUserEvent(USER_EVENTS.MOST_RECENT_WEBHOOK, userID, db);
-        
+
         if (activity.type === "Run") {
           if (!isTest) {
             logAnalytics(ANALYTICS_EVENTS.ACTIVITY_IS_ELIGIBLE, db);
@@ -469,11 +469,6 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
 }
 
 exports.app = functions.https.onRequest(app); // Exporting the app for Firebase
-
-// Export individual functions for testing
-// module.exports = {
-//   processActivity
-// }
 
 // //
 // //
