@@ -1,6 +1,6 @@
 // const Helpers = require("./parser_helpers.js");
 const {FormatPrinter} = require("./format_printer.js");
-const {defaultFormatConfig} = require("./defaultConfigs.js");
+const {defaultFormatConfig} = require("../defaultConfigs.js");
 const {isMile, isKilometer, compareToMile, lapDetectedDistance} = require("./parser_helpers.js");
 const {detectRaceType} = require("./race_detector.js");
 

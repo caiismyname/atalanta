@@ -1,6 +1,6 @@
 const {ANALYTICS_EVENTS, logAnalytics} = require("./analytics.js");
 const {StravaInterface} = require("./strava_interface.js");
-const {defaultParserConfig, defaultFormatConfig, defaultAccountSettingsConfig} = require("./parser/defaultConfigs.js");
+const {defaultParserConfig, defaultFormatConfig, defaultAccountSettingsConfig} = require("./defaultConfigs.js");
 
 class DbInterface {
   constructor(db) {

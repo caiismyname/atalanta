@@ -10,7 +10,7 @@ const {StravaInterface} = require("./strava_interface.js");
 const {MockStravaInterface} = require("./mock_strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
-const {defaultAccountSettingsConfig, knownStravaDefaultRunNames} = require("./parser/defaultConfigs.js");
+const {defaultAccountSettingsConfig, knownStravaDefaultRunNames} = require("./defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
