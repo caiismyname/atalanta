@@ -9,6 +9,7 @@ const {parseWorkout} = require("./parser/parser.js");
 const {StravaInterface} = require("./strava_interface.js");
 const {MockStravaInterface} = require("./mock_strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
+const {EmailInterface} = require("./email_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
 const {defaultAccountSettingsConfig, knownStravaDefaultRunNames} = require("./defaultConfigs.js");
 

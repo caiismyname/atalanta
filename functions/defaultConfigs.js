@@ -21,12 +21,12 @@ const defaultAccountSettingsConfig = {
 
 const knownStravaDefaultRunNames = ["Morning Run", "Lunch Run", "Afternoon Run", "Evening Run", "Night Run"];
 
-const emailCampaignTriggerProperties = ["monetization_trigger_1", "monetization_trigger_2"]
+const emailCampaignTriggerProperties = ["monetization_trigger_1", "monetization_trigger_2"];
 
 module.exports = {
   defaultFormatConfig,
   defaultParserConfig,
   defaultAccountSettingsConfig,
   knownStravaDefaultRunNames,
-  emailCampaignTriggerProperties
+  emailCampaignTriggerProperties,
 };
