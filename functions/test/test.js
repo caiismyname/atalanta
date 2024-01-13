@@ -3,7 +3,7 @@ const {parseWorkout} = require("../parser/parser.js");
 const {detectRaceType} = require("../parser/race_detector.js");
 const {Formatter} = require("../parser/formatter.js");
 const {FormatPrinter} = require("../parser/format_printer.js");
-const {defaultParserConfig, defaultFormatConfig} = require("../parser/defaultConfigs.js");
+const {defaultParserConfig, defaultFormatConfig} = require("../defaultConfigs.js");
 const {generateAndReturnWorkout} = require("./generateFakeWorkout.js");
 
 const defaultTestRuns = require("./test_runs.json");

@@ -95,6 +95,7 @@ class DbInterface {
           {
             stravaConnected: details["stravaConnected"],
             name: details["name"],
+            email: details["email"],
             preferences: details.preferences,
           });
     });
