@@ -100,37 +100,10 @@ app.get("/home", (req, res) => {
   });
 });
 
-app.get("/admin/explorer", (req, res) => {
-
-});
-
-app.get("/explorer_parse", (req, res) => {
-  const activityID = req.query.activityID;
-  const userToken = req.cookies["__session"];
-
-  // console.log(`Explorer parsing: ${activityID}`);
-
-  validateUserToken(userToken, res, (userID) => {
-    dbInterface.getStravaTokenForID(userID, (accessToken) => {
-      StravaInterface.getActivity(activityID, accessToken, (activity) => {
-        if (activity.type === "Run") {
-          const output = parseWorkout({
-            run: activity,
-            verbose: false,
-          });
-          if (output.isWorkout) {
-            StravaInterface.writeSummaryToStrava(activityID, output.summary, accessToken);
-          }
-        }
-      });
-    });
-  });
-});
-
 app.get("/admin", (req, res) => {
   const userToken = req.cookies["__session"];
-  if (userToken) {
-    validateAdminToken(userToken, res, (userID) => {
+  if (userToken || isEmulator) {
+    validateAdminToken(userToken, res, _ => {
       res.render("admin");
     });
   } else {
@@ -138,15 +111,20 @@ app.get("/admin", (req, res) => {
   }
 });
 
-app.get("/admin/analytics", (req, res) => {
-  // dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
-  //   res.render("analytics_viewer", {workouts: workouts});
-  // });
-
+app.get("/admin/recent_workouts", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
-  validateAdminToken(userToken, res, (userID) => {
+  validateAdminToken(userToken, res, _ => {
     dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
-      res.render("analytics_viewer", {workouts: workouts});
+      res.render("recent_workouts_viewer", {workouts: workouts});
+    });
+  });
+});
+
+app.get("/admin/user_analytics", (req, res) => {
+  const userToken = req.cookies["__session"];
+  validateAdminToken(userToken, res, _ => {
+    dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
+      res.render("user_analytics", {workouts: workouts});
     });
   });
 });
@@ -154,7 +132,6 @@ app.get("/admin/analytics", (req, res) => {
 app.get("/admin/mock_strava", (req, res) => {
   if (isEmulator) {
     MockStravaInterface.initialize(dbInterface);
-    // MockStravaInterface.sendNonWorkoutRun(processActivity)
     MockStravaInterface.sendWorkoutRun(processActivity);
     res.send("mock strava!");
   } else {
@@ -415,6 +392,11 @@ function validateUserToken(idToken, res, callback) {
 
 function validateAdminToken(idToken, res, callback) {
   try {
+    if (isEmulator) {
+      callback(1234);
+      return;
+    }
+
     firebase.auth()
         .verifyIdToken(idToken)
         .then((decodedToken) => {
