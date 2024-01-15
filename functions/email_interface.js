@@ -83,11 +83,16 @@ class EmailInterface {
     axios.put(`${propertiesApiPath}/${email}`, {"Data": propertiesData}, this.getConfig())
         .then((_)=>{
           setTimeout(() => {
-            axios.put(`${propertiesApiPath}/${email}`, {"Data": {
+            axios.put(`${propertiesApiPath}/${email}`, {"Data": [{
               "Name": prop,
               "Value": false,
-            }}, this.getConfig());
-            console.log(`\tReverted the prop`);
+            }]}, this.getConfig())
+                .then((_) => {
+                  console.log(`\tReverted the prop`);
+                })
+                .catch((error) => {
+                  console.error(error);
+                });
           }, 10000);
 
           callback();

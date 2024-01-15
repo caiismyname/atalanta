@@ -484,7 +484,7 @@ exports.monetizationTriggers = functions.database.ref(`/userEvents/{userID}/${US
       // if (workoutCount === threshold1 || workoutCount === threshold2) {
       //   const trigger = workoutCount === threshold1 ? emailCampaignTriggerProperties.MONETIZATION_1 : emailCampaignTriggerProperties.MONETIZATION_2;
 
-      if (workoutCount > 3) {
+      if (workoutCount > 4) {
         const trigger = emailCampaignTriggerProperties.MONETIZATION_1;
 
         dbInterface.getUserDetails(userID, (details) => {
