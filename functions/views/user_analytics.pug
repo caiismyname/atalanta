@@ -10,40 +10,42 @@ html(lang="en")
     header
       h1 Splitz User Analytics
     
-    canvas(id="webhooksReceived" width="400" height="200")
-    script.
-      var graphData = !{JSON.stringify(graphData)}
-      console.log(graphData)
-      // Your chart data
-      var data = {
-          datasets: [{
-              label: "Webhooks Received",
-              borderColor: "rgb(75, 192, 192)",
-              data: graphData.webhooks,
-              fill: false
-          }]
-      };
+    for event in globalEventDatasets
+        canvas(id=event.name width="400" height="200")
+        script.
+            var graphData = !{JSON.stringify(event.data)}
+            var eventName = !{JSON.stringify(event.name)}
+            console.log(graphData)
+            // Your chart data
+            var data = {
+                datasets: [{
+                    label: eventName,
+                    borderColor: "rgb(75, 192, 192)",
+                    data: graphData,
+                    fill: false
+                }]
+            };
 
-      // Chart configuration
-      var config = {
-          type: 'line',
-          data: data,
-          options: {
-              scales: {
-                  x: {
-                      type: 'category',
-                      labels: data.labels
-                  },
-                  y: {
-                      beginAtZero: true
-                  }
-              }
-          }
-      };
+            // Chart configuration
+            var config = {
+                type: 'line',
+                data: data,
+                options: {
+                    scales: {
+                        x: {
+                            type: 'category',
+                            labels: data.labels
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            };
 
-      // Create the chart
-      var ctx = document.getElementById('webhooksReceived').getContext('2d');
-      var myChart = new Chart(ctx, config);
+            // Create the chart
+            var ctx = document.getElementById(eventName).getContext('2d');
+            var myChart = new Chart(ctx, config);
 
   footer
       p Copyright © 2023 Splitz

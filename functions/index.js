@@ -10,7 +10,7 @@ const {StravaInterface} = require("./strava_interface.js");
 const {MockStravaInterface} = require("./mock_strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
 const {EmailInterface} = require("./email_interface.js");
-const { UserAnalyticsEngine } = require("./user_analytics_engine.js");
+const {UserAnalyticsEngine} = require("./user_analytics_engine.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
 const {defaultAccountSettingsConfig, knownStravaDefaultRunNames, emailCampaignTriggerProperties} = require("./defaultConfigs.js");
 
@@ -104,7 +104,7 @@ app.get("/home", (req, res) => {
 app.get("/admin", (req, res) => {
   const userToken = req.cookies["__session"];
   if (userToken || isEmulator) {
-    validateAdminToken(userToken, res, _ => {
+    validateAdminToken(userToken, res, (_) => {
       res.render("admin");
     });
   } else {
@@ -114,7 +114,7 @@ app.get("/admin", (req, res) => {
 
 app.get("/admin/recent_workouts", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
-  validateAdminToken(userToken, res, _ => {
+  validateAdminToken(userToken, res, (_) => {
     dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
       res.render("recent_workouts_viewer", {workouts: workouts});
     });
@@ -123,12 +123,10 @@ app.get("/admin/recent_workouts", (req, res) => {
 
 app.get("/admin/user_analytics", (req, res) => {
   const userToken = req.cookies["__session"];
-  validateAdminToken(userToken, res, _ => {
+  validateAdminToken(userToken, res, (_) => {
     const userAnalyticsEngine = new UserAnalyticsEngine(db);
-    userAnalyticsEngine.webhooksByDay(90, (graphData) => {
-      res.render("user_analytics", {graphData: {
-        "webhooks": graphData
-      }});
+    userAnalyticsEngine.getGlobalEventsDatasets(90, (globalEventDatasets) => {
+      res.render("user_analytics", {"globalEventDatasets": globalEventDatasets});
     });
   });
 });
