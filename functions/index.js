@@ -10,6 +10,7 @@ const {StravaInterface} = require("./strava_interface.js");
 const {MockStravaInterface} = require("./mock_strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
 const {EmailInterface} = require("./email_interface.js");
+const { UserAnalyticsEngine } = require("./user_analytics_engine.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
 const {defaultAccountSettingsConfig, knownStravaDefaultRunNames, emailCampaignTriggerProperties} = require("./defaultConfigs.js");
 
@@ -123,8 +124,11 @@ app.get("/admin/recent_workouts", (req, res) => {
 app.get("/admin/user_analytics", (req, res) => {
   const userToken = req.cookies["__session"];
   validateAdminToken(userToken, res, _ => {
-    dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
-      res.render("user_analytics", {workouts: workouts});
+    const userAnalyticsEngine = new UserAnalyticsEngine(db);
+    userAnalyticsEngine.webhooksByDay(90, (graphData) => {
+      res.render("user_analytics", {graphData: {
+        "webhooks": graphData
+      }});
     });
   });
 });

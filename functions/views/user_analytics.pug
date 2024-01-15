@@ -5,18 +5,46 @@ html(lang="en")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title Splitz User Analytics
     link(rel="stylesheet", href="../style.css")
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
   body
     header
       h1 Splitz User Analytics
-    main
-      .text-section 
-        p Hello!
-        //- for day in workouts
-        //-     h2 #{day.date}
-        //-     for workout in day.workouts
-        //-         a(href=`https://strava.com/activities/${workout.activityID}` target="_blank")  
-        //-             h2 #{workout.parsedOutputTitle}
-        //-             p #{workout.parsedOutputDescription}
+    
+    canvas(id="webhooksReceived" width="400" height="200")
+    script.
+      var graphData = !{JSON.stringify(graphData)}
+      console.log(graphData)
+      // Your chart data
+      var data = {
+          datasets: [{
+              label: "Webhooks Received",
+              borderColor: "rgb(75, 192, 192)",
+              data: graphData.webhooks,
+              fill: false
+          }]
+      };
+
+      // Chart configuration
+      var config = {
+          type: 'line',
+          data: data,
+          options: {
+              scales: {
+                  x: {
+                      type: 'category',
+                      labels: data.labels
+                  },
+                  y: {
+                      beginAtZero: true
+                  }
+              }
+          }
+      };
+
+      // Create the chart
+      var ctx = document.getElementById('webhooksReceived').getContext('2d');
+      var myChart = new Chart(ctx, config);
+
   footer
       p Copyright © 2023 Splitz
       img(src="/powered_by_strava.svg" height='24px')
