@@ -2,7 +2,7 @@ const Helpers = require("./parser_helpers.js");
 const {isRace} = require("./race_detector.js");
 const {isWorkout, verifyIsWorkout} = require("./workout_detector.js");
 const {Formatter} = require("./formatter.js");
-const {defaultParserConfig, defaultFormatConfig} = require("./defaultConfigs.js");
+const {defaultParserConfig, defaultFormatConfig} = require("../defaultConfigs.js");
 
 // This is the entrypoint
 // eslint-disable-next-line no-unused-vars

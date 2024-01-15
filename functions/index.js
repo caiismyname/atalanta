@@ -9,8 +9,9 @@ const {parseWorkout} = require("./parser/parser.js");
 const {StravaInterface} = require("./strava_interface.js");
 const {MockStravaInterface} = require("./mock_strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
+const {EmailInterface} = require("./email_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
-const {defaultAccountSettingsConfig, knownStravaDefaultRunNames} = require("./parser/defaultConfigs.js");
+const {defaultAccountSettingsConfig, knownStravaDefaultRunNames, emailCampaignTriggerProperties} = require("./defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -468,43 +469,34 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
   }
 }
 
-exports.app = functions.https.onRequest(app); // Exporting the app for Firebase
+// The main app for Firebase
+exports.app = functions.https.onRequest(app);
 
-// //
-// //
-// // Utilities
-// //
-// //
+// Monetization email campagin triggers (total workouts written)
+exports.monetizationTriggers = functions.database.ref(`/userEvents/{userID}/${USER_EVENTS.WORKOUT}`)
+    .onUpdate((change, context) => {
+      // const threshold1 = 20;
+      // const threshold2 = 50;
 
-// function saveJSON(content, fileName="output.json") {
-//   const jsonContent = JSON.stringify(content, null, 4);
-//   fs.writeFile(fileName, jsonContent, "utf8", (err) => {
-//     if (err) {
-//       console.log("An error occured while writing JSON Object to file.");
-//       return console.log(err);
-//     }
+      const workoutCount = change.after.val();
+      const userID = context.params.userID;
 
-//     console.log(`JSON file ${fileName} has been saved.`);
-//   });
-// }
+      // if (workoutCount === threshold1 || workoutCount === threshold2) {
+      //   const trigger = workoutCount === threshold1 ? emailCampaignTriggerProperties.MONETIZATION_1 : emailCampaignTriggerProperties.MONETIZATION_2;
 
-// // eslint-disable-next-line no-unused-vars
-// function saveActivityForUser(userID, activityID) {
-//   db.ref(`users/${userID}/preferences/account/dataUsageOptIn`).once("value", (snapshot) => {
-//     const allowed = snapshot.val();
-//     if (allowed) {
-//       getStravaTokenForID(userID, (stravaToken) => {
-//         StravaInterface.getActivity(activityID, stravaToken, (activity) => {
-//           saveJSON(activity);
-//         });
-//       });
-//     } else {
-//       console.error(`User ${userID} opted out of data usage.`);
-//     }
-//   });
-// }
+      if (workoutCount > 4) {
+        const trigger = emailCampaignTriggerProperties.MONETIZATION_1;
 
+        dbInterface.getUserDetails(userID, (details) => {
+          if (details.preferences.account.emailOptIn) {
+            const email = details.email;
 
-// const testUserID = "";
-// const testActivityID = "";
-// saveActivityForUser(testUserID, testActivityID);
+            EmailInterface.updateProperty(`${email}-makingItBreak`, trigger, () => {
+              console.log(`User ${userID} hit ${trigger} — property updated in Mailjet.`);
+            });
+          } else {
+            console.log(`User ${userID} hit ${trigger} but has opted out of emails.`);
+          }
+        });
+      }
+    });
