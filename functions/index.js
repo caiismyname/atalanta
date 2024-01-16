@@ -126,7 +126,12 @@ app.get("/admin/user_analytics", (req, res) => {
   validateAdminToken(userToken, res, (_) => {
     const userAnalyticsEngine = new UserAnalyticsEngine(db);
     userAnalyticsEngine.getGlobalEventsDatasets(90, (globalEventDatasets) => {
-      res.render("user_analytics", {"globalEventDatasets": globalEventDatasets});
+      userAnalyticsEngine.getUserEventsDatasets((userEventDatasets) => {
+        res.render("user_analytics", {
+          "globalEventDatasets": globalEventDatasets,
+          "userEventDatasets": userEventDatasets,
+        });
+      });
     });
   });
 });
