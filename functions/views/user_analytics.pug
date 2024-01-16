@@ -1,0 +1,89 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Splitz User Analytics
+    link(rel="stylesheet", href="../style.css")
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+  body
+    header
+      h1 Splitz User Analytics
+    
+    for event of Object.values(globalEventDatasets)
+        canvas(id=`global-${event.name}` width="400" height="200")
+        script.
+            var graphData = !{JSON.stringify(event.data)}
+            var eventName = !{JSON.stringify(event.name)}
+            // Your chart data
+            var data = {
+                datasets: [{
+                    label: eventName,
+                    borderColor: "rgb(75, 192, 192)",
+                    data: graphData,
+                    fill: false
+                }]
+            };
+
+            // Chart configuration
+            var config = {
+                type: 'line',
+                data: data,
+                options: {
+                    scales: {
+                        x: {
+                            type: 'category',
+                            labels: data.labels
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            };
+
+            // Create the chart
+            var ctx = document.getElementById(`global-${eventName}`).getContext('2d');
+            var myChart = new Chart(ctx, config);
+
+    for event of Object.values(userEventDatasets)
+        canvas(id=`user-${event.name}` width="400" height="200")
+        script.
+            var graphData = !{JSON.stringify(event.data)}
+            var eventName = !{JSON.stringify(event.name)}
+            console.log(graphData)
+            // Your chart data
+            var data = {
+                datasets: [{
+                    label: eventName,
+                    borderColor: 'rgba(255, 205, 86, 0.7)',
+                    backgroundColor: 'rgba(255, 205, 86, 0.7)',
+                    data: graphData,
+                    fill: false
+                }]
+            };
+
+            // Chart configuration
+            var config = {
+                type: 'bar',
+                data: data,
+                options: {
+                    scales: {
+                        x: {
+                            type: 'category',
+                            labels: data.labels
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            };
+
+            // Create the chart
+            var ctx = document.getElementById(`user-${eventName}`).getContext('2d');
+            var myChart = new Chart(ctx, config);
+
+  footer
+      p Copyright © 2023 Splitz
+      img(src="/powered_by_strava.svg" height='24px')
