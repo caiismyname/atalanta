@@ -30,7 +30,6 @@ class EmailInterface {
     // Create the user
     axios.post(createApiPath, createData, this.getConfig())
         .then((res) => {
-        //   const mailjetID = res.data.Data[0].ID;
           const propertiesData = [
             {
               "Name": "first_name",
@@ -49,8 +48,8 @@ class EmailInterface {
           axios.put(`${propertiesApiPath}/${person.email}`, {"Data": propertiesData}, this.getConfig())
               .then((_) => {
                 // Add them to the list that workflows pull from
-                // const listID = 10409313; // PROD
-                const listID = 10404001; // TEST
+                const listID = 10409313; // PROD
+                // const listID = 10404001; // TEST
                 const listData = {
                   "ListID": listID,
                   "ContactAlt": person.email,

@@ -13,7 +13,7 @@ class DbInterface {
     });
   }
 
-  createNewUser(details) {
+  createNewUser(details, callback) {
     logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, this.db);
     this.db.ref(`users/${details.userID}`).update({
       stravaConnected: false,
@@ -24,7 +24,11 @@ class DbInterface {
         format: defaultFormatConfig,
         account: defaultAccountSettingsConfig,
       },
-    }, (error) => {
+    })
+    .then(() => {
+      callback()
+    })
+    .catch((error) => {
       console.log(error);
     });
   }

@@ -89,7 +89,12 @@ app.get("/home", (req, res) => {
       dbInterface.isUserCreated(userID, (isCreated) => {
         if (!isCreated) {
           getPersonalDetailsFromUserToken(userToken, (details) => {
-            dbInterface.createNewUser(details);
+            dbInterface.createNewUser(details, () => {
+              EmailInterface.createUser({
+                firstName: details.name.split(" ")[0],
+                email: details.email
+              })
+            });
           });
         }
 
