@@ -13,8 +13,10 @@ const {EmailInterface} = require("./email_interface.js");
 const {UserAnalyticsEngine} = require("./user_analytics_engine.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
 const {defaultAccountSettingsConfig, knownStravaDefaultRunNames, emailCampaignTriggerProperties} = require("./defaultConfigs.js");
+const {clearOldWorkouts, sendStravaConnectionReminder} = require("./daemons.js");
 
 const functions = require("firebase-functions");
+const {onSchedule} = require("firebase-functions/v2/scheduler");
 const admin = require("firebase-admin");
 
 const app = express();
@@ -494,3 +496,8 @@ exports.monetizationTriggers = functions.database.ref(`/userEvents/{userID}/${US
         });
       }
     });
+
+exports.dailyDaemons = onSchedule("every day 04:00", () => {
+  sendStravaConnectionReminder()
+  clearOldWorkouts()
+});
