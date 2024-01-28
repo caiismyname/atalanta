@@ -110,17 +110,23 @@ class FormatPrinter {
       hourDisplay = `${hours}:`;
     }
 
-    if (minutes + secondsRes.minuteDiff > 0) {
+    if (minutes + secondsRes.minuteDiff > 0 || hours > 0) {
       minuteDisplay = `${minutes + secondsRes.minuteDiff}`;
+      // Add a leading 0 if needed (when there's a on-zero hour)
+      if (hours > 0 && minuteDisplay.length == 1) {
+        minuteDisplay = `0${minuteDisplay}`;
+      }
     }
 
-    if (secondsRes.seconds === "00" && displayWholeMinutesWithoutSeconds) {
+    // If we're going for "34 mins", remove the seconds display.
+    // Need to avoid cutting off the :00 seconds if we're displaying an hour+ time that has 0 seconds
+    if (secondsRes.seconds === "00" && displayWholeMinutesWithoutSeconds && hours === 0) {
       suffixDisplay = ` min${minutes === 1 ? "" : "s"}`;
       secondsDisplay = ``;
       shouldShowMinuteSecondColon = false;
     }
 
-    if (minutes + secondsRes.minuteDiff === 0) {
+    if (minutes + secondsRes.minuteDiff + hours === 0) {
       suffixDisplay = `${displayWholeMinutesWithoutSeconds ? " sec" : ""}`;
       shouldShowMinuteSecondColon = false;
     }
