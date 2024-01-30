@@ -48,7 +48,7 @@ function countOccurances(search, whole) {
   return (count);
 }
 
-describe.only("Server", () => {
+describe("Server", () => {
   describe("Manual Trigger", () => {
     const nonTriggers = [
       "Morning Run",
