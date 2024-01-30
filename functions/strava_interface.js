@@ -1,5 +1,6 @@
 const axios = require("axios");
 const functions = require("firebase-functions");
+const {knownStravaDefaultRunNames, manualTriggerKeywords} = require("./defaultConfigs.js");
 
 class StravaInterface {
   static stravaConfigDetails() {
@@ -100,6 +101,70 @@ class StravaInterface {
         // Responds with '403 Forbidden' if verify tokens do not match
         res.sendStatus(403);
       }
+    }
+  }
+
+  static webhookIsAccountDeauth(req) {
+    if (req.body.aspect_type === "update") {
+      if ("updates" in req.body) { // being defensive here
+        if ("authorized" in req.body.updates) {
+          if (req.body.updates.authorized === "false") {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  static webhookIsDefaultTitleUpdate(req) {
+    if (req.body.aspect_type === "update") {
+      if ("updates" in req.body) { // being defensive here
+        if ("title" in req.body.updates) {
+          const newTitle = req.body.updates.title;
+          return knownStravaDefaultRunNames.includes(newTitle);
+        }
+      }
+    }
+
+    return false;
+  }
+
+  static webhookIsManualTrigger(req) {
+    let isManualTrigger = false;
+    let requestPace = false;
+    let requestTime = false;
+
+    if (req.body.aspect_type === "update") {
+      if ("updates" in req.body) { // being defensive here
+        if ("title" in req.body.updates) {
+          const newTitle = req.body.updates.title.toLowerCase().split(" ");
+          for (const word of newTitle) {
+            if (manualTriggerKeywords.includes(word)) {
+              isManualTrigger = true;
+            }
+          }
+
+          if (isManualTrigger) {
+            requestPace = newTitle.includes("pace");
+            requestTime = newTitle.includes("time");
+          }
+        }
+      }
+    }
+
+    if (!isManualTrigger) {
+      return false;
+    }
+
+    // Non-empty string evals to `true`
+    if (requestPace && !requestTime) {
+      return "PACE";
+    } else if (!requestPace && requestTime) {
+      return "TIME";
+    } else {
+      return "DEFAULT";
     }
   }
 }

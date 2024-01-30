@@ -12,7 +12,7 @@ const {DbInterface} = require("./db_interface.js");
 const {EmailInterface} = require("./email_interface.js");
 const {UserAnalyticsEngine} = require("./user_analytics_engine.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
-const {defaultAccountSettingsConfig, knownStravaDefaultRunNames, emailCampaignTriggerProperties} = require("./defaultConfigs.js");
+const {defaultAccountSettingsConfig, emailCampaignTriggerProperties} = require("./defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -151,34 +151,7 @@ app.get("/strava_webhook", (req, res) => {
   StravaInterface.webhookCreationResponse(req, res);
 });
 
-function webhookIsAccountDeauth(req) {
-  if (req.body.aspect_type === "update") {
-    if ("updates" in req.body) { // being defensive here
-      if ("authorized" in req.body.updates) {
-        if (req.body.updates.authorized === "false") {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
-function webhookIsDefaultTitleUpdate(req) {
-  if (req.body.aspect_type === "update") {
-    if ("updates" in req.body) { // being defensive here
-      if ("title" in req.body.updates) {
-        const newTitle = req.body.updates.title;
-        return knownStravaDefaultRunNames.includes(newTitle);
-      }
-    }
-  }
-
-  return false;
-}
-
-function processActivity(activityID, userStravaID, isTest) {
+function processActivity(activityID, userStravaID, isTest, forceParse=false, configOverride="DEFAULT") {
   dbInterface.getUserIDForStravaID(userStravaID, (userID) => {
     dbInterface.getStravaTokenForID(userID, (stravaToken) => {
       StravaInterface.getActivity(activityID, stravaToken, (activity) => {
@@ -192,10 +165,20 @@ function processActivity(activityID, userStravaID, isTest) {
           }
 
           dbInterface.getPreferencesForUser(userID, (config) => {
+            // Overriding preferences if the manual trigger specified them.
+            if (configOverride === "PACE") {
+              config.format.subMileDistanceValue = "PACE";
+              config.format.greaterThanMileDistanceValue = "PACE";
+            } else if (configOverride === "TIME") {
+              config.format.subMileDistanceValue = "TIME";
+              config.format.greaterThanMileDistanceValue = "TIME";
+            }
+
             const output = parseWorkout({
               run: activity,
               config: config,
               verbose: false,
+              forceParse: forceParse,
             });
             if (output.isWorkout) {
               console.log(`ACTIVITY ${activityID} is a workout. Title: [${output.summary.title}] Description: [${output.summary.description.replace(new RegExp("\n", "g"), " || ")}]`);
@@ -252,8 +235,9 @@ function handleIncomingWebhook(req, res, isTest=false) {
   // Decide if we want to process the event
   const isActivity = req.body.object_type === "activity";
   const isCreate = req.body.aspect_type === "create"; // || (req.body.aspect_type === "update" && (req.body.updates === "title" || req.body.updates === "type"));
-  const isAccountDeauthorization = webhookIsAccountDeauth(req);
-  const isStravaDefaultTitleUpdate = webhookIsDefaultTitleUpdate(req);
+  const isAccountDeauthorization = StravaInterface.webhookIsAccountDeauth(req);
+  const isStravaDefaultTitleUpdate = StravaInterface.webhookIsDefaultTitleUpdate(req);
+  const isManualTrigger = StravaInterface.webhookIsManualTrigger(req);
 
   const activityID = req.body.object_id;
   const userStravaID = req.body.owner_id;
@@ -285,6 +269,8 @@ function handleIncomingWebhook(req, res, isTest=false) {
       dbInterface.deleteUser(userID);
       logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_DEACTIVATION, db);
     });
+  } else if (isManualTrigger) {
+    processActivity(activityID, userStravaID, isTest, true, isManualTrigger);
   } else if (req.body.aspect_type === "update") {
     console.log(`Received update for ACTIVITY ${activityID}, no action taken.`);
   } else {

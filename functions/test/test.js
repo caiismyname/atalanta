@@ -5,6 +5,7 @@ const {Formatter} = require("../parser/formatter.js");
 const {FormatPrinter} = require("../parser/format_printer.js");
 const {defaultParserConfig, defaultFormatConfig} = require("../defaultConfigs.js");
 const {generateAndReturnWorkout} = require("./generateFakeWorkout.js");
+const {StravaInterface} = require("../strava_interface.js");
 
 const defaultTestRuns = require("./test_runs.json");
 const userTestRuns = require("./user_test_runs.json");
@@ -46,6 +47,118 @@ function countOccurances(search, whole) {
 
   return (count);
 }
+
+describe("Server", () => {
+  describe("Manual Trigger", () => {
+    const nonTriggers = [
+      "Morning Run",
+      "Evening Run",
+      "Morning Cycle",
+    ];
+    const triggers = [
+      "Morning Run splitz",
+      "Morning Run workoutsplitz",
+      "Morning Run workoutsplits",
+      "Morning Run workoutsplitz.com",
+      "Morning Run reparse",
+      "Morning Run parse",
+      "MORNING RUN SPLITZ",
+      "2 x 10mi splitz",
+      "(3 x 400m) + (2 x 800m) reparse",
+      "splitz",
+      "      splitz",
+      "    splitz     ",
+      "splitz       ",
+    ];
+    const paceTriggers = [
+      "Morning Run splitz pace",
+      "Morning Run pace splitz",
+      "2 x 10mi splitz pace",
+      "splitz pace (3 x 400m) + (2 x 800m) ",
+      "splitz pace",
+    ];
+    const timeTriggers = [
+      "Morning Run splitz time",
+      "Morning Run time splitz",
+      "2 x 10mi splitz time",
+      "splitz time (3 x 400m) + (2 x 800m) ",
+      "splitz time",
+    ];
+
+    it("Triggers", () => {
+      for (const name of triggers) {
+        assert.ok(StravaInterface.webhookIsManualTrigger(
+            {
+              body: {
+                aspect_type: "update",
+                updates: {
+                  title: name,
+                },
+              },
+            },
+        ));
+      }
+    });
+
+    it("Non Triggers", () => {
+      for (const name of nonTriggers) {
+        assert.ok(!StravaInterface.webhookIsManualTrigger(
+            {
+              body: {
+                aspect_type: "update",
+                updates: {
+                  title: name,
+                },
+              },
+            },
+        ));
+      }
+    });
+
+    it("Pace Triggers", () => {
+      for (const name of paceTriggers) {
+        assert.equal("PACE", StravaInterface.webhookIsManualTrigger(
+            {
+              body: {
+                aspect_type: "update",
+                updates: {
+                  title: name,
+                },
+              },
+            },
+        ));
+      }
+    });
+
+    it("Time Triggers", () => {
+      for (const name of timeTriggers) {
+        assert.equal("TIME", StravaInterface.webhookIsManualTrigger(
+            {
+              body: {
+                aspect_type: "update",
+                updates: {
+                  title: name,
+                },
+              },
+            },
+        ));
+      }
+    });
+
+    it("Pace Time", () => {
+      assert.equal("DEFAULT", StravaInterface.webhookIsManualTrigger(
+          {
+            body: {
+              aspect_type: "update",
+              updates: {
+                title: "Morning Run Splitz Time Pace",
+              },
+            },
+          },
+      ));
+    });
+  });
+});
 
 describe("Formatter", () => {
   describe("SET NAMING", () => {
