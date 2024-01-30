@@ -52,7 +52,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   const sets = extractPatterns(basisHomogeneityCheckedValueAssignedLaps.filter((lap) => lap.isWorkout));
 
   // Check the extracted workout structure for reasonableness as a backup for the initial workout detection
-  if (!verifyIsWorkout(laps, sets, config.parser)) {
+  if (!verifyIsWorkout(laps, sets, config.parser) && !forceParse) {
     if (verbose) {
       print(`${run.id} FAILED WORKOUT CHECK`);
     }
