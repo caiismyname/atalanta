@@ -270,6 +270,7 @@ function handleIncomingWebhook(req, res, isTest=false) {
       logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_DEACTIVATION, db);
     });
   } else if (isManualTrigger) {
+    console.log(`Reparse request for ACTIVITY ${activityID}. Details override: [${isManualTrigger}]`);
     processActivity(activityID, userStravaID, isTest, true, isManualTrigger);
   } else if (req.body.aspect_type === "update") {
     console.log(`Received update for ACTIVITY ${activityID}, no action taken.`);
