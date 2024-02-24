@@ -69,6 +69,7 @@ describe("Server", () => {
       "      splitz",
       "    splitz     ",
       "splitz       ",
+      "Workoutsplitz, where are you?",
     ];
     const paceTriggers = [
       "Morning Run splitz pace",

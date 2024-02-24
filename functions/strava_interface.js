@@ -139,7 +139,10 @@ class StravaInterface {
     if (req.body.aspect_type === "update") {
       if ("updates" in req.body) { // being defensive here
         if ("title" in req.body.updates) {
-          const newTitle = req.body.updates.title.toLowerCase().split(" ");
+          const newTitle = req.body.updates.title
+              .toLowerCase()
+              .replace(/[-~!@&*()_+=|'";:/?.>,<]/g, "")
+              .split(" ");
           for (const word of newTitle) {
             if (manualTriggerKeywords.includes(word)) {
               isManualTrigger = true;
