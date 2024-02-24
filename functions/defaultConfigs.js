@@ -21,7 +21,7 @@ const defaultAccountSettingsConfig = {
 
 const knownStravaDefaultRunNames = ["Morning Run", "Lunch Run", "Afternoon Run", "Evening Run", "Night Run"];
 
-const manualTriggerKeywords = ["splitz", "workoutsplitz", "workoutsplits", "workoutsplitz.com", "parse", "reparse"];
+const manualTriggerKeywords = ["splitz", "workoutsplitz", "workoutsplits", "workoutsplitz.com", "workoutsplitzcom", "parse", "reparse"];
 
 const emailCampaignTriggerProperties = {
   MONETIZATION_1: "monetization_trigger_1",
