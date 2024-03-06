@@ -30,12 +30,14 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
       "summary": "",
     });
   } else if (runIsWorkout && runIsRace) {
-    // For now, treat as a race
-    return ({
-      "isWorkout": false,
-      "isRace": true,
-      "summary": formatter.printRace(run),
-    });
+    // For now, treat as a race unless force parsed
+    if (!forceParse) {
+      return ({
+        "isWorkout": false,
+        "isRace": true,
+        "summary": formatter.printRace(run),
+      });
+    }
   }
 
   // Remove last lap if it's super short, as this tends to give falsely fast/slow readings
