@@ -451,17 +451,14 @@ exports.app = functions.https.onRequest(app);
 // Monetization email campagin triggers (total workouts written)
 exports.monetizationTriggers = functions.database.ref(`/userEvents/{userID}/${USER_EVENTS.WORKOUT}`)
     .onUpdate((change, context) => {
-      // const threshold1 = 20;
-      // const threshold2 = 50;
+      const threshold1 = 20;
+      const threshold2 = 50;
 
       const workoutCount = change.after.val();
       const userID = context.params.userID;
 
-      // if (workoutCount === threshold1 || workoutCount === threshold2) {
-      //   const trigger = workoutCount === threshold1 ? emailCampaignTriggerProperties.MONETIZATION_1 : emailCampaignTriggerProperties.MONETIZATION_2;
-
-      if (workoutCount > 4) {
-        const trigger = emailCampaignTriggerProperties.MONETIZATION_1;
+      if (workoutCount === threshold1 || workoutCount === threshold2) {
+        const trigger = workoutCount === threshold1 ? emailCampaignTriggerProperties.MONETIZATION_1 : emailCampaignTriggerProperties.MONETIZATION_2;
 
         dbInterface.getUserDetails(userID, (details) => {
           if (details.preferences.account.emailOptIn) {
