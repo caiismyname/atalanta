@@ -8,37 +8,8 @@ const {defaultParserConfig, defaultFormatConfig} = require("../defaultConfigs.js
 // eslint-disable-next-line no-unused-vars
 function parseWorkout({run, config={parser: defaultParserConfig, format: defaultFormatConfig}, verbose=true, returnSets=false, forceParse=false}) {
   const formatter = new Formatter(config.format);
-  const runIsWorkout = isWorkout(run.laps) || forceParse;
+  let runIsWorkout = isWorkout(run.laps) || forceParse;
   const runIsRace = isRace(run);
-
-  if (!runIsWorkout && runIsRace) {
-    if (verbose) {
-      print(`${run.id} IS A RACE`);
-    }
-    return ({
-      "isWorkout": false,
-      "isRace": true,
-      "summary": formatter.printRace(run),
-    });
-  } else if (!runIsWorkout && !runIsRace) {
-    if (verbose) {
-      print(`${run.id} NOT WORKOUT NOR RACE`);
-    }
-    return ({
-      "isWorkout": false,
-      "isRace": false,
-      "summary": "",
-    });
-  } else if (runIsWorkout && runIsRace) {
-    // For now, treat as a race unless force parsed
-    if (!forceParse) {
-      return ({
-        "isWorkout": false,
-        "isRace": true,
-        "summary": formatter.printRace(run),
-      });
-    }
-  }
 
   // Remove last lap if it's super short, as this tends to give falsely fast/slow readings
   let laps = JSON.parse(JSON.stringify(run.laps));
@@ -58,32 +29,87 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
     if (verbose) {
       print(`${run.id} FAILED WORKOUT CHECK`);
     }
-    return ({
-      "isWorkout": false,
-      "isRace": false,
-      "summary": "",
-    });
+
+    runIsWorkout = false;
   }
 
-  const summary = formatter.printSets(sets);
-
   if (verbose) {
+    const summary = formatter.printSets(run);
     console.log(`PARSING: ${run.name} (${run.id})`);
     print(summary.title);
     print(summary.description);
     print("\n\n");
   }
 
-  const output = {
-    "isWorkout": true,
-    "summary": summary,
-  };
+  if (!runIsWorkout && runIsRace) {
+    if (verbose) {
+      print(`${run.id} IS A RACE`);
+    }
+    return ({
+      "isWorkout": false,
+      "isRace": true,
+      "summary": formatter.printRace(run),
+      "sets": sets,
+    });
+  } else if (!runIsWorkout && !runIsRace) {
+    if (verbose) {
+      print(`${run.id} NOT WORKOUT NOR RACE`);
+    }
+    return ({
+      "isWorkout": false,
+      "isRace": false,
+      "summary": "",
+    });
+  } else if (runIsWorkout && !runIsRace) {
+    if (verbose) {
+      print(`${run.id} IS A WORKOUT`);
+    }
 
-  if (returnSets) {
-    output.sets = sets;
+    return ({
+      "isWorkout": true,
+      "isRace": false,
+      "summary": formatter.printSets(run),
+      "sets": sets,
+    });
+  } else if (runIsWorkout && runIsRace) {
+    // Bias is slightly in favor of races, so force parsing will force it to return as a workout
+    if (forceParse) {
+      if (verbose) {
+        print(`${run.id} IS AMBIGUIOUS BUT FORCE-PARSED AS WORKOUT`);
+      }
+      return ({
+        "isWorkout": true,
+        "isRace": false,
+        "summary": formatter.printSets(run),
+        "sets": sets,
+      });
+    }
+
+    // If we can detect some intentionality in the pattern, treat it as a workout.
+    // 3 reps is sort of arbitrary
+    if (sets.map((set) => set.count).reduce((a, b) => a || b >= 3, false)) {
+      if (verbose) {
+        print(`${run.id} IS AMBIGUIOUS BUT HAS STRUCTURE OF A WORKOUT`);
+      }
+      return ({
+        "isWorkout": true,
+        "isRace": false,
+        "summary": formatter.printSets(run),
+        "sets": sets,
+      });
+    }
+
+    // Otherwise, go with a race
+    if (verbose) {
+      print(`${run.id} IS AMBIGUIOUS, ASSUMING RACE`);
+    }
+    return ({
+      "isWorkout": false,
+      "isRace": true,
+      "summary": formatter.printRace(run),
+      "sets": sets,
+    });
   }
-
-  return (output);
 }
 
 function tagWorkoutLaps(laps) {
@@ -545,7 +571,6 @@ function runKnn(inputs, k) {
 
   return inputs;
 }
-
 
 // Combines the 'addition' lap into the base lap, preserves all component laps in a property called `component_laps`
 function mergeLapsHelper(base, addition) {
