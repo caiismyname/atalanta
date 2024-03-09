@@ -20,35 +20,63 @@ const defaultRestSecondsPerMile = 480;
 //   [1609.3, "METERS", false],
 // ];
 
-//
-// Entrypoints
-//
-
 // Saves to the JSON that powers the unit tests
 // eslint-disable-next-line no-unused-vars
-function generateAndSave(laps, name, workoutSecondsPerMile, restSecondsPerMile) {
-  const run = generate(laps, name, workoutSecondsPerMile, restSecondsPerMile);
+function generateAndSave({
+  laps = [],
+  name = "unnamed",
+  workoutSecondsPerMile = defaultWorkoutSecondsPerMile,
+  restSecondsPerMile = defaultRestSecondsPerMile,
+} = {}) {
+  const run = generate({
+    laps: laps,
+    name: name,
+    workoutSecondsPerMile: workoutSecondsPerMile,
+    restSecondsPerMile: restSecondsPerMile,
+  });
   saveToTests(run);
 }
 
 // Just clearer naming
-function generateAndReturnWorkout(laps, name = "unnamed", includeWarmup = true, workoutSecondsPerMile = defaultWorkoutSecondsPerMile, restSecondsPerMile = defaultRestSecondsPerMile) {
+function generateAndReturnWorkout({
+  laps = [],
+  name = "unnamed",
+  includeWarmup = true,
+  workoutSecondsPerMile = defaultWorkoutSecondsPerMile,
+  restSecondsPerMile = defaultRestSecondsPerMile,
+} = {},
+) {
   if (includeWarmup) {
-    const warmupIncluded = [[1609, "METERS", false]].concat(laps).concat([[1609, "METERS", false]]);
-    return generate(warmupIncluded, name, workoutSecondsPerMile, restSecondsPerMile);
+    laps = [[1609, "METERS", false]].concat(laps).concat([[1609, "METERS", false]]);
   }
-  return generate(laps, name, workoutSecondsPerMile, restSecondsPerMile);
+
+  return generate({
+    laps: laps,
+    name: name,
+    workoutSecondsPerMile: workoutSecondsPerMile,
+    restSecondsPerMile: restSecondsPerMile,
+  });
 }
 
 // Generator
-
-function generate(inputLaps, name, workoutSecondsPerMile, restSecondsPerMile) {
+function generate({
+  laps: inputLaps = [], // Function call takes the prop as `laps` and renames it `inputLaps` for use in the function
+  name = "unamed",
+  workoutSecondsPerMile = defaultWorkoutSecondsPerMile,
+  restSecondsPerMile = defaultRestSecondsPerMile,
+} = {}) {
   const laps = [];
   let prevIndex = 0;
   let lapIndex = 1;
   for (const lap of inputLaps) {
     const isWorkout = lap[2];
-    const newLap = generateLap(lap[0], lap[1], prevIndex, lapIndex, (isWorkout ? workoutSecondsPerMile : restSecondsPerMile));
+    const newLap = generateLap({
+      value: lap[0],
+      unit: lap[1],
+      prevIndex: prevIndex,
+      lapIndex: lapIndex,
+      pace: isWorkout ? workoutSecondsPerMile : restSecondsPerMile,
+    });
     laps.push(newLap);
     prevIndex = newLap.end_index;
     lapIndex += 1;
@@ -71,7 +99,13 @@ function generate(inputLaps, name, workoutSecondsPerMile, restSecondsPerMile) {
 
 // Helpers
 
-function generateLap(value, unit, prevIndex, lapIndex, pace) {
+function generateLap({
+  value = 1609,
+  unit = "METERS",
+  prevIndex = -1,
+  lapIndex = 1,
+  pace = defaultRestSecondsPerMile,
+} = {}) {
   const lap = {
     "elapsed_time": 0,
     "moving_time": 0,
@@ -138,7 +172,5 @@ function getRandomInt(min, max) {
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
 }
-
-// generateAndSave(desiredLaps, name, defaultWorkoutSecondsPerMile, defaultRestSecondsPerMile);
 
 module.exports = {generateAndReturnWorkout};

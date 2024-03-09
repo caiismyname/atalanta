@@ -34,7 +34,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   }
 
   if (verbose) {
-    const summary = formatter.printSets(run);
+    const summary = formatter.printSets(sets);
     console.log(`PARSING: ${run.name} (${run.id})`);
     print(summary.title);
     print(summary.description);
@@ -68,7 +68,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
     return ({
       "isWorkout": true,
       "isRace": false,
-      "summary": formatter.printSets(run),
+      "summary": formatter.printSets(sets),
       "sets": sets,
     });
   } else if (runIsWorkout && runIsRace) {
@@ -80,7 +80,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
       return ({
         "isWorkout": true,
         "isRace": false,
-        "summary": formatter.printSets(run),
+        "summary": formatter.printSets(sets),
         "sets": sets,
       });
     }
@@ -94,7 +94,7 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
       return ({
         "isWorkout": true,
         "isRace": false,
-        "summary": formatter.printSets(run),
+        "summary": formatter.printSets(sets),
         "sets": sets,
       });
     }
