@@ -1270,7 +1270,7 @@ describe("Formatter", () => {
         inputLaps.push([dist, "METERS", true]);
         inputLaps.push([dist, "METERS", false]);
       }
-      const run = generateAndReturnWorkout(inputLaps);
+      const run = generateAndReturnWorkout({laps: inputLaps});
 
       const res = parseWorkout({
         run: run,
@@ -1299,7 +1299,7 @@ describe("Formatter", () => {
         inputLaps.push([dist, "METERS", true]);
         inputLaps.push([dist, "METERS", false]);
       }
-      const run = generateAndReturnWorkout(inputLaps);
+      const run = generateAndReturnWorkout({laps: inputLaps});
 
       const res = parseWorkout({
         run: run,
@@ -1330,7 +1330,7 @@ describe("Formatter", () => {
         inputLaps.push([dist, "METERS", true]);
         inputLaps.push([dist, "METERS", false]);
       }
-      const run = generateAndReturnWorkout(inputLaps);
+      const run = generateAndReturnWorkout({laps: inputLaps});
 
       const res = parseWorkout({
         run: run,
@@ -1368,7 +1368,7 @@ describe("Formatter", () => {
         inputLaps.push([dist, "METERS", true]);
         inputLaps.push([dist, "METERS", false]);
       }
-      const run = generateAndReturnWorkout(inputLaps);
+      const run = generateAndReturnWorkout({laps: inputLaps});
 
       const res = parseWorkout({
         run: run,
@@ -1681,11 +1681,11 @@ describe("Parser", () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
-            let run = generateAndReturnWorkout([[distance, "METERS", true]]);
+            let run = generateAndReturnWorkout({laps: [[distance, "METERS", true]]});
 
             // 100m was flakey with the default workout pace
             if (distance === 100) {
-              run = generateAndReturnWorkout([[distance, "METERS", true]], "unnamed", true, 300);
+              run = generateAndReturnWorkout({laps: [[distance, "METERS", true]], includeWarmup: true, workoutSecondsPerMile: 300});
             }
 
             const sets = parseWorkout({
@@ -1710,7 +1710,7 @@ describe("Parser", () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
-            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+            const run = generateAndReturnWorkout({laps: [[distance, "METERS", true]]});
 
             const sets = parseWorkout({
               run: run,
@@ -1735,7 +1735,7 @@ describe("Parser", () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
-            const run = generateAndReturnWorkout([[distance, "METERS", true]]);
+            const run = generateAndReturnWorkout({laps: [[distance, "METERS", true]]});
 
             const sets = parseWorkout({
               run: run,
@@ -1764,7 +1764,7 @@ describe("Parser", () => {
               inputLaps.push([time, "SECONDS", true]);
               inputLaps.push([time, "SECONDS", false]);
             }
-            const run = generateAndReturnWorkout(inputLaps);
+            const run = generateAndReturnWorkout({laps: inputLaps});
 
             const sets = parseWorkout({
               run: run,
@@ -1792,7 +1792,7 @@ describe("Parser", () => {
               inputLaps.push([time, "SECONDS", true]);
               inputLaps.push([time, "SECONDS", false]);
             }
-            const run = generateAndReturnWorkout(inputLaps);
+            const run = generateAndReturnWorkout({laps: inputLaps});
 
             const sets = parseWorkout({
               run: run,
@@ -2361,7 +2361,7 @@ describe("Parser", () => {
         laps.push([distance, "METERS", false]);
       }
 
-      const run = generateAndReturnWorkout(laps);
+      const run = generateAndReturnWorkout({laps: laps});
       const res = parseWorkout({
         run: run,
         config: {
@@ -2384,7 +2384,7 @@ describe("Parser", () => {
         laps.push([distance, "METERS", false]);
       }
 
-      const run = generateAndReturnWorkout(laps);
+      const run = generateAndReturnWorkout({laps: laps});
       const res = parseWorkout({
         run: run,
         config: {
@@ -2409,7 +2409,7 @@ describe("Parser", () => {
         }
       }
 
-      const run = generateAndReturnWorkout(laps);
+      const run = generateAndReturnWorkout({laps: laps});
       const res = parseWorkout({
         run: run,
         config: {
@@ -2513,7 +2513,7 @@ describe("Parser", () => {
         laps.push([1609.3 * errorMargin, "METERS", true]);
         laps.push([157, "METERS", false]);
       }
-      const run = generateAndReturnWorkout(laps);
+      const run = generateAndReturnWorkout({laps: laps});
 
       const res = parseWorkout({
         run: run,
@@ -2792,6 +2792,116 @@ describe("Race Detection", () => {
         assert.ok(res.summary.title.includes("Marathon"));
       });
     }
+  });
+
+  describe("WORKOUTS THAT LOOK LIKE RACES", () => {
+    it("1x5mi_total_13.1", () => {
+      resetConfigs();
+
+      const run = generateAndReturnWorkout({
+        laps: [
+          [1609, "METERS", false],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", false],
+          [1609, "METERS", false],
+          [1609, "METERS", false],
+          [1609, "METERS", false],
+          [1609, "METERS", false],
+          [1609, "METERS", false],
+          [1609, "METERS", false],
+          [169, "METERS", false],
+        ],
+        includeWarmup: false,
+      });
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(!res.isWorkout);
+      assert.ok(res.isRace);
+    });
+
+    it("3x3mi_total_13.1", () => {
+      resetConfigs();
+
+      const run = generateAndReturnWorkout({
+        laps: [
+          [1609, "METERS", false],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", false],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", false],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", false],
+          [169, "METERS", false],
+        ],
+        includeWarmup: false,
+      });
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(res.isWorkout);
+      assert.ok(!res.isRace);
+    });
+
+    it("4x2mi_total_13.1", () => {
+      resetConfigs();
+
+      const run = generateAndReturnWorkout({
+        laps: [
+          [1609, "METERS", false],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", false],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", false],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", false],
+          [1609, "METERS", true],
+          [1609, "METERS", true],
+          [1609, "METERS", false],
+          [169, "METERS", false],
+        ],
+        includeWarmup: false,
+      });
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(res.isWorkout);
+      assert.ok(!res.isRace);
+    });
   });
 
   describe.skip("RACE FALSE POSITIVES", () => {
