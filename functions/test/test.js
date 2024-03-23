@@ -2423,6 +2423,39 @@ describe("Parser", () => {
       assert.equal(res.sets.length, inputDistances.length);
       assert.equal(res.sets[0].laps.length, repeatCount);
     });
+
+    it("800m_vs_1km workout type tagging", () => {
+      resetConfigs();
+
+      const run = userTestRuns["incorrect_basis"]["800m_vs_1km"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      console.log(res);
+
+      assert.equal(res.sets.length, 2);
+      assert.equal(res.sets[0].count, 5);
+      assert.equal(res.sets[1].count, 2);
+
+      for (const lap of res.sets[0].laps) {
+        assert.equal(lap.workoutBasis, "DISTANCE");
+        assert.equal(lap.closestDistance, "1");
+        assert.equal(lap.closestDistanceUnit, "km");
+      }
+
+      for (const lap of res.sets[1].laps) {
+        assert.equal(lap.workoutBasis, "DISTANCE");
+        assert.equal(lap.closestDistance, "800");
+        assert.equal(lap.closestDistanceUnit, "m");
+      }
+    });
   });
 
   describe("IS WORKOUT LAP TAGGING", () => {
@@ -2889,6 +2922,24 @@ describe("Race Detection", () => {
         ],
         includeWarmup: false,
       });
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(res.isWorkout);
+      assert.ok(!res.isRace);
+    });
+
+    it("5x10min_total_13.1_user", () => {
+      resetConfigs();
+
+      const run = userTestRuns["general_irl_examples"]["5x10min"];
       const res = parseWorkout({
         run: run,
         config: {
