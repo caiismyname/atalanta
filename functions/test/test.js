@@ -2618,6 +2618,24 @@ describe("Parser", () => {
         assert.equal(lap.closestDistanceUnit, "m");
       }
     });
+
+    it("short_single_lap", () => {
+      resetConfigs();
+
+      const run = userTestRuns["general_irl_examples"]["single_short_lap"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      // This test is actually to ensure the parser does not throw an exception on single-lap workouts
+      assert.ok(!res.isWorkout);
+    });
   });
 
   describe.skip("FALSE POSITIVES", () => {

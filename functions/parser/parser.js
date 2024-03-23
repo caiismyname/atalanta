@@ -166,6 +166,10 @@ function tagWorkoutLaps(laps) {
 }
 
 function mergeAbuttingLaps(laps) {
+  if (laps.length < 2) {
+    return laps;
+  }
+
   const mergedLaps = [];
 
   let prevLap = laps[0];
