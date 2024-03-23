@@ -233,52 +233,38 @@ function tagWorkoutTypes(laps) {
     return workouts;
   }
 
-  const differenceThreshold = 1.2; // TODO Tune this
-
-
   /*
-  Try out the threshold system on both distances and times.
+  Try out the threshold system on a weighted average of distances and times.
   We haven't assigned basises yet, so this will proxy for the true basis.
-  By taking the basis that generates the fewest distinct workout types, we guard against pace variance, which manifests as
-  time variance on distance based reps, and distance variance on time based reps
+
+  --- Previously tried taking thresholds by time/dist separately, then taking the one with the fewest distinct workout types,
+  but that was a bit aggressive in consolidating when there was pace variation.
   */
+
+  // TODO Tune these
+  const differenceThreshold = 1.2;
+  const distanceWeight = 0.5;
+  const timeWeight = 0.5;
 
   const workoutsSortedByDistance = [...workouts].sort((a, b) => a.distance < b.distance ? -1 : 1);
   const workoutsSortedByTime = [...workouts].sort((a, b) => a.moving_time < b.moving_time ? -1 : 1);
-
-  let workoutTypeCounterDistance = 0;
-  let workoutTypeCounterTime = 0;
-
   let prevWorkoutDistance = workoutsSortedByDistance[0].distance;
-  for (const lap of workoutsSortedByDistance) {
-    if ((lap.distance / prevWorkoutDistance) >= differenceThreshold) {
-      workoutTypeCounterDistance += 1;
-    }
-
-    prevWorkoutDistance = lap.distance;
-    lap.workoutType_d = workoutTypeCounterDistance;
-  }
-
   let prevWorkoutTime = workoutsSortedByTime[0].moving_time;
-  for (const lap of workoutsSortedByTime) {
-    if ((lap.moving_time / prevWorkoutTime) >= differenceThreshold) {
-      workoutTypeCounterTime += 1;
+  let workoutTypeCounter = 0;
+
+  for (const lap of workoutsSortedByDistance) {
+    const avgDiff = (
+      ((lap.distance / prevWorkoutDistance) * distanceWeight) +
+      ((lap.moving_time / prevWorkoutTime) * timeWeight)
+    ); // Note we don't divide b/c the weights sum to 1.0
+
+    if (avgDiff >= differenceThreshold) {
+      workoutTypeCounter += 1;
     }
 
+    lap.workoutType = workoutTypeCounter;
+    prevWorkoutDistance = lap.distance;
     prevWorkoutTime = lap.moving_time;
-    lap.workoutType_t = workoutTypeCounterTime;
-  }
-
-
-  // Take the system that generates the FEWEST distinct workout types
-  if (workoutTypeCounterTime > workoutTypeCounterDistance) {
-    for (const lap of workouts) {
-      lap.workoutType = lap.workoutType_d;
-    }
-  } else {
-    for (const lap of workouts) {
-      lap.workoutType = lap.workoutType_t;
-    }
   }
 
   // [end]
