@@ -2902,6 +2902,24 @@ describe("Race Detection", () => {
       assert.ok(res.isWorkout);
       assert.ok(!res.isRace);
     });
+
+    it("5x10min_total_13.1_user", () => {
+      resetConfigs();
+
+      const run = userTestRuns["general_irl_examples"]["5x10min"]
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.ok(res.isWorkout);
+      assert.ok(!res.isRace);
+    })
   });
 
   describe.skip("RACE FALSE POSITIVES", () => {
