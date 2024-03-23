@@ -140,7 +140,7 @@ app.get("/admin/mock_strava", (req, res) => {
   if (isEmulator) {
     MockStravaInterface.initialize(dbInterface);
     MockStravaInterface.sendWorkoutRun(processActivity);
-    res.send("mock strava!");
+    res.send("Mocked");
   } else {
     res.render("/");
   }
@@ -151,7 +151,13 @@ app.get("/strava_webhook", (req, res) => {
   StravaInterface.webhookCreationResponse(req, res);
 });
 
-function processActivity(activityID, userStravaID, isTest, forceParse=false, configOverride="DEFAULT") {
+function processActivity({
+  activityID = "0",
+  userStravaID = "0",
+  isTest = false,
+  forceParse = false,
+  configOverride="DEFAULT",
+} = {}) {
   dbInterface.getUserIDForStravaID(userStravaID, (userID) => {
     dbInterface.getStravaTokenForID(userID, (stravaToken) => {
       StravaInterface.getActivity(activityID, stravaToken, (activity) => {
@@ -165,6 +171,14 @@ function processActivity(activityID, userStravaID, isTest, forceParse=false, con
           }
 
           dbInterface.getPreferencesForUser(userID, (config) => {
+            // Short circuit if both not autodetect AND not a manual trigger
+            // Double check the title b/c `handleWebhook` only checks the title if the event is an update,
+            // but `splitz` could've been added to the title on the creation of the activity.
+            if (!config.parser.autodetectActivities && !forceParse && !StravaInterface.titleIsManualTrigger(activity.name)) {
+              console.log(`ACTIVITY ${activityID} not parsed because autoparse is disabled`);
+              return;
+            }
+
             // Overriding preferences if the manual trigger specified them.
             if (configOverride === "PACE") {
               config.format.subMileDistanceValue = "PACE";
@@ -254,14 +268,22 @@ function handleIncomingWebhook(req, res, isTest=false) {
       The second write can be harmful if the user updates the activity between the two webhooks because the second write would overwrite the user's changes.
       */
       if (!isWritten) {
-        processActivity(activityID, userStravaID, isTest);
+        processActivity({
+          activityID: activityID,
+          userStravaID: userStravaID,
+          isTest: isTest,
+        });
       }
     });
   } else if (isActivity && isStravaDefaultTitleUpdate) {
     dbInterface.getIsWorkoutWritten(activityID, (isWritten) => {
       // If we've already written the workout, and we subsequently receive a default title update, it means we were overwritten and we need to re-write
       if (isWritten) {
-        processActivity(activityID, userStravaID, isTest);
+        processActivity({
+          activityID: activityID,
+          userStravaID: userStravaID,
+          isTest: isTest,
+        });
       }
     });
   } else if (isAccountDeauthorization) {
@@ -270,8 +292,13 @@ function handleIncomingWebhook(req, res, isTest=false) {
       logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_DEACTIVATION, db);
     });
   } else if (isManualTrigger) {
-    console.log(`Reparse request for ACTIVITY ${activityID}. Details override: [${isManualTrigger}]`);
-    processActivity(activityID, userStravaID, isTest, true, isManualTrigger);
+    console.log(`Manual override for ACTIVITY ${activityID}. Details override: [${isManualTrigger}]`);
+    processActivity({
+      activityID: activityID,
+      userStravaID: userStravaID,
+      isTest: isTest,
+      forceParse: true,
+    });
   } else if (req.body.aspect_type === "update") {
     console.log(`Received update for ACTIVITY ${activityID}, no action taken.`);
   } else {
@@ -325,6 +352,7 @@ app.post("/update_preferences", (req, res) => {
       parser: {
         dominantWorkoutType: data.dominantWorkoutType,
         workoutPace: workoutPace,
+        autodetectActivities: data.autodetectActivities == "true", // It comes in as a string
       },
       format: {
         paceUnits: data.paceUnits,

@@ -93,7 +93,21 @@ html(lang="en")
             input(type="radio", name="dominantWorkoutType", value="BALANCED", checked=(preferences.parser.dominantWorkoutType === "BALANCED"))
             | Mix of both
           br
+
+          br
+          hr
+          br
+
+          h3 
+            b Workout and Race Autodetection
+          label.radio-label
+            input(type="radio", name="autodetectActivities", value="true", checked=(preferences.parser.autodetectActivities))
+            | Automatically detect workouts and races
+          label.radio-label
+            input(type="radio", name="autodetectActivities", value="false", checked=(!preferences.parser.autodetectActivities))
+            | Manually trigger Splitz by adding "Splitz" to the activity title
           
+          br
           button(type="submit") Save
 
         .card(style={'text-align': 'left'})

@@ -3,29 +3,35 @@ const defaultTestRuns = require("./test/test_runs.json");
 
 class MockStravaInterface {
   static initialize(inputDbInterface) {
+    const dbInterface = inputDbInterface;
+
     this.userID = 123456789;
     this.stravaID = 987654321;
     this.activityID = 1111;
 
-    const dbInterface = inputDbInterface;
+    dbInterface.isUserCreated(this.userID, (isCreated) => {
+      if (!isCreated) {
+        dbInterface.createNewUser({
+          userID: this.userID,
+          name: "Galen Rupp",
+          email: "foobar@splitz.com",
+        });
 
-    dbInterface.createNewUser({
-      userID: this.userID,
-      name: "Galen Rupp",
-      email: "foobar@splitz.com",
+        console.log("Test user created");
+
+        dbInterface.saveStravaCredentialsForUser(
+            this.userID,
+            this.stravaID,
+            "fake_access_token",
+            "fake_refresh_token",
+            new Date("2030-12-31").getTime(),
+        );
+
+        console.log("Test user strava credentials saved");
+      } else {
+        console.log("Test user already created");
+      }
     });
-
-    console.log("Test user created");
-
-    dbInterface.saveStravaCredentialsForUser(
-        this.userID,
-        this.stravaID,
-        "fake_access_token",
-        "fake_refresh_token",
-        new Date("2030-12-31").getTime(),
-    );
-
-    console.log("Test user strava credentials saved");
   }
 
   static sendNonWorkoutRun(processActivityFunc) {
@@ -40,11 +46,17 @@ class MockStravaInterface {
         },
         );
 
-    processActivityFunc(this.activityID, this.stravaID, false);
+    processActivityFunc({
+      activityID: this.activityID,
+      userStravaID: this.stravaID,
+      isTest: false,
+    });
+    console.log("Mock non-workout sent");
   }
 
   static sendWorkoutRun(processActivityFunc) {
-    const res = defaultTestRuns["(4 x 1mi) + (4 x 400m)"];
+    const res = {...defaultTestRuns["(4 x 1mi) + (4 x 400m)"]};
+    res.name = "Morning run";
     res.type = "Run";
 
     nock("https://www.strava.com")
@@ -55,7 +67,13 @@ class MockStravaInterface {
         .put(`/api/v3/activities/${this.activityID}`)
         .reply(200, {});
 
-    processActivityFunc(this.activityID, this.stravaID, false);
+    processActivityFunc({
+      activityID: this.activityID,
+      userStravaID: this.stravaID,
+      isTest: false,
+      forceParse: false,
+    });
+    console.log("Mock workout sent");
   }
 
   static sendBikeActivity(processActivityFunc) {
