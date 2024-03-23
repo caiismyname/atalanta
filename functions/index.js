@@ -172,7 +172,9 @@ function processActivity({
 
           dbInterface.getPreferencesForUser(userID, (config) => {
             // Short circuit if both not autodetect AND not a manual trigger
-            if (!config.parser.autodetectActivities && !forceParse) {
+            // Double check the title b/c `handleWebhook` only checks the title if the event is an update,
+            // but `splitz` could've been added to the title on the creation of the activity.
+            if (!config.parser.autodetectActivities && !forceParse && !StravaInterface.titleIsManualTrigger(activity.name)) {
               console.log(`ACTIVITY ${activityID} not parsed because autoparse is disabled`);
               return;
             }

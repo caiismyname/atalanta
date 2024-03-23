@@ -131,30 +131,25 @@ class StravaInterface {
     return false;
   }
 
-  static webhookIsManualTrigger(req) {
+  static titleIsManualTrigger(title) {
     let isManualTrigger = false;
     let requestPace = false;
     let requestTime = false;
 
-    if (req.body.aspect_type === "update") {
-      if ("updates" in req.body) { // being defensive here
-        if ("title" in req.body.updates) {
-          const newTitle = req.body.updates.title
-              .toLowerCase()
-              .replace(/[-~!@&*()_+=|'";:/?.>,<]/g, "")
-              .split(" ");
-          for (const word of newTitle) {
-            if (manualTriggerKeywords.includes(word)) {
-              isManualTrigger = true;
-            }
-          }
+    const newTitle = title
+        .toLowerCase()
+        .replace(/[-~!@&*()_+=|'";:/?.>,<]/g, "")
+        .split(" ");
 
-          if (isManualTrigger) {
-            requestPace = newTitle.includes("pace");
-            requestTime = newTitle.includes("time");
-          }
-        }
+    for (const word of newTitle) {
+      if (manualTriggerKeywords.includes(word)) {
+        isManualTrigger = true;
       }
+    }
+
+    if (isManualTrigger) {
+      requestPace = newTitle.includes("pace");
+      requestTime = newTitle.includes("time");
     }
 
     if (!isManualTrigger) {
@@ -169,6 +164,19 @@ class StravaInterface {
     } else {
       return "DEFAULT";
     }
+  }
+
+  static webhookIsManualTrigger(req) {
+    if (req.body.aspect_type === "update") {
+      if ("updates" in req.body) { // being defensive here
+        if ("title" in req.body.updates) {
+          const title = req.body.updates.title;
+          return this.titleIsManualTrigger(title);
+        }
+      }
+    }
+
+    return false;
   }
 }
 

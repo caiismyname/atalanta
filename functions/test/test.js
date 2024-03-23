@@ -114,6 +114,15 @@ describe("Server", () => {
             },
         ));
       }
+
+      assert.ok(!StravaInterface.webhookIsManualTrigger(
+          {
+            body: {
+              aspect_type: "create",
+              updates: {}, // Creates don't come with updates
+            },
+          },
+      ));
     });
 
     it("Pace Triggers", () => {

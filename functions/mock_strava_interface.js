@@ -71,7 +71,7 @@ class MockStravaInterface {
       activityID: this.activityID,
       userStravaID: this.stravaID,
       isTest: false,
-      forceParse: true,
+      forceParse: false,
     });
     console.log("Mock workout sent");
   }
