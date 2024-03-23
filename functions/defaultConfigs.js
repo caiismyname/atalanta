@@ -12,6 +12,7 @@ const defaultFormatConfig = {
 const defaultParserConfig = {
   "workoutPace": 0, // 7, 6, 8, 9, 10 — references the slow end of the per-mile pace range for workouts. 0 means not set, and is the default
   "dominantWorkoutType": "BALANCED", //  "BALANCED", "DISTANCE", "TIME"
+  "autodetectActivities": true, // true, false
 };
 
 const defaultAccountSettingsConfig = {
