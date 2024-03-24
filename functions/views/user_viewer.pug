@@ -1,0 +1,69 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Splitz Users
+    link(rel="stylesheet", href="../style.css")
+  body
+    header
+      h1 Splitz Users
+    main
+        h2 Total: #{totalCount} | Active: #{activeCount}
+        table(id="sortableTable")
+            thead
+                tr
+                    th ID
+                    th Name
+                    th Strava?
+                    th Pace
+                    th Auto
+                    th Hooks
+                    th Workouts
+            tbody
+                each user in users
+                    tr
+                        td(style="font-size: 8px;")= user.id
+                        td
+                            a(href=`https://strava.com/athletes/${user.stravaID}}` target="_blank")= user.name
+                        td= user.stravaConnected
+                        td= user.preferences.parser.workoutPace
+                        td= user.preferences.parser.autodetectActivities
+                        td= user.events.webhook_count
+                        td= user.events.workout_count
+
+  footer
+      p Copyright © 2023 Splitz
+      img(src="/powered_by_strava.svg" height='24px')
+
+
+  // This JS enables sorting by the headers. It hard codes which columns are numeric for proper number sorting
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+        const headers = document.querySelectorAll('th');
+        headers.forEach(header => {
+            header.addEventListener('click', function() {
+                const table = document.getElementById('sortableTable');
+                const rows = Array.from(table.getElementsByTagName('tr'));
+                const columnIndex = Array.from(this.parentNode.children).indexOf(this);
+                const isNumeric = columnIndex === 5 || columnIndex === 6;
+
+                const headerRow = rows.shift(); // Remove header row from sorting
+                rows.sort((a, b) => {
+                    const aValue = a.children[columnIndex].textContent;
+                    const bValue = b.children[columnIndex].textContent;
+                    if (isNumeric) {
+                        return parseFloat(bValue) - parseFloat(aValue); // sort descending
+                    } else {
+                        return aValue.localeCompare(bValue);
+                    }
+                });
+
+                // Add header row back to the sorted rows
+                rows.unshift(headerRow);
+
+                // Replace the existing table rows with the sorted rows
+                rows.forEach(row => table.appendChild(row));
+            });
+        });
+    });

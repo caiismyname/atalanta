@@ -136,6 +136,22 @@ app.get("/admin/user_analytics", (req, res) => {
   });
 });
 
+app.get("/admin/user_viewer", (req, res) => {
+  const userToken = req.cookies["__session"];
+  validateAdminToken(userToken, res, (_) => {
+    const userAnalyticsEngine = new UserAnalyticsEngine(db);
+    userAnalyticsEngine.getAllUsers((userInfo) => {
+      const totalCount = Object.keys(userInfo).length;
+      const activeCount = Object.values(userInfo).filter((x) => x.stravaConnected).length;
+      res.render("user_viewer", {
+        "users": userInfo,
+        "totalCount": totalCount,
+        "activeCount": activeCount,
+      });
+    });
+  });
+});
+
 app.get("/admin/mock_strava", (req, res) => {
   if (isEmulator) {
     MockStravaInterface.initialize(dbInterface);

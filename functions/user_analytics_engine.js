@@ -112,6 +112,23 @@ class UserAnalyticsEngine {
       callback(userEventsDatasets);
     });
   }
+
+  async getAllUsers(callback) {
+    this.db.ref(`users`).once("value", (usersSnapshot) => {
+      this.db.ref(`userEvents`).once("value", (eventsSnapshot) => {
+        const allUsers = usersSnapshot.val();
+        const allEvents = eventsSnapshot.val();
+        const emptyEvents = {webhook_count: 0, workout_count: 0};
+
+        for (const userID of Object.keys(allUsers)) {
+          allUsers[userID].id = userID;
+          allUsers[userID].events = {...emptyEvents, ...allEvents[userID]}; // Give default if there are no analytics events for the user
+        }
+
+        callback(allUsers);
+      });
+    });
+  }
 }
 
 module.exports = {UserAnalyticsEngine};
