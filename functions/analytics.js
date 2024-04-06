@@ -61,4 +61,5 @@ module.exports = {
   USER_EVENTS,
   logAnalytics,
   logUserEvent,
+  getDatestamp,
 };

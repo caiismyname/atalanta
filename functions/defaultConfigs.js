@@ -29,6 +29,11 @@ const emailCampaignTriggerProperties = {
   MONETIZATION_2: "monetization_trigger_2",
 };
 
+const emailCampaigns = {
+  MONETIZATION_1: "monetization_at_20_workouts",
+  STRAVA_CONNECTION_REMINDER: "strava_connection_reminder",
+};
+
 module.exports = {
   defaultFormatConfig,
   defaultParserConfig,
@@ -36,4 +41,5 @@ module.exports = {
   knownStravaDefaultRunNames,
   emailCampaignTriggerProperties,
   manualTriggerKeywords,
+  emailCampaigns,
 };

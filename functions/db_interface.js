@@ -1,6 +1,8 @@
 const {ANALYTICS_EVENTS, logAnalytics} = require("./analytics.js");
 const {StravaInterface} = require("./strava_interface.js");
-const {defaultParserConfig, defaultFormatConfig, defaultAccountSettingsConfig} = require("./defaultConfigs.js");
+const {defaultParserConfig, defaultFormatConfig, defaultAccountSettingsConfig, emailCampaigns} = require("./defaultConfigs.js");
+const {getDatestamp} = require("./analytics.js");
+const {EMAIL_STATUS} = require("./email_interface.js");
 
 class DbInterface {
   constructor(db) {
@@ -13,20 +15,50 @@ class DbInterface {
     });
   }
 
-  createNewUser(details) {
-    logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, this.db);
-    this.db.ref(`users/${details.userID}`).update({
-      stravaConnected: false,
-      name: details.name,
-      email: details.email,
-      preferences: {
-        parser: defaultParserConfig,
-        format: defaultFormatConfig,
-        account: defaultAccountSettingsConfig,
-      },
-    }, (error) => {
-      console.log(error);
-    });
+  createNewUser(details, callback) {
+    const allPromises = [];
+
+    allPromises.push(
+        new Promise((resolve, reject) => {
+          this.db.ref(`users/${details.userID}`).update({
+            stravaConnected: false,
+            name: details.name,
+            email: details.email,
+            createDate: getDatestamp(),
+            preferences: {
+              parser: defaultParserConfig,
+              format: defaultFormatConfig,
+              account: defaultAccountSettingsConfig,
+            },
+          }, (error) => {
+            console.log(error);
+            reject();
+          }).then(() => {
+            resolve();
+          });
+        }),
+    );
+
+    for (const emailID of Object.values(emailCampaigns)) {
+      allPromises.push(
+          new Promise((resolve, reject) => {
+            this.db.ref(`emailCampaigns/${emailID}`).update({
+              [details.userID]: EMAIL_STATUS.NOT_SENT,
+            }).then(() => {
+              resolve();
+            });
+          }),
+      );
+    }
+
+    Promise.all(allPromises)
+        .then((results) => {
+          logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, this.db);
+          callback();
+        })
+        .catch((error) => {
+          console.error(`Error ${error}`);
+        });
   }
 
   saveStravaCredentialsForUser(userID, stravaID, accessToken, refreshToken, expiration) {

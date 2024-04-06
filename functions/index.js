@@ -89,13 +89,17 @@ app.get("/home", (req, res) => {
       dbInterface.isUserCreated(userID, (isCreated) => {
         if (!isCreated) {
           getPersonalDetailsFromUserToken(userToken, (details) => {
-            dbInterface.createNewUser(details);
+            dbInterface.createNewUser(details, () => {
+              dbInterface.getUserDetails(userID, (details) => {
+                res.render("home", details);
+              });
+            });
+          });
+        } else {
+          dbInterface.getUserDetails(userID, (details) => {
+            res.render("home", details);
           });
         }
-
-        dbInterface.getUserDetails(userID, (details) => {
-          res.render("home", details);
-        });
       });
     }
   });

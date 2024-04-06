@@ -7,6 +7,7 @@ const firebase = admin.initializeApp({
   databaseURL: "http://127.0.0.1:9000/?ns=atalanta-12c63-default-rtdb",
 });
 const db = firebase.database();
+const {EMAIL_STATUS} = require("./email_interface.js");
 
 function saveBackup(content, callback) {
   const jsonContent = JSON.stringify(content, null, 4);
@@ -177,7 +178,44 @@ function addNewConfigKey(configName, newKey, defaultVal, commit = false) {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
+function createNewEmailCampaign({
+  emailID = "",
+  includeAllExistingUsers = false,
+  commit = false,
+} = {}) {
+  db.ref(`users`).once("value", (snapshot) => {
+    const allUsers = snapshot.val();
+    const updateObj = {};
+    updateObj[emailID] = {"KbYurtn3oDSZkAldrrvVivAMC4v2": EMAIL_STATUS.NOT_SENT}; // Seed it with caiismyname so it's not an empty object
+
+    if (includeAllExistingUsers) {
+      for (const userID of Object.keys(allUsers)) {
+        updateObj[emailID][userID] = EMAIL_STATUS.NOT_SENT;
+      }
+    }
+
+    if (commit) {
+      db.ref(`emailCampaigns`).once("value", (snapshot) => {
+        saveBackup(snapshot.val(), () => {
+          db.ref(`emailCampaigns`).update(updateObj).then(() => {
+            console.log(`\t${commit ? "" : "DRY RUN — "}Created campaign ${emailID} with ${Object.keys(updateObj[emailID]).length} initial recipients`);
+            firebase.delete();
+          });
+        });
+      });
+    } else {
+      console.log(`\t${commit ? "" : "DRY RUN — "}Created campaign ${emailID} with ${Object.keys(updateObj[emailID]).length} initial recipients`);
+      firebase.delete();
+    }
+  });
+}
 
 // migrateConfigKey("", "", false);
 // deleteConfigKey("", false);
 // addNewConfigKey("", "", "", false);
+createNewEmailCampaign({
+  emailID: "strava_connection_reminder",
+  includeAllExistingUsers: false,
+  commit: true,
+});
