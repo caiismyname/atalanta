@@ -4,6 +4,10 @@ const {emailCampaigns, emailCampaignTriggerProperties} = require("./defaultConfi
 const {getDatestamp} = require("./analytics.js");
 
 class EmailInterface {
+  constructor(db) {
+    this.db = db;
+  }
+
   // static getConfig() {
   //   const config = {
   //     auth: {
@@ -103,17 +107,16 @@ class EmailInterface {
   //       });
   // }
 
-  static sendEmail(userID, emailAddress, emailID) {
-    verifyEmailIsEligible(userID, emailID, (isEligible) => {
+  sendEmail(userID, emailAddress, emailID) {
+    this.verifyEmailIsEligible(userID, emailID, (isEligible) => {
       if (isEligible) {
         // actual email sending logic
-        console.log(`SENDING EMAIL ${emailID} to ${emailAddress} **************************`);
 
         console.log(`User ${userID} was sent email [${emailID}]`);
-        logEmailSent(userID, emailID, EMAIL_STATUS.SENT);
+        this.logEmailSent(userID, emailID, EMAIL_STATUS.SENT);
       } else {
         console.log(`User ${userID} not eligible to be sent email [${emailID}]`);
-        logEmailSent(userID, emailID, EMAIL_STATUS.BLOCKED);
+        this.logEmailSent(userID, emailID, EMAIL_STATUS.BLOCKED);
       }
     });
   }
@@ -130,15 +133,16 @@ class EmailInterface {
   }
 
   logEmailSent(userID, emailID, status) {
-    this.db.ref(`emailCampaigns/${emailID}/${userID}`).update(
-        status,
+    this.db.ref(`emailCampaigns/${emailID}`).update(
+        {[userID]: status},
         (error) => {
           console.error(error);
         },
     );
   }
 
-  static emailTriggerDaemon() {
+
+  emailTriggerDaemon() {
     /*
       Iterates through all Email Campaigns.
       For each campaign, filter to the NOT_SENT users and check if they meet the send condition.
@@ -146,6 +150,8 @@ class EmailInterface {
         If they hit a condition such that the campaign is no longer relevant, mark them as blocked.
         No-op if they haven't hit the condition.
     */
+
+    console.log(`Running email trigger daemon for ${getDatestamp()}`);
 
     this.db.ref(`emailCampaigns`).once("value", (emailCampaignsSnapshot) => {
       this.db.ref(`users`).once("value", (usersSnapshot) => {
@@ -155,61 +161,85 @@ class EmailInterface {
           const userEvents = userEventsSnapshot.val();
 
           const emailsToSend = [];
+          let totalRegisteredForCampaign = 0;
+          let totalNotSentForCampaign = 0;
+          let totalEligibleForSend = 0;
 
+          //
           // Monetization campaign
+          //
+          totalRegisteredForCampaign = Object.keys(allCampaigns[emailCampaigns.MONETIZATION_1]).length;
           const workoutCountThreshold = 20;
-          const eligibleUsersMonetizationOne = Object.fromEntries(
-              object.entries(allCampaigns[emailCampaigns.MONETIZATION_1])
-                  .filter(([_, status]) => status === EMAIL_STATUS.NOT_SENT),
+          const eligibleUsersMonetizationOne = Object.keys(
+              Object.fromEntries(
+                  Object.entries(allCampaigns[emailCampaigns.MONETIZATION_1])
+                      .filter(([_, status]) => status === EMAIL_STATUS.NOT_SENT),
+              ),
           );
 
           for (const userID of eligibleUsersMonetizationOne) {
-            const user = allUsers[userID];
-            const userWorkoutCount = userEvents[userID].workout_count;
-            if (userWorkoutCount === workoutCountThreshold) {
-              emailsToSend.push({
-                userID: userID,
-                email: user.email,
-                campaign: emailCampaigns.MONETIZATION_1,
-              });
-            } else if (userWorkoutCount > workoutCountThreshold) {
-              allCampaigns[emailCampaigns.MONETIZATION_1][userID] = EMAIL_STATUS.BLOCKED; // Shouldn't occur, but writing this as a safety fallthrough
+            totalNotSentForCampaign++;
+            if (userID in userEvents) {
+              const user = allUsers[userID];
+              const userWorkoutCount = userEvents[userID].workout_count;
+              if (userWorkoutCount <= workoutCountThreshold) {
+                emailsToSend.push({
+                  userID: userID,
+                  email: user.email,
+                  campaign: emailCampaigns.MONETIZATION_1,
+                });
+                totalEligibleForSend++;
+              } else if (userWorkoutCount > workoutCountThreshold) {
+                allCampaigns[emailCampaigns.MONETIZATION_1][userID] = EMAIL_STATUS.BLOCKED; // Shouldn't occur, but writing this as a safety fallthrough
+              }
             }
           }
+
+          console.log(`${emailCampaigns.MONETIZATION_1}: ${totalEligibleForSend} eligible users of ${totalNotSentForCampaign} not sent (${totalRegisteredForCampaign} total)`);
 
 
           //
           // Strava Connection campaign
           //
+          totalRegisteredForCampaign = Object.keys(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER]).length;
+          totalNotSentForCampaign = 0;
+          totalEligibleForSend = 0;
+
           const daysAfterSignup = 2;
-          const eligibleUsersStravaConnection = Object.fromEntries(
-              object.entries(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER])
-                  .filter(([_, status]) => status === EMAIL_STATUS.NOT_SENT),
+          const eligibleUsersStravaConnection = Object.keys(
+              Object.fromEntries(
+                  Object.entries(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER])
+                      .filter(([_, status]) => status === EMAIL_STATUS.NOT_SENT),
+              ),
           );
 
           for (const userID of eligibleUsersStravaConnection) {
+            totalNotSentForCampaign++;
             const user = allUsers[userID];
             const today = new Date(getDatestamp());
             const createDate = new Date(user.createDate);
-            if ((today - createDate) / (1000 * 60 * 60 * 24) === daysAfterSignup) { // 2 days. Datestamps are all day granularity so time is not a consideration
+            if ((today - createDate) / (1000 * 60 * 60 * 24) > daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
               if (!user.stravaConnected) {
                 emailsToSend.push({
                   userID: userID,
                   email: user.email,
                   campaign: emailCampaigns.STRAVA_CONNECTION_REMINDER,
                 });
+                totalEligibleForSend++;
               } else {
                 allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
               }
             }
           }
 
+          console.log(`${emailCampaigns.STRAVA_CONNECTION_REMINDER}: ${totalEligibleForSend} eligible users of ${totalNotSentForCampaign} not sent (${totalRegisteredForCampaign} total)`);
+
           //
           // Update the campaigns for the BLOCKED users
           //
           this.db.ref(`emailCampaigns`).update(allCampaigns)
               .then(() => {
-                for (let task of emailsToSend) {
+                for (const task of emailsToSend) {
                   this.sendEmail(task.userID, task.email, task.campaign);
                 }
               });

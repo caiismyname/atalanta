@@ -45,7 +45,9 @@ const dbInterface = new DbInterface(db);
 
 app.get("/test", (req, res) => {
   logAnalytics(ANALYTICS_EVENTS.TEST, db);
-  res.send("Testing");
+  const email = new EmailInterface(db);
+  email.emailTriggerDaemon();
+  res.send("Testing email daemon");
 });
 
 app.get("/", (req, res) => {
@@ -497,27 +499,27 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
 exports.app = functions.https.onRequest(app);
 
 // Monetization email campagin triggers (total workouts written)
-exports.monetizationTriggers = functions.database.ref(`/userEvents/{userID}/${USER_EVENTS.WORKOUT}`)
-    .onUpdate((change, context) => {
-      const threshold1 = 20;
-      const threshold2 = 50;
+// exports.monetizationTriggers = functions.database.ref(`/userEvents/{userID}/${USER_EVENTS.WORKOUT}`)
+//     .onUpdate((change, context) => {
+//       const threshold1 = 20;
+//       const threshold2 = 50;
 
-      const workoutCount = change.after.val();
-      const userID = context.params.userID;
+//       const workoutCount = change.after.val();
+//       const userID = context.params.userID;
 
-      if (workoutCount === threshold1 || workoutCount === threshold2) {
-        const trigger = workoutCount === threshold1 ? emailCampaignTriggerProperties.MONETIZATION_1 : emailCampaignTriggerProperties.MONETIZATION_2;
+//       if (workoutCount === threshold1 || workoutCount === threshold2) {
+//         const trigger = workoutCount === threshold1 ? emailCampaignTriggerProperties.MONETIZATION_1 : emailCampaignTriggerProperties.MONETIZATION_2;
 
-        dbInterface.getUserDetails(userID, (details) => {
-          if (details.preferences.account.emailOptIn) {
-            const email = details.email;
+//         dbInterface.getUserDetails(userID, (details) => {
+//           if (details.preferences.account.emailOptIn) {
+//             const email = details.email;
 
-            EmailInterface.updateProperty(`${email}-makingItBreak`, trigger, () => {
-              console.log(`User ${userID} hit ${trigger} — property updated in Mailjet.`);
-            });
-          } else {
-            console.log(`User ${userID} hit ${trigger} but has opted out of emails.`);
-          }
-        });
-      }
-    });
+//             EmailInterface.updateProperty(`${email}-makingItBreak`, trigger, () => {
+//               console.log(`User ${userID} hit ${trigger} — property updated in Mailjet.`);
+//             });
+//           } else {
+//             console.log(`User ${userID} hit ${trigger} but has opted out of emails.`);
+//           }
+//         });
+//       }
+//     });

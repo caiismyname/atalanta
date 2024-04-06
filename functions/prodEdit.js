@@ -179,6 +179,52 @@ function addNewConfigKey(configName, newKey, defaultVal, commit = false) {
 }
 
 // eslint-disable-next-line no-unused-vars
+function addNewUserProperty(newProperty, defaultVal, commit = false) {
+  const updateObj = {};
+  updateObj[newProperty] = defaultVal;
+
+  db.ref(`users`).once("value", (snapshot) => {
+    const allUsers = snapshot.val();
+    const allPromises = [];
+    let updatedUserCount = 0;
+
+    saveBackup(allUsers, () => {
+      Object.keys(allUsers).forEach((userID) => {
+        allPromises.push(
+            new Promise((resolve, reject) => {
+              if (!(newProperty in allUsers[userID])) {
+                if (commit) {
+                  db.ref(`users/${userID}`).update(updateObj).then(() => {
+                    console.log(`\t${commit ? "" : "DRY RUN — "}Added ${newProperty} = ${defaultVal} for ${userID}`);
+                    updatedUserCount++;
+                    resolve();
+                  });
+                } else {
+                  console.log(`\t${commit ? "" : "DRY RUN — "}Added ${newProperty} = ${defaultVal} for ${userID}`);
+                  updatedUserCount++;
+                  resolve();
+                }
+              } else {
+                resolve();
+              }
+            }),
+        );
+      });
+
+      Promise.all(allPromises)
+          .then((results) => {
+            console.log(`Updated ${updatedUserCount} users`);
+            firebase.delete();
+          })
+          .catch((error) => {
+            console.error(`Error ${error}`);
+            firebase.delete();
+          });
+    });
+  });
+}
+
+// eslint-disable-next-line no-unused-vars
 function createNewEmailCampaign({
   emailID = "",
   includeAllExistingUsers = false,
@@ -214,8 +260,11 @@ function createNewEmailCampaign({
 // migrateConfigKey("", "", false);
 // deleteConfigKey("", false);
 // addNewConfigKey("", "", "", false);
+
+// addNewUserProperty("createDate", "2024-01-02", true);
+
 createNewEmailCampaign({
   emailID: "strava_connection_reminder",
-  includeAllExistingUsers: false,
+  includeAllExistingUsers: true,
   commit: true,
 });
