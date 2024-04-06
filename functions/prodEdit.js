@@ -260,11 +260,10 @@ function createNewEmailCampaign({
 // migrateConfigKey("", "", false);
 // deleteConfigKey("", false);
 // addNewConfigKey("", "", "", false);
+// addNewUserProperty("", "", false);
 
-// addNewUserProperty("createDate", "2024-01-02", true);
-
-createNewEmailCampaign({
-  emailID: "strava_connection_reminder",
-  includeAllExistingUsers: true,
-  commit: true,
-});
+// createNewEmailCampaign({
+//   emailID: "strava_connection_reminder",
+//   includeAllExistingUsers: true,
+//   commit: true,
+// });

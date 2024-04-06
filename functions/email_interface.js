@@ -182,7 +182,7 @@ class EmailInterface {
             if (userID in userEvents) {
               const user = allUsers[userID];
               const userWorkoutCount = userEvents[userID].workout_count;
-              if (userWorkoutCount <= workoutCountThreshold) {
+              if (userWorkoutCount === workoutCountThreshold || userWorkoutCount === workoutCountThreshold + 1) {
                 emailsToSend.push({
                   userID: userID,
                   email: user.email,
@@ -218,7 +218,7 @@ class EmailInterface {
             const user = allUsers[userID];
             const today = new Date(getDatestamp());
             const createDate = new Date(user.createDate);
-            if ((today - createDate) / (1000 * 60 * 60 * 24) > daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
+            if ((today - createDate) / (1000 * 60 * 60 * 24) === daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
               if (!user.stravaConnected) {
                 emailsToSend.push({
                   userID: userID,
@@ -235,7 +235,7 @@ class EmailInterface {
           console.log(`${emailCampaigns.STRAVA_CONNECTION_REMINDER}: ${totalEligibleForSend} eligible users of ${totalNotSentForCampaign} not sent (${totalRegisteredForCampaign} total)`);
 
           //
-          // Update the campaigns for the BLOCKED users
+          // Perform campaign updates / email sends
           //
           this.db.ref(`emailCampaigns`).update(allCampaigns)
               .then(() => {
