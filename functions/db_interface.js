@@ -32,7 +32,7 @@ class DbInterface {
             },
           }, (error) => {
             console.log(error);
-            reject();
+            reject(new Error(error));
           }).then(() => {
             resolve();
           });

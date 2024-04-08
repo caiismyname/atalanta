@@ -1,6 +1,6 @@
 const axios = require("axios");
 const functions = require("firebase-functions");
-const {emailCampaigns, emailCampaignTriggerProperties} = require("./defaultConfigs.js");
+const {emailCampaigns} = require("./defaultConfigs.js");
 const {getDatestamp} = require("./analytics.js");
 
 class EmailInterface {
@@ -73,8 +73,7 @@ class EmailInterface {
     );
   }
 
-
-  emailTriggerDaemon() {
+  runDailyTriggerDaemon() {
     /*
       Iterates through all Email Campaigns.
       For each campaign, filter to the NOT_SENT users and check if they meet the send condition.

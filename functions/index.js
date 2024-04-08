@@ -9,7 +9,6 @@ const {parseWorkout} = require("./parser/parser.js");
 const {StravaInterface} = require("./strava_interface.js");
 const {MockStravaInterface} = require("./mock_strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
-const {EmailInterface} = require("./email_interface.js");
 const {UserAnalyticsEngine} = require("./user_analytics_engine.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
 const {defaultAccountSettingsConfig} = require("./defaultConfigs.js");
@@ -30,6 +29,7 @@ app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const serviceAccount = require("./serviceAccountKey.json");
+const {EmailInterface} = require("./email_interface.js");
 const firebase = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://atalanta-12c63-default-rtdb.firebaseio.com",
@@ -45,7 +45,6 @@ const dbInterface = new DbInterface(db);
 
 app.get("/test", (req, res) => {
   logAnalytics(ANALYTICS_EVENTS.TEST, db);
-  const email = new EmailInterface(db);
   res.send("Test");
 });
 
@@ -496,3 +495,8 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
 
 // The main app for Firebase
 exports.app = functions.https.onRequest(app);
+
+exports.emailDaemon = functions.onSchedule("every day 8:00", async (event) => {
+  const emailHandler = new EmailInterface(db);
+  emailHandler.runDailyTriggerDaemon();
+});
