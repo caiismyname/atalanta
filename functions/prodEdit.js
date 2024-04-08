@@ -267,3 +267,11 @@ function createNewEmailCampaign({
 //   includeAllExistingUsers: true,
 //   commit: true,
 // });
+
+// createNewEmailCampaign({
+//   emailID: "monetization_at_20_workouts",
+//   includeAllExistingUsers: true,
+//   commit: true,
+// });
+
+// addNewUserProperty("createDate", "2024-01-01", true);

@@ -8,115 +8,47 @@ class EmailInterface {
     this.db = db;
   }
 
-  // static getConfig() {
-  //   const config = {
-  //     auth: {
-  //       username: functions.config().mailjet.api_key,
-  //       password: functions.config().mailjet.api_secret,
-  //     },
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   };
+  getConfig() {
+    return {
+      auth: {
+        username: "api",
+        password: functions.config().mailgun.api_key,
+      },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    };
+  }
 
-  //   return config;
-  // }
-
-  // static createUser(person) {
-  //   const createApiPath = `https://api.mailjet.com/v3/REST/contact`;
-  //   const propertiesApiPath = `https://api.mailjet.com/v3/REST/contactdata`;
-  //   const listApiPath = `https://api.mailjet.com/v3/REST/listrecipient`;
-
-  //   const createData = {
-  //     Name: person.firstName,
-  //     Email: person.email,
-  //   };
-
-  //   // Create the user
-  //   axios.post(createApiPath, createData, this.getConfig())
-  //       .then((res) => {
-  //       //   const mailjetID = res.data.Data[0].ID;
-  //         const propertiesData = [
-  //           {
-  //             "Name": "first_name",
-  //             "Value": person.firstName,
-  //           },
-  //         ];
-
-  //         // Set all default properties to false
-  //         for (const prop of Object.values(emailCampaignTriggerProperties)) {
-  //           propertiesData.push({
-  //             "Name": prop,
-  //             "Value": false,
-  //           });
-  //         }
-
-  //         axios.put(`${propertiesApiPath}/${person.email}`, {"Data": propertiesData}, this.getConfig())
-  //             .then((_) => {
-  //               // Add them to the list that workflows pull from
-  //               // const listID = 10409313; // PROD
-  //               const listID = 10404001; // TEST
-  //               const listData = {
-  //                 "ListID": listID,
-  //                 "ContactAlt": person.email,
-  //               };
-
-  //               axios.post(listApiPath, listData, this.getConfig())
-  //                   .catch((error) => {
-  //                     console.error(error);
-  //                   });
-  //             })
-  //             .catch((error) => {
-  //               console.error(error);
-  //             });
-  //       })
-  //       .catch((error) => {
-  //         console.error(error);
-  //       });
-  // }
-
-  // static updateProperty(email, prop, callback) {
-  //   console.log(`Updated property called for ${email}, overriding with davidcai2012@gmail.com`);
-  //   email = "davidcai2012@gmail.com";
-  //   const propertiesApiPath = `https://api.mailjet.com/v3/REST/contactdata`;
-  //   const propertiesData = [
-  //     {
-  //       "Name": prop,
-  //       "Value": true,
-  //     },
-  //   ];
-  //   axios.put(`${propertiesApiPath}/${email}`, {"Data": propertiesData}, this.getConfig())
-  //       .then((_)=>{
-  //         setTimeout(() => {
-  //           axios.put(`${propertiesApiPath}/${email}`, {"Data": [{
-  //             "Name": prop,
-  //             "Value": false,
-  //           }]}, this.getConfig())
-  //               .then((_) => {
-  //                 console.log(`\tReverted the prop`);
-  //               })
-  //               .catch((error) => {
-  //                 console.error(error);
-  //               });
-  //         }, 10000);
-
-  //         callback();
-  //       })
-  //       .catch((error) => {
-  //         console.error(error);
-  //       });
-  // }
-
-  sendEmail(userID, emailAddress, emailID) {
-    this.verifyEmailIsEligible(userID, emailID, (isEligible) => {
+  sendEmail(
+      {
+        userID = "123",
+        name = "John",
+        emailAddress = "caiismyname2012@gmail.com",
+        template = "fakeCampaign",
+      } = {}) {
+    this.verifyEmailIsEligible(userID, template, (isEligible) => {
       if (isEligible) {
         // actual email sending logic
+        const domain = "workoutsplitz.com";
+        const requestData = {
+          "from": "David from Splitz <hello@workoutsplitz.com>",
+          "to": `${name} <${`caiismyname2012@gmail.com`}>`,
+          "template": template,
+          "h:X-Mailgun-Variables": JSON.stringify({name: `${name} [${emailAddress}] - [${userID}]`}),
+        };
 
-        console.log(`User ${userID} was sent email [${emailID}]`);
-        this.logEmailSent(userID, emailID, EMAIL_STATUS.SENT);
+        axios.post(`https://api.mailgun.net/v3/${domain}/messages`, requestData, this.getConfig())
+            .then((response) => {
+              console.log(`User ${userID} was sent email [${template}]. ID: ${response.data.id}`);
+              this.logEmailSent(userID, template, EMAIL_STATUS.SENT);
+            })
+            .catch((error) => {
+              console.error("\tError sending email:", error.response.data);
+            });
       } else {
-        console.log(`User ${userID} not eligible to be sent email [${emailID}]`);
-        this.logEmailSent(userID, emailID, EMAIL_STATUS.BLOCKED);
+        console.log(`User ${userID} not eligible to be sent email [${template}]`);
+        this.logEmailSent(userID, template, EMAIL_STATUS.BLOCKED);
       }
     });
   }
@@ -125,7 +57,7 @@ class EmailInterface {
     this.db.ref(`users/${userID}/preferences/account`).once("value", (settingsSnapshot) => {
       const optedIn = settingsSnapshot.val().emailOptIn;
       this.db.ref(`emailCampaigns/${emailID}/${userID}`).once("value", (emailsSnapshot) => {
-        const hasNotAlreadyReceivedEmail = emailsSnapshot.val() == EMAIL_STATUS.NOT_SENT;
+        const hasNotAlreadyReceivedEmail = emailsSnapshot.val() === EMAIL_STATUS.NOT_SENT;
 
         callback(optedIn && hasNotAlreadyReceivedEmail);
       });
@@ -186,7 +118,8 @@ class EmailInterface {
                 emailsToSend.push({
                   userID: userID,
                   email: user.email,
-                  campaign: emailCampaigns.MONETIZATION_1,
+                  template: emailCampaigns.MONETIZATION_1,
+                  name: user.name,
                 });
                 totalEligibleForSend++;
               } else if (userWorkoutCount > workoutCountThreshold) {
@@ -223,7 +156,8 @@ class EmailInterface {
                 emailsToSend.push({
                   userID: userID,
                   email: user.email,
-                  campaign: emailCampaigns.STRAVA_CONNECTION_REMINDER,
+                  template: emailCampaigns.STRAVA_CONNECTION_REMINDER,
+                  name: user.name,
                 });
                 totalEligibleForSend++;
               } else {
@@ -240,7 +174,7 @@ class EmailInterface {
           this.db.ref(`emailCampaigns`).update(allCampaigns)
               .then(() => {
                 for (const task of emailsToSend) {
-                  this.sendEmail(task.userID, task.email, task.campaign);
+                  this.sendEmail(task);
                 }
               });
         });

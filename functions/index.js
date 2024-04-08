@@ -12,7 +12,7 @@ const {DbInterface} = require("./db_interface.js");
 const {EmailInterface} = require("./email_interface.js");
 const {UserAnalyticsEngine} = require("./user_analytics_engine.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
-const {defaultAccountSettingsConfig, emailCampaignTriggerProperties} = require("./defaultConfigs.js");
+const {defaultAccountSettingsConfig} = require("./defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -46,8 +46,7 @@ const dbInterface = new DbInterface(db);
 app.get("/test", (req, res) => {
   logAnalytics(ANALYTICS_EVENTS.TEST, db);
   const email = new EmailInterface(db);
-  email.emailTriggerDaemon();
-  res.send("Testing email daemon");
+  res.send("Test");
 });
 
 app.get("/", (req, res) => {
@@ -497,29 +496,3 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
 
 // The main app for Firebase
 exports.app = functions.https.onRequest(app);
-
-// Monetization email campagin triggers (total workouts written)
-// exports.monetizationTriggers = functions.database.ref(`/userEvents/{userID}/${USER_EVENTS.WORKOUT}`)
-//     .onUpdate((change, context) => {
-//       const threshold1 = 20;
-//       const threshold2 = 50;
-
-//       const workoutCount = change.after.val();
-//       const userID = context.params.userID;
-
-//       if (workoutCount === threshold1 || workoutCount === threshold2) {
-//         const trigger = workoutCount === threshold1 ? emailCampaignTriggerProperties.MONETIZATION_1 : emailCampaignTriggerProperties.MONETIZATION_2;
-
-//         dbInterface.getUserDetails(userID, (details) => {
-//           if (details.preferences.account.emailOptIn) {
-//             const email = details.email;
-
-//             EmailInterface.updateProperty(`${email}-makingItBreak`, trigger, () => {
-//               console.log(`User ${userID} hit ${trigger} — property updated in Mailjet.`);
-//             });
-//           } else {
-//             console.log(`User ${userID} hit ${trigger} but has opted out of emails.`);
-//           }
-//         });
-//       }
-//     });
