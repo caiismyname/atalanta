@@ -14,6 +14,7 @@ const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./a
 const {defaultAccountSettingsConfig} = require("./defaultConfigs.js");
 
 const functions = require("firebase-functions");
+const {onSchedule} = require("firebase-functions/v2/scheduler");
 const admin = require("firebase-admin");
 
 const app = express();
@@ -496,7 +497,7 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
 // The main app for Firebase
 exports.app = functions.https.onRequest(app);
 
-exports.emailDaemon = functions.onSchedule("every day 8:00", async (event) => {
+exports.emailDaemon = onSchedule("every day 8:00", () => {
   const emailHandler = new EmailInterface(db);
   emailHandler.runDailyTriggerDaemon();
 });
