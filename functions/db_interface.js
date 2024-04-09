@@ -1,6 +1,8 @@
 const {ANALYTICS_EVENTS, logAnalytics} = require("./analytics.js");
 const {StravaInterface} = require("./strava_interface.js");
-const {defaultParserConfig, defaultFormatConfig, defaultAccountSettingsConfig} = require("./defaultConfigs.js");
+const {defaultParserConfig, defaultFormatConfig, defaultAccountSettingsConfig, emailCampaigns} = require("./defaultConfigs.js");
+const {getDatestamp} = require("./analytics.js");
+const {EMAIL_STATUS} = require("./email_interface.js");
 
 class DbInterface {
   constructor(db) {
@@ -13,38 +15,55 @@ class DbInterface {
     });
   }
 
-  createNewUser(details) {
-    logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, this.db);
-    this.db.ref(`users/${details.userID}`).update({
+  createNewUser(details, callback) {
+    const updateObj = {};
+
+    updateObj[`users/${details.userID}`] = {
       stravaConnected: false,
       name: details.name,
       email: details.email,
+      createDate: getDatestamp(),
       preferences: {
         parser: defaultParserConfig,
         format: defaultFormatConfig,
         account: defaultAccountSettingsConfig,
       },
-    }, (error) => {
-      console.log(error);
+    };
+
+    for (const emailID of Object.values(emailCampaigns)) {
+      updateObj[`emailCampaigns/${emailID}`] = {
+        [details.userID]: EMAIL_STATUS.NOT_SENT,
+      };
+    }
+
+    this.db.ref().update(updateObj).then((error) => {
+      if (error) {
+        console.error(`Error creating user: ${error}`);
+      } else {
+        logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, this.db);
+      }
+      callback();
     });
   }
 
   saveStravaCredentialsForUser(userID, stravaID, accessToken, refreshToken, expiration) {
-    this.db.ref(`users/${userID}`).update({
+    const updateObj = {};
+    updateObj[`users/${userID}`] = {
       stravaConnected: true,
       stravaID: stravaID,
       accessToken: accessToken,
       refreshToken: refreshToken,
       accessTokenExpiration: expiration,
-    }, (error) => {
-      console.log(error);
-    });
+    };
 
-    // Create the reverse lookup (stravaID: googleID)
-    this.db.ref(`stravaIDLookup/${stravaID}`).update({
-      userID: userID,
-    }, (error) => {
-      console.log(error);
+    updateObj[`stravaIDLookup/${stravaID}`] = {
+      "userID": userID,
+    };
+
+    this.db.ref().update(updateObj, (error) => {
+      if (error) {
+        console.log(`Error saving Strava credentials: ${error}`);
+      }
     });
   }
 

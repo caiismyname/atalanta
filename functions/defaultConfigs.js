@@ -24,9 +24,9 @@ const knownStravaDefaultRunNames = ["Morning Run", "Lunch Run", "Afternoon Run",
 
 const manualTriggerKeywords = ["splitz", "workoutsplitz", "workoutsplits", "workoutsplitz.com", "workoutsplitzcom", "parse", "reparse"];
 
-const emailCampaignTriggerProperties = {
-  MONETIZATION_1: "monetization_trigger_1",
-  MONETIZATION_2: "monetization_trigger_2",
+const emailCampaigns = {
+  MONETIZATION_1: "monetization_at_20_workouts",
+  STRAVA_CONNECTION_REMINDER: "strava_connection_reminder",
 };
 
 module.exports = {
@@ -34,6 +34,6 @@ module.exports = {
   defaultParserConfig,
   defaultAccountSettingsConfig,
   knownStravaDefaultRunNames,
-  emailCampaignTriggerProperties,
   manualTriggerKeywords,
+  emailCampaigns,
 };
