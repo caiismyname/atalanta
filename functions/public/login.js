@@ -1,5 +1,5 @@
 import {initializeApp} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-import {getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, connectAuthEmulator} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
+import {getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDcNplg3hUv_ulTSUFVc-2RcJFE1WW1gFE",
@@ -26,8 +26,8 @@ onAuthStateChanged(auth, (user) => {
     auth.currentUser.getIdToken().then(
         (token) => {
           document.cookie = `__session=${token}`; // Firebase functions' caching will strip any tokens not named `__session`
-          // window.location.replace("https://workoutsplitz.com/home");
-          window.location.replace("http://localhost:5002/home");
+          window.location.replace("https://workoutsplitz.com/home");
+          // window.location.replace("http://localhost:5002/home");
         },
         (error) => {
           console.error(error);
