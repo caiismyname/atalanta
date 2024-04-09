@@ -31,9 +31,7 @@ class DbInterface {
     };
 
     for (const emailID of Object.values(emailCampaigns)) {
-      updateObj[`emailCampaigns/${emailID}`] = {
-        [details.userID]: EMAIL_STATUS.NOT_SENT,
-      };
+      updateObj[`emailCampaigns/${emailID}/${details.userID}`] = EMAIL_STATUS.NOT_SENT;
     }
 
     this.db.ref().update(updateObj).then((error) => {
