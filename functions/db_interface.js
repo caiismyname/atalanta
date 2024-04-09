@@ -16,67 +16,54 @@ class DbInterface {
   }
 
   createNewUser(details, callback) {
-    const allPromises = [];
+    const updateObj = {};
 
-    allPromises.push(
-        new Promise((resolve, reject) => {
-          this.db.ref(`users/${details.userID}`).update({
-            stravaConnected: false,
-            name: details.name,
-            email: details.email,
-            createDate: getDatestamp(),
-            preferences: {
-              parser: defaultParserConfig,
-              format: defaultFormatConfig,
-              account: defaultAccountSettingsConfig,
-            },
-          }, (error) => {
-            console.log(error);
-            reject(new Error(error));
-          }).then(() => {
-            resolve();
-          });
-        }),
-    );
+    updateObj[`users/${details.userID}`] = {
+      stravaConnected: false,
+      name: details.name,
+      email: details.email,
+      createDate: getDatestamp(),
+      preferences: {
+        parser: defaultParserConfig,
+        format: defaultFormatConfig,
+        account: defaultAccountSettingsConfig,
+      },
+    };
 
     for (const emailID of Object.values(emailCampaigns)) {
-      allPromises.push(
-          new Promise((resolve, reject) => {
-            this.db.ref(`emailCampaigns/${emailID}`).update({
-              [details.userID]: EMAIL_STATUS.NOT_SENT,
-            }).then(() => {
-              resolve();
-            });
-          }),
-      );
+      updateObj[`emailCampaigns/${emailID}`] = {
+        [details.userID]: EMAIL_STATUS.NOT_SENT,
+      };
     }
 
-    Promise.all(allPromises)
-        .then((results) => {
-          logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, this.db);
-          callback();
-        })
-        .catch((error) => {
-          console.error(`Error ${error}`);
-        });
+    this.db.ref().update(updateObj).then((error) => {
+      if (error) {
+        console.error(`Error creating user: ${error}`);
+      } else {
+        logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_SIGNUP, this.db);
+      }
+      callback();
+    });
   }
 
   saveStravaCredentialsForUser(userID, stravaID, accessToken, refreshToken, expiration) {
-    this.db.ref(`users/${userID}`).update({
+    const updateObj = {};
+    updateObj[`users/${userID}`] = {
       stravaConnected: true,
       stravaID: stravaID,
       accessToken: accessToken,
       refreshToken: refreshToken,
       accessTokenExpiration: expiration,
-    }, (error) => {
-      console.log(error);
-    });
+    };
 
-    // Create the reverse lookup (stravaID: googleID)
-    this.db.ref(`stravaIDLookup/${stravaID}`).update({
-      userID: userID,
-    }, (error) => {
-      console.log(error);
+    updateObj[`stravaIDLookup/${stravaID}`] = {
+      "userID": userID,
+    };
+
+    this.db.ref().update(updateObj, (error) => {
+      if (error) {
+        console.log(`Error saving Strava credentials: ${error}`);
+      }
     });
   }
 
