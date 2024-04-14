@@ -1,5 +1,5 @@
 const axios = require("axios");
-const functions = require("firebase-functions");
+const {defineString} = require("firebase-functions/params");
 const {emailCampaigns} = require("./defaultConfigs.js");
 const {getDatestamp} = require("./analytics.js");
 
@@ -9,10 +9,11 @@ class EmailInterface {
   }
 
   getConfig() {
+    const mailgunAPIKey = defineString("MAILGUN_API_KEY");
     return {
       auth: {
         username: "api",
-        password: functions.config().mailgun.api_key,
+        password: mailgunAPIKey,
       },
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
