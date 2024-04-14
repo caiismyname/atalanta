@@ -13,7 +13,7 @@ class EmailInterface {
     return {
       auth: {
         username: "api",
-        password: mailgunAPIKey,
+        password: mailgunAPIKey.value(),
       },
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
