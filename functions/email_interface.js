@@ -26,6 +26,7 @@ class EmailInterface {
         name = "John",
         emailAddress = "caiismyname2012@gmail.com",
         template = "fakeCampaign",
+        doubleSend = true,
       } = {}) {
     this.verifyEmailIsEligible(userID, template, (isEligible) => {
       if (isEligible) {
@@ -33,15 +34,20 @@ class EmailInterface {
         const domain = "workoutsplitz.com";
         const requestData = {
           "from": "David from Splitz <hello@workoutsplitz.com>",
-          "to": `${name} <${`caiismyname2012@gmail.com`}>`, // Temporary hard code for testing
+          "to": `${name} <${emailAddress}>`,
           "template": template,
-          "h:X-Mailgun-Variables": JSON.stringify({name: `${name} [${emailAddress}] - [${userID}]`}),
+          "h:X-Mailgun-Variables": JSON.stringify({name: `${name}`}),
         };
 
         axios.post(`https://api.mailgun.net/v3/${domain}/messages`, requestData, this.getConfig())
             .then((response) => {
               console.log(`User ${userID} was sent email [${template}]. ID: ${response.data.id}`);
               this.logEmailSent(userID, template, EMAIL_STATUS.SENT);
+              if (doubleSend) {
+                requestData["to"] = `${name} <caiismyname2012@gmail.com>`;
+                requestData["h:X-Mailgun-Variables"] = JSON.stringify({name: `${name} - [${userID}]`}),
+                axios.post(`https://api.mailgun.net/v3/${domain}/messages`, requestData, this.getConfig());
+              }
             })
             .catch((error) => {
               console.error("\tError sending email:", error.response.data);
