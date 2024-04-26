@@ -79,10 +79,6 @@ app.get("/strava_oauth_redirect", (req, res) => {
   });
 });
 
-app.get("/login", (req, res) => {
-  res.render("login");
-});
-
 app.get("/home", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
   validateUserToken(userToken, res, (userID) => {
