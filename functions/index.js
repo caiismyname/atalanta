@@ -12,7 +12,7 @@ const {DbInterface} = require("./db_interface.js");
 const {UserAnalyticsEngine} = require("./user_analytics_engine.js");
 const {EmailInterface} = require("./email_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
-const {defaultAccountSettingsConfig} = require("./defaultConfigs.js");
+const {defaultAccountSettingsConfig, stravaOauthURL} = require("./defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
@@ -53,6 +53,21 @@ app.get("/", (req, res) => {
   res.render("index", {
     title: "Workout Parser Login",
     bodyMessage: "Log in to Workout Parser",
+  });
+});
+
+app.get("/initiate_strava_oauth_connection", (req, res) => {
+  // This endpoint exists as the entrypoint to Strava OAuth flow when initiated from a link in an arbitary context (e.g. email)
+  // It hits the validateUserToken endpoint to ensure we're logged in, then redirects to Strava. This way,
+  // when `/strava_oauth_redirect` is called, we are ensured that the browser already has the _sessino cookie set.
+  const userToken = req.cookies["__session"];
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `initiate_strava_oauth_connection`,
+    callback: () => {
+      res.redirect(stravaOauthURL);
+    },
   });
 });
 
@@ -101,12 +116,14 @@ app.get("/home", (req, res) => {
             getPersonalDetailsFromUserToken(userToken, (details) => {
               dbInterface.createNewUser(details, () => {
                 dbInterface.getUserDetails(userID, (details) => {
+                  details.stravaOauthURL = stravaOauthURL;
                   res.render("home", details);
                 });
               });
             });
           } else {
             dbInterface.getUserDetails(userID, (details) => {
+              details.stravaOauthURL = stravaOauthURL;
               res.render("home", details);
             });
           }
