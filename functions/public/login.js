@@ -35,24 +35,38 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-getRedirectResult(auth)
-    .then((result) => {
-      console.log(`result: ${result}`);
-      if (result.user) { // Successful login
-        auth.currentUser.getIdToken().then(
-            (token) => {
-              document.cookie = `__session=${token}`; // Firebase functions' caching will strip any tokens not named `__session`
-              window.location.replace("home");
-            });
-      }
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      if (errorCode === "auth/account-exists-with-different-credential") {
-        alert(
-            "You have already signed up with a different auth provider for that email.",
-        );
-      } else {
-        console.error(error);
-      }
-    });
+const user = auth.currentUser;
+const queryParams = new URLSearchParams(window.location.search);
+
+if (user) {
+  const queryParams = new URLSearchParams(window.location.search);
+  window.location.replace(`${queryParams.get("postLogin")}`);
+} else {
+  getRedirectResult(auth)
+      .then((result) => {
+        console.log(`result: ${result}`);
+        if (result) { // Check `result` object first otherwise it's a null access and the function returns
+          if (result.user) { // Successful login
+            auth.currentUser.getIdToken().then(
+                (token) => {
+                  document.cookie = `__session=${token}`; // Firebase functions' caching will strip any tokens not named `__session`
+                  window.location.replace(`${queryParams.get("postLogin")}`);
+                });
+          } else {
+            login();
+          }
+        } else {
+          login();
+        }
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        if (errorCode === "auth/account-exists-with-different-credential") {
+          alert(
+              "You have already signed up with a different auth provider for that email.",
+          );
+        } else {
+          console.error(error);
+        }
+      });
+}

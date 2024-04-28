@@ -8,12 +8,11 @@ html
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title Splitz
     link(rel='stylesheet', href='/style.css')
-    script(type='module' src='login.js')
     
   body
     header
       h1 Splitz
-      a.button.login-style#loginButton Log in
+      a(href="home").button.login-style#loginButton Log in
 
     main
       .text-section
@@ -29,7 +28,7 @@ html
 
       .card
         //- h2 Automate your workout descriptions
-        a.button.login-style#signUpButton Sign Up Now
+        a(href="home").button.login-style#signUpButton Sign Up Now
         br
         br
         p Splitz is in beta and free to use

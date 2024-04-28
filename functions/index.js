@@ -61,44 +61,58 @@ app.get("/strava_oauth_redirect", (req, res) => {
   const userToken = req.cookies["__session"];
   const stravaConfigDetails = StravaInterface.stravaConfigDetails();
 
-  validateUserToken(userToken, res, (userID) => {
-    axios({
-      method: "post",
-      url: `${stravaConfigDetails.stravaAuthTokenURL}?client_id=${stravaConfigDetails.stravaClientID}&client_secret=${stravaConfigDetails.stravaClientSecret}&grant_type=${stravaConfigDetails.initialGrantType}&code=${code}`,
-      headers: "application/json",
-    }).then((authRes) => {
-      const athleteID = authRes.data.athlete.id;
-      const accessToken = authRes.data.access_token;
-      const refreshToken = authRes.data.refresh_token;
-      const expiration = authRes.data.expires_at;
-      dbInterface.saveStravaCredentialsForUser(userID, athleteID, accessToken, refreshToken, expiration);
-      logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_CONNECTION, db);
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `strava_oauth_redirect?code=${encodeURIComponent(code)}`,
+    callback: (userID) => {
+      axios({
+        method: "post",
+        url: `${stravaConfigDetails.stravaAuthTokenURL}?client_id=${stravaConfigDetails.stravaClientID}&client_secret=${stravaConfigDetails.stravaClientSecret}&grant_type=${stravaConfigDetails.initialGrantType}&code=${code}`,
+        headers: "application/json",
+      }).then((authRes) => {
+        const athleteID = authRes.data.athlete.id;
+        const accessToken = authRes.data.access_token;
+        const refreshToken = authRes.data.refresh_token;
+        const expiration = authRes.data.expires_at;
+        dbInterface.saveStravaCredentialsForUser(userID, athleteID, accessToken, refreshToken, expiration);
+        logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_CONNECTION, db);
 
-      res.redirect("/home");
-    });
+        res.redirect("/home");
+      });
+    },
   });
+});
+
+app.get("/login", (req, res) => {
+  res.render("login", {postLogin: encodeURIComponent(req.query.postLogin)});
 });
 
 app.get("/home", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
-  validateUserToken(userToken, res, (userID) => {
-    if (userID !== null) {
-      dbInterface.isUserCreated(userID, (isCreated) => {
-        if (!isCreated) {
-          getPersonalDetailsFromUserToken(userToken, (details) => {
-            dbInterface.createNewUser(details, () => {
-              dbInterface.getUserDetails(userID, (details) => {
-                res.render("home", details);
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `home`,
+    callback: (userID) => {
+      if (userID !== null) {
+        dbInterface.isUserCreated(userID, (isCreated) => {
+          if (!isCreated) {
+            getPersonalDetailsFromUserToken(userToken, (details) => {
+              dbInterface.createNewUser(details, () => {
+                dbInterface.getUserDetails(userID, (details) => {
+                  res.render("home", details);
+                });
               });
             });
-          });
-        } else {
-          dbInterface.getUserDetails(userID, (details) => {
-            res.render("home", details);
-          });
-        }
-      });
-    }
+          } else {
+            dbInterface.getUserDetails(userID, (details) => {
+              res.render("home", details);
+            });
+          }
+        });
+      }
+    },
   });
 });
 
@@ -347,56 +361,71 @@ app.get("/_mock_strava_webhook", (req, res) => {
 
 app.get("/delete_account", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
-  validateUserToken(userToken, res, (userID) => {
-    dbInterface.deleteUser(userID);
-    logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_DELETION, db);
-    res.redirect("/");
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `delete_account`,
+    callback: (userID) => {
+      dbInterface.deleteUser(userID);
+      logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_DELETION, db);
+      res.redirect("/");
+    },
   });
 });
 
 app.post("/update_preferences", (req, res) => {
   const userToken = req.cookies["__session"];
-  validateUserToken(userToken, res, (userID) => {
-    const data = req.body;
+  validateUserToken({
+    userTokeN: userToken,
+    res: res,
+    originalURL: `update_preferences`,
+    callback: (userID) => {
+      const data = req.body;
 
-    // workoutPace defaults to 0, which means it won't be returned in the form if it's not set
-    let workoutPace = 0;
-    if ("workoutPace" in data) {
-      workoutPace = Number(data.workoutPace); // The value is returned as a string but we need to store it as a number since it represents minutes
-    }
+      // workoutPace defaults to 0, which means it won't be returned in the form if it's not set
+      let workoutPace = 0;
+      if ("workoutPace" in data) {
+        workoutPace = Number(data.workoutPace); // The value is returned as a string but we need to store it as a number since it represents minutes
+      }
 
-    const updatedPreferences = {
-      parser: {
-        dominantWorkoutType: data.dominantWorkoutType,
-        workoutPace: workoutPace,
-        autodetectActivities: data.autodetectActivities == "true", // It comes in as a string
-      },
-      format: {
-        paceUnits: data.paceUnits,
-        sub90SecFormat: data.sub90SecFormat,
-        subMileDistanceValue: data.subMileDistanceValue,
-        greaterThanMileDistanceValue: data.greaterThanMileDistanceValue,
-        detailsLength: data.detailsLength,
-        detailsStructure: data.detailsStructure,
-      },
-    };
+      const updatedPreferences = {
+        parser: {
+          dominantWorkoutType: data.dominantWorkoutType,
+          workoutPace: workoutPace,
+          autodetectActivities: data.autodetectActivities == "true", // It comes in as a string
+        },
+        format: {
+          paceUnits: data.paceUnits,
+          sub90SecFormat: data.sub90SecFormat,
+          subMileDistanceValue: data.subMileDistanceValue,
+          greaterThanMileDistanceValue: data.greaterThanMileDistanceValue,
+          detailsLength: data.detailsLength,
+          detailsStructure: data.detailsStructure,
+        },
+      };
 
-    dbInterface.updateUserPreferences(userID, updatedPreferences);
-    res.redirect("/home");
+      dbInterface.updateUserPreferences(userID, updatedPreferences);
+      res.redirect("/home");
+    },
   });
 });
 
 app.post("/update_account_settings", (req, res) => {
   const userToken = req.cookies["__session"];
-  validateUserToken(userToken, res, (userID) => {
-    const enabledSettings = req.body.accountSettings !== undefined ? req.body.accountSettings : []; // The object is undefined if no items were checked
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `update_account_settings`,
+    callback: (userID) => {
+      const enabledSettings = req.body.accountSettings !== undefined ? req.body.accountSettings : []; // The object is undefined if no items were checked
 
-    const updatedSettings = {...defaultAccountSettingsConfig};
-    Object.keys(updatedSettings).forEach((setting) => {
-      updatedSettings[setting] = enabledSettings.includes(setting);
-    });
+      const updatedSettings = {...defaultAccountSettingsConfig};
+      Object.keys(updatedSettings).forEach((setting) => {
+        updatedSettings[setting] = enabledSettings.includes(setting);
+      });
 
-    dbInterface.updateAccountSettings(userID, updatedSettings);
+      dbInterface.updateAccountSettings(userID, updatedSettings);
+    },
   });
 
   res.redirect("/home");
@@ -411,21 +440,26 @@ app.post("/update_account_settings", (req, res) => {
 
 // Returns the userID if the token validates successfully
 // Redirects the res to / if it fails to validate
-function validateUserToken(idToken, res, callback) {
+function validateUserToken({
+  userToken = "123",
+  res = {},
+  originalURL = "/",
+  callback = () => {},
+}) {
   try {
     firebase.auth()
-        .verifyIdToken(idToken)
+        .verifyIdToken(userToken)
         .then((decodedToken) => {
           const uid = decodedToken.uid;
           callback(uid);
         })
         .catch((error) => {
           console.error(`Invalid user authentication: ${error}`);
-          res.redirect("/");
+          res.redirect(`/login?postLogin=${encodeURIComponent(originalURL)}`);
         });
   } catch (error) {
     console.error(error);
-    res.redirect("/");
+    res.redirect(`/login?postLogin=${originalURL}`);
   }
 }
 
