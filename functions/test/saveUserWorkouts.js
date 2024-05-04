@@ -36,6 +36,9 @@ function cleanStravaActivity(activity) {
     "has_heartrate",
     "average_heartrate",
     "max_heartrate",
+    "start_latlng",
+    "end_latlng",
+    "start_date_local",
   ];
 
   const cleanedActivity = {};
