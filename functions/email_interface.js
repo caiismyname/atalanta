@@ -24,8 +24,8 @@ class EmailInterface {
   sendEmail(
       {
         userID = "123",
-        name = "John",
-        emailAddress = "caiismyname2012@gmail.com",
+        name = "Default Name Fallthrough",
+        emailAddress = "caiismyname2012+default_email_fallthrough@gmail.com",
         template = "fakeCampaign",
         doubleSend = true,
       } = {}) {
@@ -123,7 +123,7 @@ class EmailInterface {
               if (userWorkoutCount === workoutCountThreshold || userWorkoutCount === workoutCountThreshold + 1) {
                 emailsToSend.push({
                   userID: userID,
-                  email: user.email,
+                  emailAddress: user.email,
                   template: emailCampaigns.MONETIZATION_1,
                   name: user.name,
                 });
@@ -161,7 +161,7 @@ class EmailInterface {
           //     if (!user.stravaConnected) {
           //       emailsToSend.push({
           //         userID: userID,
-          //         email: user.email,
+          //         emailAddress: user.email,
           //         template: emailCampaigns.STRAVA_CONNECTION_REMINDER,
           //         name: user.name,
           //       });
