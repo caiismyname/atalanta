@@ -14,8 +14,19 @@ const knownRaces =[
       -75.14572564512491,
     ],
     end_latlng: [
-      39.90156406536698,
+      39.90156406536698, // 2023 end location, between stadiums
       -75.16930226236582,
+    ],
+  },
+  {
+    name: "Broad Street Run",
+    start_latlng: [
+      40.0340224429965,
+      -75.14572564512491,
+    ],
+    end_latlng: [
+      39.892611, // 2024 (normal) location, in Navy Yard
+      -75.17611111,
     ],
   },
 ];
