@@ -41,17 +41,24 @@ const queryParams = new URLSearchParams(window.location.search);
 
 if (user) {
   const queryParams = new URLSearchParams(window.location.search);
-  window.location.replace(`${queryParams.get("postLogin")}`);
+  if (queryParams.get("postLogin")) {
+    window.location.replace(`${queryParams.get("postLogin")}`);
+  } else {
+    window.location.replace(`home`);
+  }
 } else {
   getRedirectResult(auth)
       .then((result) => {
-        console.log(`result: ${result}`);
         if (result) { // Check `result` object first otherwise it's a null access and the function returns
           if (result.user) { // Successful login
             auth.currentUser.getIdToken().then(
                 (token) => {
                   document.cookie = `__session=${token}`; // Firebase functions' caching will strip any tokens not named `__session`
-                  window.location.replace(`${queryParams.get("postLogin")}`);
+                  if (queryParams.get("postLogin")) {
+                    window.location.replace(`${queryParams.get("postLogin")}`);
+                  } else {
+                    window.location.replace(`home`);
+                  }
                 });
           } else {
             login();

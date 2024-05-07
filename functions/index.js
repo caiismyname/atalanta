@@ -109,7 +109,7 @@ app.get("/strava_oauth_redirect", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login", {postLogin: encodeURIComponent(req.query.postLogin)});
+  res.render(`login`); // The postLogin is a query param passed via the URL, not a pug variable, so it's not present here
 });
 
 app.get("/home", (req, res) => {
@@ -503,7 +503,7 @@ function validateUserToken({
         });
   } catch (error) {
     console.error(error);
-    res.redirect(`/login?postLogin=${originalURL}`);
+    res.redirect(`/login?postLogin=${encodeURIComponent(originalURL)}`);
   }
 }
 
@@ -532,11 +532,11 @@ function validateAdminToken({
         })
         .catch((error) => {
           console.error(`Invalid user authentication: ${error}`);
-          res.redirect(`/login?postLogin=${originalURL}`);
+          res.redirect(`/login?postLogin=${encodeURIComponent(originalURL)}`);
         });
   } catch (error) {
     console.error(error);
-    res.redirect(`/login?postLogin=${originalURL}`);
+    res.redirect(`/login?postLogin=${encodeURIComponent(originalURL)}`);
   }
 }
 
