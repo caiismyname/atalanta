@@ -62,10 +62,7 @@ app.get("/test", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.render("index", {
-    title: "Workout Parser Login",
-    bodyMessage: "Log in to Workout Parser",
-  });
+  res.render("index");
 });
 
 app.get("/initiate_strava_oauth_connection", (req, res) => {
@@ -147,19 +144,15 @@ app.get("/home", (req, res) => {
 
 app.get("/admin", (req, res) => {
   const userToken = req.cookies["__session"];
-  if (userToken || isEmulator) {
-    validateAdminToken({
-      userToken: userToken,
-      res: res,
-      originalURL: `admin`,
-      callback:
-        () => {
-          res.render("admin");
-        },
-    });
-  } else {
-    res.render("admin_login");
-  }
+  validateAdminToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `admin`,
+    callback:
+      () => {
+        res.render("admin");
+      },
+  });
 });
 
 app.get("/admin/recent_workouts", (req, res) => {
@@ -427,7 +420,7 @@ app.get("/delete_account", (req, res) => {
 app.post("/update_preferences", (req, res) => {
   const userToken = req.cookies["__session"];
   validateUserToken({
-    userTokeN: userToken,
+    userToken: userToken,
     res: res,
     originalURL: `update_preferences`,
     callback: (userID) => {
