@@ -46,7 +46,7 @@ class DbInterface {
 
   saveStravaCredentialsForUser(userID, stravaID, accessToken, refreshToken, expiration) {
     const updateObj = {};
-    updateObj[`users/${userID}`] = {
+    this.db.ref(`users/${userID}`).update({
       stravaConnected: true,
       stravaID: stravaID,
       accessToken: accessToken,
@@ -56,7 +56,7 @@ class DbInterface {
       if (error) {
         console.error(`Error saving Strava credentials: ${error}`);
       }
-    };
+    });
 
     // Create the reverse lookup (stravaID: googleID)
     this.db.ref(`stravaIDLookup/${stravaID}`).update({
