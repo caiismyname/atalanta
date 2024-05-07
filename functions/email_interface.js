@@ -1,5 +1,5 @@
 const axios = require("axios");
-const functions = require("firebase-functions");
+const {defineString} = require("firebase-functions/params");
 const {emailCampaigns} = require("./defaultConfigs.js");
 const {getDatestamp} = require("./analytics.js");
 
@@ -9,10 +9,11 @@ class EmailInterface {
   }
 
   getConfig() {
+    const mailgunAPIKey = defineString("MAILGUN_API_KEY");
     return {
       auth: {
         username: "api",
-        password: functions.config().mailgun.api_key,
+        password: mailgunAPIKey.value(),
       },
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -23,9 +24,10 @@ class EmailInterface {
   sendEmail(
       {
         userID = "123",
-        name = "John",
-        emailAddress = "caiismyname2012@gmail.com",
+        name = "Default Name Fallthrough",
+        emailAddress = "caiismyname2012+default_email_fallthrough@gmail.com",
         template = "fakeCampaign",
+        doubleSend = true,
       } = {}) {
     this.verifyEmailIsEligible(userID, template, (isEligible) => {
       if (isEligible) {
@@ -33,15 +35,20 @@ class EmailInterface {
         const domain = "workoutsplitz.com";
         const requestData = {
           "from": "David from Splitz <hello@workoutsplitz.com>",
-          "to": `${name} <${`caiismyname2012@gmail.com`}>`, // Temporary hard code for testing
+          "to": `${name} <${emailAddress}>`,
           "template": template,
-          "h:X-Mailgun-Variables": JSON.stringify({name: `${name} [${emailAddress}] - [${userID}]`}),
+          "h:X-Mailgun-Variables": JSON.stringify({name: `${name}`}),
         };
 
         axios.post(`https://api.mailgun.net/v3/${domain}/messages`, requestData, this.getConfig())
             .then((response) => {
               console.log(`User ${userID} was sent email [${template}]. ID: ${response.data.id}`);
               this.logEmailSent(userID, template, EMAIL_STATUS.SENT);
+              if (doubleSend) {
+                requestData["to"] = `${name} <caiismyname2012@gmail.com>`;
+                requestData["h:X-Mailgun-Variables"] = JSON.stringify({name: `${name} - [${userID}]`}),
+                axios.post(`https://api.mailgun.net/v3/${domain}/messages`, requestData, this.getConfig());
+              }
             })
             .catch((error) => {
               console.error("\tError sending email:", error.response.data);
@@ -116,7 +123,7 @@ class EmailInterface {
               if (userWorkoutCount === workoutCountThreshold || userWorkoutCount === workoutCountThreshold + 1) {
                 emailsToSend.push({
                   userID: userID,
-                  email: user.email,
+                  emailAddress: user.email,
                   template: emailCampaigns.MONETIZATION_1,
                   name: user.name,
                 });
@@ -133,39 +140,39 @@ class EmailInterface {
           //
           // Strava Connection campaign
           //
-          totalRegisteredForCampaign = Object.keys(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER]).length;
-          totalNotSentForCampaign = 0;
-          totalEligibleForSend = 0;
+          // totalRegisteredForCampaign = Object.keys(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER]).length;
+          // totalNotSentForCampaign = 0;
+          // totalEligibleForSend = 0;
 
-          const daysAfterSignup = 2;
-          const eligibleUsersStravaConnection = Object.keys(
-              Object.fromEntries(
-                  Object.entries(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER])
-                      .filter(([_, status]) => status === EMAIL_STATUS.NOT_SENT),
-              ),
-          );
+          // const daysAfterSignup = 2;
+          // const eligibleUsersStravaConnection = Object.keys(
+          //     Object.fromEntries(
+          //         Object.entries(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER])
+          //             .filter(([_, status]) => status === EMAIL_STATUS.NOT_SENT),
+          //     ),
+          // );
 
-          for (const userID of eligibleUsersStravaConnection) {
-            totalNotSentForCampaign++;
-            const user = allUsers[userID];
-            const today = new Date(getDatestamp());
-            const createDate = new Date(user.createDate);
-            if ((today - createDate) / (1000 * 60 * 60 * 24) === daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
-              if (!user.stravaConnected) {
-                emailsToSend.push({
-                  userID: userID,
-                  email: user.email,
-                  template: emailCampaigns.STRAVA_CONNECTION_REMINDER,
-                  name: user.name,
-                });
-                totalEligibleForSend++;
-              } else {
-                allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
-              }
-            }
-          }
+          // for (const userID of eligibleUsersStravaConnection) {
+          //   totalNotSentForCampaign++;
+          //   const user = allUsers[userID];
+          //   const today = new Date(getDatestamp());
+          //   const createDate = new Date(user.createDate);
+          //   if ((today - createDate) / (1000 * 60 * 60 * 24) === daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
+          //     if (!user.stravaConnected) {
+          //       emailsToSend.push({
+          //         userID: userID,
+          //         emailAddress: user.email,
+          //         template: emailCampaigns.STRAVA_CONNECTION_REMINDER,
+          //         name: user.name,
+          //       });
+          //       totalEligibleForSend++;
+          //     } else {
+          //       allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
+          //     }
+          //   }
+          // }
 
-          console.log(`${emailCampaigns.STRAVA_CONNECTION_REMINDER}: ${totalEligibleForSend} eligible users of ${totalNotSentForCampaign} not sent (${totalRegisteredForCampaign} total)`);
+          // console.log(`${emailCampaigns.STRAVA_CONNECTION_REMINDER}: ${totalEligibleForSend} eligible users of ${totalNotSentForCampaign} not sent (${totalRegisteredForCampaign} total)`);
 
           //
           // Perform campaign updates / email sends

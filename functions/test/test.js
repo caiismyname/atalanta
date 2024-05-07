@@ -2982,6 +2982,33 @@ describe("Race Detection", () => {
     });
   });
 
+  describe("KNOWN RACES", () => {
+    describe("10 Milers", () => {
+      describe("Broad Street", () => {
+        for (const run of userTestRuns["known_races"]["ten_milers"]["broad_street_run"]) {
+          it(`${run.name}`, () => {
+            resetConfigs();
+
+            const res = parseWorkout({
+              run: run,
+              config: {
+                parser: parserConfig,
+                format: formatConfig,
+              },
+              returnSets: true,
+              verbose: false,
+            });
+
+
+            assert.ok(!res.isWorkout);
+            assert.ok(res.isRace);
+            assert.ok(res.summary.title.includes("Broad Street Run"));
+          });
+        }
+      });
+    });
+  });
+
   describe.skip("RACE FALSE POSITIVES", () => {
     const doNotSearch = ["uncategorized", "race_examples"];
 

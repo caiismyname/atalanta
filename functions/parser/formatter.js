@@ -2,7 +2,7 @@
 const {FormatPrinter} = require("./format_printer.js");
 const {defaultFormatConfig} = require("../defaultConfigs.js");
 const {isMile, isKilometer, compareToMile, lapDetectedDistance} = require("./parser_helpers.js");
-const {detectRaceType} = require("./race_detector.js");
+const {detectRaceType, matchKnownRace} = require("./race_detector.js");
 
 class Formatter {
   constructor(formatConfig = defaultFormatConfig) {
@@ -433,10 +433,11 @@ class Formatter {
 
   printRace(run) {
     const raceType = detectRaceType(run);
+    const knownRaceName = matchKnownRace(run);
     const totalTime = this.printer.secondsToTimeFormatted(run.moving_time, false);
 
     return {
-      "title": `${raceType} — ${totalTime}`,
+      "title": `${knownRaceName === "" ? raceType : knownRaceName} — ${totalTime}`,
       "description": ``,
     };
   }
