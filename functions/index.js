@@ -46,7 +46,7 @@ const dbInterface = new DbInterface(db);
 
 app.get("/test", (req, res) => {
   logAnalytics(ANALYTICS_EVENTS.TEST, db);
-  
+
   const code = req.query.code;
   const userToken = req.cookies["__session"];
 
@@ -55,9 +55,9 @@ app.get("/test", (req, res) => {
     res: res,
     originalURL: `test?code=${encodeURIComponent(code)}`,
     callback: (userID) => {
-      console.log(`CODE FOUND: [${code}]`)
+      console.log(`CODE FOUND: [${code}]`);
       res.send(`CODE FOUND: [${code}]`);
-    }
+    },
   });
 });
 
@@ -150,12 +150,12 @@ app.get("/admin", (req, res) => {
   if (userToken || isEmulator) {
     validateAdminToken({
       userToken: userToken,
-      res: res, 
+      res: res,
       originalURL: `admin`,
-      callback: 
+      callback:
         () => {
           res.render("admin");
-        }
+        },
     });
   } else {
     res.render("admin_login");
@@ -165,42 +165,42 @@ app.get("/admin", (req, res) => {
 app.get("/admin/recent_workouts", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
   validateAdminToken({
-    userToken: userToken, 
+    userToken: userToken,
     res: res,
     originalURL: `admin/recent_workouts`,
     callback: () => {
       dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
-      res.render("recent_workouts_viewer", {workouts: workouts});
-      })
-    }
+        res.render("recent_workouts_viewer", {workouts: workouts});
+      });
+    },
   });
 });
 
 app.get("/admin/user_analytics", (req, res) => {
   const userToken = req.cookies["__session"];
   validateAdminToken({
-    userToken: userToken, 
-    res: res, 
-    originalURL: `admin/user_analytics`, 
+    userToken: userToken,
+    res: res,
+    originalURL: `admin/user_analytics`,
     callback: () => {
       const userAnalyticsEngine = new UserAnalyticsEngine(db);
       userAnalyticsEngine.getGlobalEventsDatasets(90, (globalEventDatasets) => {
         userAnalyticsEngine.getUserEventsDatasets((userEventDatasets) => {
-        res.render("user_analytics", {
-          "globalEventDatasets": globalEventDatasets,
-          "userEventDatasets": userEventDatasets,
-        });
+          res.render("user_analytics", {
+            "globalEventDatasets": globalEventDatasets,
+            "userEventDatasets": userEventDatasets,
+          });
         });
       });
-    }
+    },
   });
 });
 
 app.get("/admin/user_viewer", (req, res) => {
   const userToken = req.cookies["__session"];
   validateAdminToken({
-    userToken: userToken, 
-    res: res, 
+    userToken: userToken,
+    res: res,
     originalURL: `admin/user_viewer`,
     callback: () => {
       const userAnalyticsEngine = new UserAnalyticsEngine(db);
@@ -213,7 +213,7 @@ app.get("/admin/user_viewer", (req, res) => {
           "activeCount": activeCount,
         });
       });
-    }
+    },
   });
 });
 
