@@ -1,5 +1,5 @@
 import {initializeApp} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-import {getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
+import {getAuth, signInWithRedirect, GoogleAuthProvider, connectAuthEmulator, getRedirectResult} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDcNplg3hUv_ulTSUFVc-2RcJFE1WW1gFE",
@@ -14,31 +14,60 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-// connectAuthEmulator(auth, "http://localhost:9099");
+
+if (window.location.hostname === "localhost") {
+  connectAuthEmulator(auth, "http://localhost:9099");
+}
 
 function login() {
   const provider = new GoogleAuthProvider();
   signInWithRedirect(auth, provider);
 }
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    auth.currentUser.getIdToken().then(
-        (token) => {
-          document.cookie = `__session=${token}`; // Firebase functions' caching will strip any tokens not named `__session`
-          window.location.replace("https://workoutsplitz.com/home");
-          // window.location.replace("http://localhost:5002/home");
-        },
-        (error) => {
-          console.error(error);
-        },
-    );
-  } else {
-    // noop
-  }
+// Not actually used
+document.addEventListener("DOMContentLoaded", () => {
+  const loginButton = document.getElementById("loginButton");
+  const signUpButton = document.getElementById("signUpButton");
+  loginButton.addEventListener("click", () => {
+    login();
+  });
+  signUpButton.addEventListener("click", () => {
+    login();
+  });
 });
 
-// Give the onAuthStateChanged a chance to succeed before calling login
-setTimeout(() => {
-  login();
-}, 1500);
+const user = auth.currentUser;
+const queryParams = new URLSearchParams(window.location.search);
+
+if (user) {
+  const queryParams = new URLSearchParams(window.location.search);
+  window.location.replace(`${queryParams.get("postLogin")}`);
+} else {
+  getRedirectResult(auth)
+      .then((result) => {
+        console.log(`result: ${result}`);
+        if (result) { // Check `result` object first otherwise it's a null access and the function returns
+          if (result.user) { // Successful login
+            auth.currentUser.getIdToken().then(
+                (token) => {
+                  document.cookie = `__session=${token}`; // Firebase functions' caching will strip any tokens not named `__session`
+                  window.location.replace(`${queryParams.get("postLogin")}`);
+                });
+          } else {
+            login();
+          }
+        } else {
+          login();
+        }
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        if (errorCode === "auth/account-exists-with-different-credential") {
+          alert(
+              "You have already signed up with a different auth provider for that email.",
+          );
+        } else {
+          console.error(error);
+        }
+      });
+}

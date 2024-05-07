@@ -12,7 +12,7 @@ const {DbInterface} = require("./db_interface.js");
 const {UserAnalyticsEngine} = require("./user_analytics_engine.js");
 const {EmailInterface} = require("./email_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
-const {defaultAccountSettingsConfig} = require("./defaultConfigs.js");
+const {defaultAccountSettingsConfig, stravaOauthURL} = require("./defaultConfigs.js");
 
 const functions = require("firebase-functions");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
@@ -46,13 +46,37 @@ const dbInterface = new DbInterface(db);
 
 app.get("/test", (req, res) => {
   logAnalytics(ANALYTICS_EVENTS.TEST, db);
-  res.send("Test");
+
+  const code = req.query.code;
+  const userToken = req.cookies["__session"];
+
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `test?code=${encodeURIComponent(code)}`,
+    callback: (userID) => {
+      console.log(`CODE FOUND: [${code}]`);
+      res.send(`CODE FOUND: [${code}]`);
+    },
+  });
 });
 
 app.get("/", (req, res) => {
-  res.render("index", {
-    title: "Workout Parser Login",
-    bodyMessage: "Log in to Workout Parser",
+  res.render("index");
+});
+
+app.get("/initiate_strava_oauth_connection", (req, res) => {
+  // This endpoint exists as the entrypoint to Strava OAuth flow when initiated from a link in an arbitary context (e.g. email)
+  // It hits the validateUserToken endpoint to ensure we're logged in, then redirects to Strava. This way,
+  // when `/strava_oauth_redirect` is called, we are ensured that the browser already has the _sessino cookie set.
+  const userToken = req.cookies["__session"];
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `initiate_strava_oauth_connection`,
+    callback: () => {
+      res.redirect(stravaOauthURL); // TO BE CLEAR, this is a Strava-hosted page, not Splitz's /strava_oauth_redirect
+    },
   });
 });
 
@@ -61,103 +85,133 @@ app.get("/strava_oauth_redirect", (req, res) => {
   const userToken = req.cookies["__session"];
   const stravaConfigDetails = StravaInterface.stravaConfigDetails();
 
-  validateUserToken(userToken, res, (userID) => {
-    axios({
-      method: "post",
-      url: `${stravaConfigDetails.stravaAuthTokenURL}?client_id=${stravaConfigDetails.stravaClientID}&client_secret=${stravaConfigDetails.stravaClientSecret}&grant_type=${stravaConfigDetails.initialGrantType}&code=${code}`,
-      headers: "application/json",
-    }).then((authRes) => {
-      const athleteID = authRes.data.athlete.id;
-      const accessToken = authRes.data.access_token;
-      const refreshToken = authRes.data.refresh_token;
-      const expiration = authRes.data.expires_at;
-      dbInterface.saveStravaCredentialsForUser(userID, athleteID, accessToken, refreshToken, expiration);
-      logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_CONNECTION, db);
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `strava_oauth_redirect?code=${encodeURIComponent(code)}`,
+    callback: (userID) => {
+      axios({
+        method: "post",
+        url: `${stravaConfigDetails.stravaAuthTokenURL}?client_id=${stravaConfigDetails.stravaClientID}&client_secret=${stravaConfigDetails.stravaClientSecret}&grant_type=${stravaConfigDetails.initialGrantType}&code=${code}`,
+        headers: "application/json",
+      }).then((authRes) => {
+        const athleteID = authRes.data.athlete.id;
+        const accessToken = authRes.data.access_token;
+        const refreshToken = authRes.data.refresh_token;
+        const expiration = authRes.data.expires_at;
+        dbInterface.saveStravaCredentialsForUser(userID, athleteID, accessToken, refreshToken, expiration);
+        logAnalytics(ANALYTICS_EVENTS.USER_STRAVA_CONNECTION, db);
 
-      res.redirect("/home");
-    });
+        res.redirect("/home");
+      });
+    },
   });
 });
 
 app.get("/login", (req, res) => {
-  res.render("login");
+  res.render("login", {postLogin: encodeURIComponent(req.query.postLogin)});
 });
 
 app.get("/home", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
-  validateUserToken(userToken, res, (userID) => {
-    if (userID !== null) {
-      dbInterface.isUserCreated(userID, (isCreated) => {
-        if (!isCreated) {
-          getPersonalDetailsFromUserToken(userToken, (details) => {
-            dbInterface.createNewUser(details, () => {
-              dbInterface.getUserDetails(userID, (details) => {
-                res.render("home", details);
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `home`,
+    callback: (userID) => {
+      if (userID !== null) {
+        dbInterface.isUserCreated(userID, (isCreated) => {
+          if (!isCreated) {
+            getPersonalDetailsFromUserToken(userToken, (details) => {
+              dbInterface.createNewUser(details, () => {
+                dbInterface.getUserDetails(userID, (details) => {
+                  details.stravaOauthURL = stravaOauthURL;
+                  res.render("home", details);
+                });
               });
             });
-          });
-        } else {
-          dbInterface.getUserDetails(userID, (details) => {
-            res.render("home", details);
-          });
-        }
-      });
-    }
+          } else {
+            dbInterface.getUserDetails(userID, (details) => {
+              details.stravaOauthURL = stravaOauthURL;
+              res.render("home", details);
+            });
+          }
+        });
+      }
+    },
   });
 });
 
 app.get("/admin", (req, res) => {
   const userToken = req.cookies["__session"];
-  if (userToken || isEmulator) {
-    validateAdminToken(userToken, res, (_) => {
-      res.render("admin");
-    });
-  } else {
-    res.render("admin_login");
-  }
+  validateAdminToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `admin`,
+    callback:
+      () => {
+        res.render("admin");
+      },
+  });
 });
 
 app.get("/admin/recent_workouts", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
-  validateAdminToken(userToken, res, (_) => {
-    dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
-      res.render("recent_workouts_viewer", {workouts: workouts});
-    });
+  validateAdminToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `admin/recent_workouts`,
+    callback: () => {
+      dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
+        res.render("recent_workouts_viewer", {workouts: workouts});
+      });
+    },
   });
 });
 
 app.get("/admin/user_analytics", (req, res) => {
   const userToken = req.cookies["__session"];
-  validateAdminToken(userToken, res, (_) => {
-    const userAnalyticsEngine = new UserAnalyticsEngine(db);
-    userAnalyticsEngine.getGlobalEventsDatasets(90, (globalEventDatasets) => {
-      userAnalyticsEngine.getUserEventsDatasets((userEventDatasets) => {
-        res.render("user_analytics", {
-          "globalEventDatasets": globalEventDatasets,
-          "userEventDatasets": userEventDatasets,
+  validateAdminToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `admin/user_analytics`,
+    callback: () => {
+      const userAnalyticsEngine = new UserAnalyticsEngine(db);
+      userAnalyticsEngine.getGlobalEventsDatasets(90, (globalEventDatasets) => {
+        userAnalyticsEngine.getUserEventsDatasets((userEventDatasets) => {
+          res.render("user_analytics", {
+            "globalEventDatasets": globalEventDatasets,
+            "userEventDatasets": userEventDatasets,
+          });
         });
       });
-    });
+    },
   });
 });
 
 app.get("/admin/user_viewer", (req, res) => {
   const userToken = req.cookies["__session"];
-  validateAdminToken(userToken, res, (_) => {
-    const userAnalyticsEngine = new UserAnalyticsEngine(db);
-    userAnalyticsEngine.getAllUsers((userInfo) => {
-      const totalCount = Object.keys(userInfo).length;
-      const activeCount = Object.values(userInfo).filter((x) => x.stravaConnected).length;
-      res.render("user_viewer", {
-        "users": userInfo,
-        "totalCount": totalCount,
-        "activeCount": activeCount,
+  validateAdminToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `admin/user_viewer`,
+    callback: () => {
+      const userAnalyticsEngine = new UserAnalyticsEngine(db);
+      userAnalyticsEngine.getAllUsers((userInfo) => {
+        const totalCount = Object.keys(userInfo).length;
+        const activeCount = Object.values(userInfo).filter((x) => x.stravaConnected).length;
+        res.render("user_viewer", {
+          "users": userInfo,
+          "totalCount": totalCount,
+          "activeCount": activeCount,
+        });
       });
-    });
+    },
   });
 });
 
 app.get("/admin/mock_strava", (req, res) => {
+  // Not validating token because it's emulator-only
   if (isEmulator) {
     MockStravaInterface.initialize(dbInterface);
     MockStravaInterface.sendWorkoutRun(processActivity);
@@ -351,56 +405,71 @@ app.get("/_mock_strava_webhook", (req, res) => {
 
 app.get("/delete_account", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
-  validateUserToken(userToken, res, (userID) => {
-    dbInterface.deleteUser(userID);
-    logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_DELETION, db);
-    res.redirect("/");
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `delete_account`,
+    callback: (userID) => {
+      dbInterface.deleteUser(userID);
+      logAnalytics(ANALYTICS_EVENTS.USER_ACCOUNT_DELETION, db);
+      res.redirect("/");
+    },
   });
 });
 
 app.post("/update_preferences", (req, res) => {
   const userToken = req.cookies["__session"];
-  validateUserToken(userToken, res, (userID) => {
-    const data = req.body;
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `update_preferences`,
+    callback: (userID) => {
+      const data = req.body;
 
-    // workoutPace defaults to 0, which means it won't be returned in the form if it's not set
-    let workoutPace = 0;
-    if ("workoutPace" in data) {
-      workoutPace = Number(data.workoutPace); // The value is returned as a string but we need to store it as a number since it represents minutes
-    }
+      // workoutPace defaults to 0, which means it won't be returned in the form if it's not set
+      let workoutPace = 0;
+      if ("workoutPace" in data) {
+        workoutPace = Number(data.workoutPace); // The value is returned as a string but we need to store it as a number since it represents minutes
+      }
 
-    const updatedPreferences = {
-      parser: {
-        dominantWorkoutType: data.dominantWorkoutType,
-        workoutPace: workoutPace,
-        autodetectActivities: data.autodetectActivities == "true", // It comes in as a string
-      },
-      format: {
-        paceUnits: data.paceUnits,
-        sub90SecFormat: data.sub90SecFormat,
-        subMileDistanceValue: data.subMileDistanceValue,
-        greaterThanMileDistanceValue: data.greaterThanMileDistanceValue,
-        detailsLength: data.detailsLength,
-        detailsStructure: data.detailsStructure,
-      },
-    };
+      const updatedPreferences = {
+        parser: {
+          dominantWorkoutType: data.dominantWorkoutType,
+          workoutPace: workoutPace,
+          autodetectActivities: data.autodetectActivities == "true", // It comes in as a string
+        },
+        format: {
+          paceUnits: data.paceUnits,
+          sub90SecFormat: data.sub90SecFormat,
+          subMileDistanceValue: data.subMileDistanceValue,
+          greaterThanMileDistanceValue: data.greaterThanMileDistanceValue,
+          detailsLength: data.detailsLength,
+          detailsStructure: data.detailsStructure,
+        },
+      };
 
-    dbInterface.updateUserPreferences(userID, updatedPreferences);
-    res.redirect("/home");
+      dbInterface.updateUserPreferences(userID, updatedPreferences);
+      res.redirect("/home");
+    },
   });
 });
 
 app.post("/update_account_settings", (req, res) => {
   const userToken = req.cookies["__session"];
-  validateUserToken(userToken, res, (userID) => {
-    const enabledSettings = req.body.accountSettings !== undefined ? req.body.accountSettings : []; // The object is undefined if no items were checked
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `update_account_settings`,
+    callback: (userID) => {
+      const enabledSettings = req.body.accountSettings !== undefined ? req.body.accountSettings : []; // The object is undefined if no items were checked
 
-    const updatedSettings = {...defaultAccountSettingsConfig};
-    Object.keys(updatedSettings).forEach((setting) => {
-      updatedSettings[setting] = enabledSettings.includes(setting);
-    });
+      const updatedSettings = {...defaultAccountSettingsConfig};
+      Object.keys(updatedSettings).forEach((setting) => {
+        updatedSettings[setting] = enabledSettings.includes(setting);
+      });
 
-    dbInterface.updateAccountSettings(userID, updatedSettings);
+      dbInterface.updateAccountSettings(userID, updatedSettings);
+    },
   });
 
   res.redirect("/home");
@@ -415,25 +484,35 @@ app.post("/update_account_settings", (req, res) => {
 
 // Returns the userID if the token validates successfully
 // Redirects the res to / if it fails to validate
-function validateUserToken(idToken, res, callback) {
+function validateUserToken({
+  userToken = "123",
+  res = {},
+  originalURL = "/",
+  callback = () => {},
+}) {
   try {
     firebase.auth()
-        .verifyIdToken(idToken)
+        .verifyIdToken(userToken)
         .then((decodedToken) => {
           const uid = decodedToken.uid;
           callback(uid);
         })
         .catch((error) => {
           console.error(`Invalid user authentication: ${error}`);
-          res.redirect("/");
+          res.redirect(`/login?postLogin=${encodeURIComponent(originalURL)}`);
         });
   } catch (error) {
     console.error(error);
-    res.redirect("/");
+    res.redirect(`/login?postLogin=${originalURL}`);
   }
 }
 
-function validateAdminToken(idToken, res, callback) {
+function validateAdminToken({
+  userToken = "123",
+  res = {},
+  originalURL = "admin",
+  callback = () => {},
+}) {
   try {
     if (isEmulator) {
       callback(1234);
@@ -441,23 +520,23 @@ function validateAdminToken(idToken, res, callback) {
     }
 
     firebase.auth()
-        .verifyIdToken(idToken)
+        .verifyIdToken(userToken)
         .then((decodedToken) => {
           const uid = decodedToken.uid;
           if (uid === functions.config().admin.david || uid === functions.config().admin.caiismyname) {
             callback(uid);
           } else {
             console.error(`Logged in user is not an admin`);
-            res.redirect("/admin");
+            res.redirect("/home");
           }
         })
         .catch((error) => {
           console.error(`Invalid user authentication: ${error}`);
-          res.redirect("/admin");
+          res.redirect(`/login?postLogin=${originalURL}`);
         });
   } catch (error) {
     console.error(error);
-    res.redirect("/admin");
+    res.redirect(`/login?postLogin=${originalURL}`);
   }
 }
 

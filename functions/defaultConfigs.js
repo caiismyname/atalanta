@@ -29,6 +29,8 @@ const emailCampaigns = {
   STRAVA_CONNECTION_REMINDER: "strava_connection_reminder",
 };
 
+const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=101816&redirect_uri=https://workoutsplitz.com/strava_oauth_redirect&response_type=code&scope=activity:read_all,activity:write`;
+
 module.exports = {
   defaultFormatConfig,
   defaultParserConfig,
@@ -36,4 +38,5 @@ module.exports = {
   knownStravaDefaultRunNames,
   manualTriggerKeywords,
   emailCampaigns,
+  stravaOauthURL,
 };
