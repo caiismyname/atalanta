@@ -46,7 +46,19 @@ const dbInterface = new DbInterface(db);
 
 app.get("/test", (req, res) => {
   logAnalytics(ANALYTICS_EVENTS.TEST, db);
-  res.send("Test");
+  
+  const code = req.query.code;
+  const userToken = req.cookies["__session"];
+
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `test?code=${encodeURIComponent(code)}`,
+    callback: (userID) => {
+      console.log(`CODE FOUND: [${code}]`)
+      res.send(`CODE FOUND: [${code}]`);
+    }
+  });
 });
 
 app.get("/", (req, res) => {
@@ -66,7 +78,7 @@ app.get("/initiate_strava_oauth_connection", (req, res) => {
     res: res,
     originalURL: `initiate_strava_oauth_connection`,
     callback: () => {
-      res.redirect(stravaOauthURL);
+      res.redirect(stravaOauthURL); // TO BE CLEAR, this is a Strava-hosted page, not Splitz's /strava_oauth_redirect
     },
   });
 });
