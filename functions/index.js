@@ -136,8 +136,14 @@ app.get("/home", (req, res) => {
 app.get("/admin", (req, res) => {
   const userToken = req.cookies["__session"];
   if (userToken || isEmulator) {
-    validateAdminToken(userToken, res, (_) => {
-      res.render("admin");
+    validateAdminToken({
+      userToken: userToken,
+      res: res, 
+      originalURL: `admin`,
+      callback: 
+        () => {
+          res.render("admin");
+        }
     });
   } else {
     res.render("admin_login");
@@ -146,45 +152,61 @@ app.get("/admin", (req, res) => {
 
 app.get("/admin/recent_workouts", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
-  validateAdminToken(userToken, res, (_) => {
-    dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
+  validateAdminToken({
+    userToken: userToken, 
+    res: res,
+    originalURL: `admin/recent_workouts`,
+    callback: () => {
+      dbInterface.getStoredWorkoutsForAnalytics((workouts) => {
       res.render("recent_workouts_viewer", {workouts: workouts});
-    });
+      })
+    }
   });
 });
 
 app.get("/admin/user_analytics", (req, res) => {
   const userToken = req.cookies["__session"];
-  validateAdminToken(userToken, res, (_) => {
-    const userAnalyticsEngine = new UserAnalyticsEngine(db);
-    userAnalyticsEngine.getGlobalEventsDatasets(90, (globalEventDatasets) => {
-      userAnalyticsEngine.getUserEventsDatasets((userEventDatasets) => {
+  validateAdminToken({
+    userToken: userToken, 
+    res: res, 
+    originalURL: `admin/user_analytics`, 
+    callback: () => {
+      const userAnalyticsEngine = new UserAnalyticsEngine(db);
+      userAnalyticsEngine.getGlobalEventsDatasets(90, (globalEventDatasets) => {
+        userAnalyticsEngine.getUserEventsDatasets((userEventDatasets) => {
         res.render("user_analytics", {
           "globalEventDatasets": globalEventDatasets,
           "userEventDatasets": userEventDatasets,
         });
+        });
       });
-    });
+    }
   });
 });
 
 app.get("/admin/user_viewer", (req, res) => {
   const userToken = req.cookies["__session"];
-  validateAdminToken(userToken, res, (_) => {
-    const userAnalyticsEngine = new UserAnalyticsEngine(db);
-    userAnalyticsEngine.getAllUsers((userInfo) => {
-      const totalCount = Object.keys(userInfo).length;
-      const activeCount = Object.values(userInfo).filter((x) => x.stravaConnected).length;
-      res.render("user_viewer", {
-        "users": userInfo,
-        "totalCount": totalCount,
-        "activeCount": activeCount,
+  validateAdminToken({
+    userToken: userToken, 
+    res: res, 
+    originalURL: `admin/user_viewer`,
+    callback: () => {
+      const userAnalyticsEngine = new UserAnalyticsEngine(db);
+      userAnalyticsEngine.getAllUsers((userInfo) => {
+        const totalCount = Object.keys(userInfo).length;
+        const activeCount = Object.values(userInfo).filter((x) => x.stravaConnected).length;
+        res.render("user_viewer", {
+          "users": userInfo,
+          "totalCount": totalCount,
+          "activeCount": activeCount,
+        });
       });
-    });
+    }
   });
 });
 
 app.get("/admin/mock_strava", (req, res) => {
+  // Not validating token because it's emulator-only
   if (isEmulator) {
     MockStravaInterface.initialize(dbInterface);
     MockStravaInterface.sendWorkoutRun(processActivity);
@@ -480,7 +502,12 @@ function validateUserToken({
   }
 }
 
-function validateAdminToken(idToken, res, callback) {
+function validateAdminToken({
+  userToken = "123",
+  res = {},
+  originalURL = "admin",
+  callback = () => {},
+}) {
   try {
     if (isEmulator) {
       callback(1234);
@@ -488,23 +515,23 @@ function validateAdminToken(idToken, res, callback) {
     }
 
     firebase.auth()
-        .verifyIdToken(idToken)
+        .verifyIdToken(userToken)
         .then((decodedToken) => {
           const uid = decodedToken.uid;
           if (uid === functions.config().admin.david || uid === functions.config().admin.caiismyname) {
             callback(uid);
           } else {
             console.error(`Logged in user is not an admin`);
-            res.redirect("/admin");
+            res.redirect("/home");
           }
         })
         .catch((error) => {
           console.error(`Invalid user authentication: ${error}`);
-          res.redirect("/admin");
+          res.redirect(`/login?postLogin=${originalURL}`);
         });
   } catch (error) {
     console.error(error);
-    res.redirect("/admin");
+    res.redirect(`/login?postLogin=${originalURL}`);
   }
 }
 

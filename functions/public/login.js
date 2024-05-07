@@ -24,6 +24,7 @@ function login() {
   signInWithRedirect(auth, provider);
 }
 
+// Not actually used
 document.addEventListener("DOMContentLoaded", () => {
   const loginButton = document.getElementById("loginButton");
   const signUpButton = document.getElementById("signUpButton");
