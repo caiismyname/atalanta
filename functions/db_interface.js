@@ -45,7 +45,6 @@ class DbInterface {
   }
 
   saveStravaCredentialsForUser(userID, stravaID, accessToken, refreshToken, expiration) {
-    const updateObj = {};
     this.db.ref(`users/${userID}`).update({
       stravaConnected: true,
       stravaID: stravaID,
