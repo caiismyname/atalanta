@@ -25,16 +25,16 @@ function login() {
 }
 
 // Not actually used
-document.addEventListener("DOMContentLoaded", () => {
-  const loginButton = document.getElementById("loginButton");
-  const signUpButton = document.getElementById("signUpButton");
-  loginButton.addEventListener("click", () => {
-    login();
-  });
-  signUpButton.addEventListener("click", () => {
-    login();
-  });
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   const loginButton = document.getElementById("loginButton");
+//   const signUpButton = document.getElementById("signUpButton");
+//   loginButton.addEventListener("click", () => {
+//     login();
+//   });
+//   signUpButton.addEventListener("click", () => {
+//     login();
+//   });
+// });
 
 const user = auth.currentUser;
 const queryParams = new URLSearchParams(window.location.search);
