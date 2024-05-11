@@ -14,8 +14,9 @@ const {EmailInterface} = require("./email_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
 const {defaultAccountSettingsConfig, stravaOauthURL} = require("./defaultConfigs.js");
 
-const functions = require("firebase-functions");
+const {onRequest} = require("firebase-functions/v2/https");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
+const {defineString} = require("firebase-functions/params");
 const admin = require("firebase-admin");
 
 const app = express();
@@ -506,11 +507,14 @@ function validateAdminToken({
       return;
     }
 
+    const davidUID = defineString("ADMIN_DAVID");
+    const caiismynameUID = defineString("ADMIN_CAIISMYNAME");
+
     firebase.auth()
         .verifyIdToken(userToken)
         .then((decodedToken) => {
           const uid = decodedToken.uid;
-          if (uid === functions.config().admin.david || uid === functions.config().admin.caiismyname) {
+          if (uid === davidUID.value() || uid === caiismynameUID.value()) {
             callback(uid);
           } else {
             console.error(`Logged in user is not an admin`);
@@ -561,7 +565,7 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
 }
 
 // The main app for Firebase
-exports.app = functions.https.onRequest(app);
+exports.app = onRequest(app);
 
 exports.emailDaemon = onSchedule("every day 12:00", () => { // UTC, so it's 8am ET
   const emailHandler = new EmailInterface(db);
