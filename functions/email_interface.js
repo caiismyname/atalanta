@@ -158,7 +158,7 @@ class EmailInterface {
             if (user.createDate) {
               const today = new Date(getDatestamp());
               const createDate = new Date(user.createDate);
-              if ((today - createDate) / (1000 * 60 * 60 * 24) <= daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
+              if ((today - createDate) / (1000 * 60 * 60 * 24) === daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
                 if (!user.stravaConnected) {
                   emailsToSend.push({
                     userID: userID,
