@@ -134,45 +134,49 @@ class EmailInterface {
             }
           }
 
-          console.log(`${emailCampaigns.MONETIZATION_1}: ${totalEligibleForSend} eligible users of ${totalNotSentForCampaign} not sent (${totalRegisteredForCampaign} total)`);
+          console.log(`${emailCampaigns.MONETIZATION_1}: ${totalEligibleForSend} eligible users of ${totalNotSentForCampaign} with status NOT_SENT (${totalRegisteredForCampaign} total)`);
 
 
           //
           // Strava Connection campaign
           //
-          // totalRegisteredForCampaign = Object.keys(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER]).length;
-          // totalNotSentForCampaign = 0;
-          // totalEligibleForSend = 0;
+          totalRegisteredForCampaign = Object.keys(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER]).length;
+          totalNotSentForCampaign = 0;
+          totalEligibleForSend = 0;
 
-          // const daysAfterSignup = 2;
-          // const eligibleUsersStravaConnection = Object.keys(
-          //     Object.fromEntries(
-          //         Object.entries(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER])
-          //             .filter(([_, status]) => status === EMAIL_STATUS.NOT_SENT),
-          //     ),
-          // );
+          const daysAfterSignup = 2;
+          const eligibleUsersStravaConnection = Object.keys(
+              Object.fromEntries(
+                  Object.entries(allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER])
+                      .filter(([_, status]) => status === EMAIL_STATUS.NOT_SENT),
+              ),
+          );
 
-          // for (const userID of eligibleUsersStravaConnection) {
-          //   totalNotSentForCampaign++;
-          //   const user = allUsers[userID];
-          //   const today = new Date(getDatestamp());
-          //   const createDate = new Date(user.createDate);
-          //   if ((today - createDate) / (1000 * 60 * 60 * 24) === daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
-          //     if (!user.stravaConnected) {
-          //       emailsToSend.push({
-          //         userID: userID,
-          //         emailAddress: user.email,
-          //         template: emailCampaigns.STRAVA_CONNECTION_REMINDER,
-          //         name: user.name,
-          //       });
-          //       totalEligibleForSend++;
-          //     } else {
-          //       allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
-          //     }
-          //   }
-          // }
+          for (const userID of eligibleUsersStravaConnection) {
+            totalNotSentForCampaign++;
+            const user = allUsers[userID];
+            if (user.createDate) {
+              const today = new Date(getDatestamp());
+              const createDate = new Date(user.createDate);
+              if ((today - createDate) / (1000 * 60 * 60 * 24) === daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
+                if (!user.stravaConnected) {
+                  emailsToSend.push({
+                    userID: userID,
+                    emailAddress: user.email,
+                    template: emailCampaigns.STRAVA_CONNECTION_REMINDER,
+                    name: user.name,
+                  });
+                  totalEligibleForSend++;
+                } else {
+                  allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
+                }
+              }
+            } else {
+              allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
+            }
+          }
 
-          // console.log(`${emailCampaigns.STRAVA_CONNECTION_REMINDER}: ${totalEligibleForSend} eligible users of ${totalNotSentForCampaign} not sent (${totalRegisteredForCampaign} total)`);
+          console.log(`${emailCampaigns.STRAVA_CONNECTION_REMINDER}: ${totalEligibleForSend} eligible users of ${totalNotSentForCampaign} with status NOT_SENT (${totalRegisteredForCampaign} total)`);
 
           //
           // Perform campaign updates / email sends

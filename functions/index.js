@@ -46,19 +46,6 @@ const dbInterface = new DbInterface(db);
 
 app.get("/test", (req, res) => {
   logAnalytics(ANALYTICS_EVENTS.TEST, db);
-
-  const code = req.query.code;
-  const userToken = req.cookies["__session"];
-
-  validateUserToken({
-    userToken: userToken,
-    res: res,
-    originalURL: `test?code=${encodeURIComponent(code)}`,
-    callback: (userID) => {
-      console.log(`CODE FOUND: [${code}]`);
-      res.send(`CODE FOUND: [${code}]`);
-    },
-  });
 });
 
 app.get("/", (req, res) => {
