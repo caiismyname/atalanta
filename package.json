@@ -4,6 +4,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "firebase": "^9.22.2",
+    "firebase-functions": "^5.0.1",
     "firebase-tools": "^13.0.2",
     "js-cookie": "^3.0.5",
     "kill-port": "^2.0.1",
