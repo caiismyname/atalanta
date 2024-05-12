@@ -565,7 +565,7 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
 }
 
 // The main app for Firebase
-exports.app = onRequest(app);
+exports.app_functions_v2 = onRequest(app);
 
 exports.emailDaemon = onSchedule("every day 12:00", () => { // UTC, so it's 8am ET
   const emailHandler = new EmailInterface(db);
