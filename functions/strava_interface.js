@@ -1,15 +1,14 @@
 const axios = require("axios");
+const functions = require("firebase-functions");
 const {knownStravaDefaultRunNames, manualTriggerKeywords} = require("./defaultConfigs.js");
-const {defineString} = require("firebase-functions/params");
 
 class StravaInterface {
   static stravaConfigDetails() {
-    const stravaApiSecret = defineString("STRAVA_API_SECRET");
     return {
       apiBase: "https://www.strava.com/api/v3",
       stravaAuthTokenURL: "https://www.strava.com/oauth/token",
       stravaClientID: "101816",
-      stravaClientSecret: stravaApiSecret.value(),
+      stravaClientSecret: functions.config().strava.api_secret,
       initialGrantType: "authorization_code",
       refreshGrantType: "refresh_token",
     };
