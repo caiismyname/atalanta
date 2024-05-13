@@ -119,17 +119,21 @@ class EmailInterface {
             totalNotSentForCampaign++;
             if (userID in userEvents) {
               const user = allUsers[userID];
-              const userWorkoutCount = userEvents[userID].workout_count;
-              if (userWorkoutCount === workoutCountThreshold || userWorkoutCount === workoutCountThreshold + 1) {
-                emailsToSend.push({
-                  userID: userID,
-                  emailAddress: user.email,
-                  template: emailCampaigns.MONETIZATION_1,
-                  name: user.name,
-                });
-                totalEligibleForSend++;
-              } else if (userWorkoutCount > workoutCountThreshold) {
-                allCampaigns[emailCampaigns.MONETIZATION_1][userID] = EMAIL_STATUS.BLOCKED; // Shouldn't occur, but writing this as a safety fallthrough
+              if (user) {
+                const userWorkoutCount = userEvents[userID].workout_count;
+                if (userWorkoutCount === workoutCountThreshold || userWorkoutCount === workoutCountThreshold + 1) {
+                  emailsToSend.push({
+                    userID: userID,
+                    emailAddress: user.email,
+                    template: emailCampaigns.MONETIZATION_1,
+                    name: user.name,
+                  });
+                  totalEligibleForSend++;
+                } else if (userWorkoutCount > workoutCountThreshold) {
+                  allCampaigns[emailCampaigns.MONETIZATION_1][userID] = EMAIL_STATUS.BLOCKED; // Shouldn't occur, but writing this as a safety fallthrough
+                }
+              } else {
+                allCampaigns[emailCampaigns.MONETIZATION_1][userID] = EMAIL_STATUS.BLOCKED;
               }
             }
           }
@@ -155,21 +159,25 @@ class EmailInterface {
           for (const userID of eligibleUsersStravaConnection) {
             totalNotSentForCampaign++;
             const user = allUsers[userID];
-            if (user.createDate) {
-              const today = new Date(getDatestamp());
-              const createDate = new Date(user.createDate);
-              if ((today - createDate) / (1000 * 60 * 60 * 24) === daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
-                if (!user.stravaConnected) {
-                  emailsToSend.push({
-                    userID: userID,
-                    emailAddress: user.email,
-                    template: emailCampaigns.STRAVA_CONNECTION_REMINDER,
-                    name: user.name,
-                  });
-                  totalEligibleForSend++;
-                } else {
-                  allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
+            if (user) {
+              if (user.createDate) {
+                const today = new Date(getDatestamp());
+                const createDate = new Date(user.createDate);
+                if ((today - createDate) / (1000 * 60 * 60 * 24) === daysAfterSignup) { // Datestamps are all day granularity so time is not a consideration
+                  if (!user.stravaConnected) {
+                    emailsToSend.push({
+                      userID: userID,
+                      emailAddress: user.email,
+                      template: emailCampaigns.STRAVA_CONNECTION_REMINDER,
+                      name: user.name,
+                    });
+                    totalEligibleForSend++;
+                  } else {
+                    allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
+                  }
                 }
+              } else {
+                allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
               }
             } else {
               allCampaigns[emailCampaigns.STRAVA_CONNECTION_REMINDER][userID] = EMAIL_STATUS.BLOCKED;
