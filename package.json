@@ -5,13 +5,16 @@
     "express": "^4.18.2",
     "firebase": "^9.22.2",
     "firebase-functions": "^5.0.1",
-    "firebase-tools": "^13.0.2",
+    "firebase-tools": "^13.9.0",
     "js-cookie": "^3.0.5",
     "kill-port": "^2.0.1",
     "pug": "^3.0.2"
   },
   "scripts": {
     "start": "node ./functions/index.js"
+  },
+  "engines": {
+    "node": "20"
   },
   "name": "workout-parser",
   "version": "1.0.0",
