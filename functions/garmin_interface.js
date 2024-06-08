@@ -76,6 +76,24 @@ class GarminInterface {
             });
         });
     }
+
+    static acknowledgeWebhook(res) {
+        res.status(200).send("EVENT_RECEIVED");
+    }
+
+    static getActivityFile({
+        garminUserID = "",
+        fileURL = ""
+    } = {}) {
+
+        return "";
+    }
+
+    static convertActivityFile(file) {
+        return {}
+    }
+
+    
 }
 
 module.exports = {

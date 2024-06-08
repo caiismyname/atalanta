@@ -431,7 +431,7 @@ function handleIncomingWebhook(req, res, isTest=false) {
 }
 
 app.post("/strava_webhook", (req, res) => {
-  console.log(`INBOUND WEBHOOK ${JSON.stringify(req.body).replace(new RegExp("\n", "g"), " || ")}`);
+  console.log(`INBOUND STRAVA WEBHOOK ${JSON.stringify(req.body).replace(new RegExp("\n", "g"), " || ")}`);
 
   handleIncomingWebhook(req, res);
 });
@@ -451,6 +451,25 @@ app.get("/_mock_strava_webhook", (req, res) => {
   handleIncomingWebhook(req, res, true);
   res.send("<html>Mocked — <a href=\"https://www.strava.com/activities/8973556870\">https://www.strava.com/activities/8973556870</a></html>");
 });
+
+app.post("/garmin_webhook", (req, res) => {
+  console.log(`INBOUND GARMIN WEBHOOK ${JSON.stringify(req.body).replace(new RegExp("\n", "g"), " || ")}`);
+
+  GarminInterface.acknowledgeWebhook();
+  const activities = req.body.activities;
+  parseInboundGarminActivites(activities);
+});
+
+function parseInboundGarminActivites(activities) {
+  for (const activity of activities) {
+    const activityFile = GarminInterface.getActivityFile({
+      garminUserID: activity.userId,
+      fileURL: activity.callbackURL
+    });
+
+    const parsedActivity = GarminInterface.parsedActivity(activityFile);
+  }
+}
 
 app.get("/delete_account", (req, res) => {
   const userToken = req.cookies["__session"]; // Firebase functions' caching will strip any tokens not named `__session`
