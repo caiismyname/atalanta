@@ -7,12 +7,13 @@ const favicon = require("serve-favicon");
 
 const {parseWorkout} = require("./parser/parser.js");
 const {StravaInterface} = require("./strava_interface.js");
+const {GarminInterface} = require("./garmin_interface.js");
 const {MockStravaInterface} = require("./mock_strava_interface.js");
 const {DbInterface} = require("./db_interface.js");
 const {UserAnalyticsEngine} = require("./user_analytics_engine.js");
 const {EmailInterface} = require("./email_interface.js");
 const {ANALYTICS_EVENTS, logAnalytics, logUserEvent, USER_EVENTS} = require("./analytics.js");
-const {defaultAccountSettingsConfig, stravaOauthURL} = require("./defaultConfigs.js");
+const {defaultAccountSettingsConfig, stravaOauthURL, garminOauthURL} = require("./defaultConfigs.js");
 
 const {onRequest} = require("firebase-functions/v2/https");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
@@ -92,6 +93,66 @@ app.get("/strava_oauth_redirect", (req, res) => {
 
         res.redirect("/home");
       });
+    },
+  });
+});
+
+app.get("/initiate_garmin_oauth_connection", (req, res) => {
+  const userToken = req.cookies["__session"];
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `initiate_garmin_oauth_connection`,
+    callback: (userID) => {
+      GarminInterface.getRequestToken((requestTokens) => {
+        // Save the token + secret because the request token secret is needed when exchanging
+        // the request token for an access token.
+        dbInterface.saveGarminRequestToken({
+          userID: userID,
+          requestToken: requestTokens.requestToken,
+          requestTokenSecret: requestTokens.requestTokenSecret
+        });
+
+        // Redirect the user to Garmin's authorization page
+        res.redirect(`${garminOauthURL}?oauth_token=${requestTokens.requestToken}`);
+      });
+    },
+  });
+});
+
+app.get("/garmin_oauth_redirect", (req, res) => {
+  const userToken = req.cookies["__session"];
+  const { inboundRequestToken, oauthVerifier } = req.query;
+  validateUserToken({
+    userToken: userToken,
+    res: res,
+    originalURL: `garmin_oauth_redirect`,
+    callback: (userID) => {
+      dbInterface.getGarminRequestToken(userID, (requestTokens) => {
+        if (requestTokens.requestToken !== inboundRequestToken) {
+          console.error(`Inbound request token does not match saved request token for user ${userID}`);
+          return;
+        }
+
+        if (oauthVerifier == null) {
+          console.error(`User ${userID} did not give Garmin Permissions.`);
+          return;
+        }
+
+        GarminInterface.getAccessToken({
+          userID: userID,
+          requestToken: requestTokens.requestToken,
+          requestTokenSecret: requestTokens.requestTokenSecret,
+          oauthVerifier: oauthVerifier,
+          callback: (accessTokens) => {
+            dbInterface.saveGarminAccessToken({
+              userID: userID,
+              accessToken: accessTokens.accessToken,
+              accessTokenSecret: accessTokens.accessTokenSecret
+            });
+          }
+        });
+      })
     },
   });
 });

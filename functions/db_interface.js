@@ -20,6 +20,7 @@ class DbInterface {
 
     updateObj[`users/${details.userID}`] = {
       stravaConnected: false,
+      garminConnected: false,
       name: details.name,
       email: details.email,
       createDate: getDatestamp(),
@@ -103,6 +104,50 @@ class DbInterface {
 
       callback(userID);
     });
+  }
+
+  saveGarminRequestToken({
+    userID = "", 
+    requestToken = "", 
+    requestTokenSecret = ""
+  } = {}) {
+    this.db.ref(`users/${userID}/garmin`).update({
+      "requestToken": requestToken, 
+      "requestTokenSecret": requestTokenSecret
+    }, (error) => {
+      if (error) {
+        console.error(`Error saving Garmin request token/secret credentials: ${error}`);
+      }
+    });
+  }
+
+  getGarminRequestToken(userID, callback) {
+    this.db.ref(`users/${userID}/garmin`).once("value", (snapshot) => {
+      const garminTokens = snapshot.val();
+      callback({
+        requestToken: garminTokens.requestToken,
+        requestTokenSecret: garminTokens.requestTokenSecret
+      })
+    });
+  }
+
+  saveGarminAccessToken({
+    userID = 
+    accessToken = "", 
+    accessTokenSecret = ""
+  }) {
+    if (accessToken !== "" && accessTokenSecret !== "") {
+      this.db.ref(`users/${userID}/garmin`).update({
+        "accessToken": accessToken, 
+        "accessTokenSecret": accessTokenSecret
+      }, (error) => {
+        if (error) {
+          console.error(`Error saving Garmin access token/secret credentials: ${error}`);
+        }
+      });
+
+      this.db.ref(`users/${userID}`).update({"garminConnected": true});
+    }
   }
 
   getUserDetails(userID, callback) {

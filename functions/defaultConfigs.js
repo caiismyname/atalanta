@@ -30,6 +30,7 @@ const emailCampaigns = {
 };
 
 const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=101816&redirect_uri=https://workoutsplitz.com/strava_oauth_redirect&response_type=code&scope=activity:read_all,activity:write`;
+const garminOauthURL = `https://connect.garmin.com/oauthConfirm`
 
 module.exports = {
   defaultFormatConfig,
@@ -39,4 +40,5 @@ module.exports = {
   manualTriggerKeywords,
   emailCampaigns,
   stravaOauthURL,
+  garminOauthURL
 };
