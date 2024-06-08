@@ -77,6 +77,12 @@ class GarminInterface {
         });
     }
 
+    static getGarminID(accessToken, callback) {
+        const garminIDFetchURL = `https://apis.garmin.com/wellness-api/rest/user/id`;
+
+        return "";
+    }
+
     static acknowledgeWebhook(res) {
         res.status(200).send("EVENT_RECEIVED");
     }

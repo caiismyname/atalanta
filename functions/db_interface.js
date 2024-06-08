@@ -3,6 +3,7 @@ const {StravaInterface} = require("./strava_interface.js");
 const {defaultParserConfig, defaultFormatConfig, defaultAccountSettingsConfig, emailCampaigns} = require("./defaultConfigs.js");
 const {getDatestamp} = require("./analytics.js");
 const {EMAIL_STATUS} = require("./email_interface.js");
+const {GarminInterface} = require("./garmin_interface.js");
 
 class DbInterface {
   constructor(db) {
@@ -63,7 +64,7 @@ class DbInterface {
       userID: userID,
     }, (error) => {
       if (error) {
-        console.error(`Error saving Strava credentials: ${error}`);
+        console.error(`Error saving Strava ID reverse lookup for user ${userID}: ${error}`);
       }
     });
   }
@@ -147,7 +148,26 @@ class DbInterface {
       });
 
       this.db.ref(`users/${userID}`).update({"garminConnected": true});
+
+      GarminInterface.getGarminID(accessToken, (garminID) => {
+        // Create the reverse lookup (garminID: googleID)
+        this.db.ref(`garminIDLookup/${garminID}`).update({
+          userID: userID,
+        }, (error) => {
+          if (error) {
+            console.error(`Error saving Garmin ID reverse lookup for user ${userID}: ${error}`);
+          }
+        });
+      });
     }
+  }
+
+  getUserIDForGarminID(garminID, callback) {
+    this.db.ref(`garminIDLookup/${garminID}/userID`).once("value", (snapshot) => {
+      const userID = snapshot.val();
+
+      callback(userID);
+    });
   }
 
   getUserDetails(userID, callback) {
