@@ -44,6 +44,7 @@ function generateAndReturnWorkout({
   includeWarmup = true,
   workoutSecondsPerMile = defaultWorkoutSecondsPerMile,
   restSecondsPerMile = defaultRestSecondsPerMile,
+  shouldFuzz = true
 } = {},
 ) {
   if (includeWarmup) {
@@ -55,6 +56,7 @@ function generateAndReturnWorkout({
     name: name,
     workoutSecondsPerMile: workoutSecondsPerMile,
     restSecondsPerMile: restSecondsPerMile,
+    shouldFuzz: shouldFuzz
   });
 }
 
@@ -64,6 +66,7 @@ function generate({
   name = "unamed",
   workoutSecondsPerMile = defaultWorkoutSecondsPerMile,
   restSecondsPerMile = defaultRestSecondsPerMile,
+  shouldFuzz = true
 } = {}) {
   const laps = [];
   let prevIndex = 0;
@@ -76,6 +79,7 @@ function generate({
       prevIndex: prevIndex,
       lapIndex: lapIndex,
       pace: isWorkout ? workoutSecondsPerMile : restSecondsPerMile,
+      shouldFuzz: shouldFuzz
     });
     laps.push(newLap);
     prevIndex = newLap.end_index;
@@ -105,6 +109,7 @@ function generateLap({
   prevIndex = -1,
   lapIndex = 1,
   pace = defaultRestSecondsPerMile,
+  shouldFuzz = true
 } = {}) {
   const lap = {
     "elapsed_time": 0,
@@ -119,13 +124,22 @@ function generateLap({
   };
 
   if (unit === "METERS") {
-    // Fuzz the time, not the distance, in order to get pace variation
     lap.distance = value;
-    lap.moving_time = Math.round(fuzz(Helpers.metersToMiles(lap.distance) * pace));
+    if (shouldFuzz) {
+      // Fuzz the time, not the distance, in order to get pace variation
+      lap.moving_time = Math.round(fuzz(Helpers.metersToMiles(lap.distance) * pace));
+    } else {
+      lap.moving_time = Helpers.metersToMiles(lap.distance) * pace;
+    }
+    
   } else if (unit === "SECONDS") {
-    // Fuzz the distance, not the time, in order to maintain time precision
     lap.moving_time = value;
-    lap.distance = Helpers.milesToMeters(fuzz(lap.moving_time / pace));
+    if (shouldFuzz) {
+      // Fuzz the distance, not the time, in order to maintain time precision
+      lap.distance = Helpers.milesToMeters(fuzz(lap.moving_time / pace));
+    } else {
+      lap.distance = Helpers.milesToMeters(lap.moving_time / pace);
+    }
   }
 
   lap.elapsed_time = lap.moving_time;

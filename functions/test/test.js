@@ -623,6 +623,42 @@ describe("Formatter", () => {
         assert.ok(outputIsPace(milePrinter.lapPaceFormatted(lapMile)));
         assert.ok(outputIsPace(kmPrinter.lapPaceFormatted(lapKm)));
       });
+
+      it.only("Ensure splits always :00 if whole minute", () => {
+        // const mileConfig = {...defaultFormatConfig};
+        // const milePrinter = new FormatPrinter(mileConfig);
+
+        const run = generateAndReturnWorkout({
+          laps: [[1609.3, "METERS", true]],
+          includeWarmup: true,
+          workoutSecondsPerMile: 360,
+          restSecondsPerMile: 720,
+          shouldFuzz: false
+        });
+
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        // const lapMile = {
+        //   "elapsed_time": 360,
+        //   "moving_time": 360,
+        //   "distance": 1609.34,
+        //   "average_speed": 10,
+        //   "max_speed": 10,
+        //   "lap_index": 3,
+        //   "split": 3,
+        // };
+
+        console.log(res.summary);
+        // assert.ok(outputIsTime(milePrinter.lapPaceFormatted(lapMile)));
+      });
     });
 
     describe("Seconds", () => {
