@@ -88,12 +88,16 @@ class FormatPrinter {
   }
 
   // eslint-disable-next-line no-unused-vars
-  secondsToTimeFormatted(seconds, displayWholeMinutesWithoutSeconds = true, roundSeconds = true) {
+  secondsToTimeFormatted({
+    seconds = 0, 
+    displayWholeMinutesWithoutSeconds = false, 
+    roundSeconds = true
+  } = {}) {
     const secondsCutoff = 90;
     const hours = Math.floor(seconds / 60 / 60);
     const minutes = hours > 0 ? Math.floor(seconds / 60) % 60 : Math.floor(seconds / 60);
     const secondsRes = this.secondsFormatter(seconds % 60, roundSeconds); // shouldRound defaults to true b/c strava doesn't give decimals for laps
-    
+
     // First check if we want to format as only seconds
     if (seconds <= secondsCutoff && this.sub90SecFormat === "SECONDS") {
       return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}${displayWholeMinutesWithoutSeconds ? " sec" : ""}`;
@@ -155,12 +159,12 @@ class FormatPrinter {
 
   // eslint-disable-next-line no-unused-vars
   pacePerMileFormatted(lap) {
-    return `${this.secondsToTimeFormatted(this.secondsPerMile(lap), false)}/mi`;
+    return `${this.secondsToTimeFormatted({seconds: this.secondsPerMile(lap)})}/mi`;
   }
 
   // eslint-disable-next-line no-unused-vars
   pacePerKilometerFormatted(lap) {
-    return `${this.secondsToTimeFormatted(this.secondsPerKilometer(lap), false)}/km`;
+    return `${this.secondsToTimeFormatted({seconds: this.secondsPerKilometer(lap)})}/km`;
   }
 
   // eslint-disable-next-line no-unused-vars
@@ -178,7 +182,11 @@ class FormatPrinter {
   // eslint-disable-next-line no-unused-vars
   averageTimeOfSetFormatted(set) {
     const averageSeconds = set.laps.reduce((a, b) => a + b.moving_time, 0.0) / set.laps.length;
-    return this.secondsToTimeFormatted(averageSeconds, false, false); // second false is "roundSeconds", which we shouldn't do b/c the average is likely a decimal
+    return this.secondsToTimeFormatted({
+      seconds: averageSeconds, 
+      displayWholeMinutesWithoutSeconds: false, 
+      roundSeconds: false
+    }); // Don't round b/c the average is likely a decimal
   }
 
   // eslint-disable-next-line no-unused-vars
@@ -196,7 +204,7 @@ class FormatPrinter {
       if ("component_laps" in laps[0]) {
         laps = laps[0].component_laps;
       } else {
-        return this.secondsToTimeFormatted(set.laps[0].moving_time);
+        return this.secondsToTimeFormatted({seconds: set.laps[0].moving_time});
       }
     }
 
@@ -208,7 +216,7 @@ class FormatPrinter {
       max = Math.max(lap.moving_time, max);
     }
 
-    return `${this.secondsToTimeFormatted(min)} — ${this.secondsToTimeFormatted(max)}`;
+    return `${this.secondsToTimeFormatted({seconds: min})} — ${this.secondsToTimeFormatted({seconds: max})}`;
   }
 
   setPaceRangeFormatted(set) {
@@ -249,7 +257,7 @@ class FormatPrinter {
 
     const paceUnitAbbrv = this.paceUnits === "KM" ? "/km" : "/mi"; // matches the switch default of miles
 
-    return `${this.secondsToTimeFormatted(min)} — ${this.secondsToTimeFormatted(max)}${paceUnitAbbrv}`;
+    return `${this.secondsToTimeFormatted({seconds: min})} — ${this.secondsToTimeFormatted({seconds: max})}${paceUnitAbbrv}`;
   }
 
   setDistanceRangeFormatted(set) {
