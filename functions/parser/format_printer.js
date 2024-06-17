@@ -60,11 +60,11 @@ class FormatPrinter {
     if (shouldRound) {
       rounded = Math.round(input);
     } else {
-      rounded = input.toFixed(1);
+      rounded = parseFloat(input.toFixed(1));
     }
 
 
-    if (rounded === 0) {
+    if (rounded === 0 || rounded === 0.0) {
       return {
         seconds: "00",
         minuteDiff: 0,
@@ -74,7 +74,7 @@ class FormatPrinter {
         seconds: `0${rounded}`,
         minuteDiff: 0,
       };
-    } else if (rounded === 60) {
+    } else if (rounded === 60 || rounded === '60.0') {
       return {
         seconds: "00",
         minuteDiff: 1,
@@ -93,7 +93,7 @@ class FormatPrinter {
     const hours = Math.floor(seconds / 60 / 60);
     const minutes = hours > 0 ? Math.floor(seconds / 60) % 60 : Math.floor(seconds / 60);
     const secondsRes = this.secondsFormatter(seconds % 60, roundSeconds); // shouldRound defaults to true b/c strava doesn't give decimals for laps
-
+    
     // First check if we want to format as only seconds
     if (seconds <= secondsCutoff && this.sub90SecFormat === "SECONDS") {
       return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}${displayWholeMinutesWithoutSeconds ? " sec" : ""}`;
