@@ -1,35 +1,12 @@
 const {milesToMeters} = require("./parser_helpers.js");
+const rawKnownRaces = require("./known_races.json");
 
+const knownRaces = JSON.parse(JSON.stringify(rawKnownRaces));
 const raceDistances = {
   "halfMarathon": 21097.5,
   "fullMarathon": 42195,
   "tenMiler": 16093.4,
 };
-
-const knownRaces =[
-  {
-    name: "Broad Street Run",
-    start_latlng: [
-      40.0340224429965,
-      -75.14572564512491,
-    ],
-    end_latlng: [
-      39.90156406536698, // 2023 end location, between stadiums
-      -75.16930226236582,
-    ],
-  },
-  {
-    name: "Broad Street Run",
-    start_latlng: [
-      40.0340224429965,
-      -75.14572564512491,
-    ],
-    end_latlng: [
-      39.892611, // 2024 (normal) location, in Navy Yard
-      -75.17611111,
-    ],
-  },
-];
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
   const R = 6371; // Radius of the Earth in kilometers

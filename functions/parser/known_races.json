@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Broad Street Run",
+        "notes": "2023 end location, between stadiums",
+        "start_latlng": [
+            40.0340224429965,
+            -75.14572564512491
+        ],
+        "end_latlng": [
+            39.90156406536698,
+            -75.16930226236582
+        ]
+    },
+    {
+        "name": "Broad Street Run",
+        "notes": "2024 (normal) location, in Navy Yard",
+        "start_latlng": [
+            40.0340224429965,
+            -75.14572564512491
+        ],
+        "end_latlng": [
+            39.892611,
+            -75.17611111
+        ]
+    }
+]
