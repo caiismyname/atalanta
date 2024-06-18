@@ -18,7 +18,12 @@ class Formatter {
       const lap = set.laps.filter((lap) => lap.workoutType === workoutType)[0];
       const lapName = lap.workoutBasis === "DISTANCE" ?
           `${lap.closestDistance}${lap.closestDistanceUnit}` :
-          `${this.printer.secondsToTimeFormatted(lap.closestTime, true, true)}`;
+          `${this.printer.secondsToTimeFormatted({
+            seconds: lap.closestTime, 
+            displayWholeMinutesWithoutSeconds: true, 
+            roundSeconds: true
+            })
+          }`;
 
       setName += `${lapName}, `;
     }
@@ -150,23 +155,23 @@ class Formatter {
             case "LESS":
               switch (this.formatConfig.subMileDistanceValue) {
                 case "TIME":
-                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time, false)}, `;
+                  repDetails += `${this.printer.secondsToTimeFormatted({seconds: lap.moving_time})}, `;
                   break;
                 case "PACE":
                   repDetails += `${this.printer.lapPaceFormatted(lap)}, `;
                   break;
                 default:
-                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time, false)}, `;
+                  repDetails += `${this.printer.secondsToTimeFormatted({seconds: lap.moving_time})}, `;
                   break;
               }
               break;
             case "EQUALS":
-              repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time, false)}, `; // Just show the time, not lapPaceFormatted to avoid the `/mi` suffix
+              repDetails += `${this.printer.secondsToTimeFormatted({seconds: lap.moving_time})}, `; // Just show the time, not lapPaceFormatted to avoid the `/mi` suffix
               break;
             case "MORE":
               switch (this.formatConfig.greaterThanMileDistanceValue) {
                 case "TIME":
-                  repDetails += `${this.printer.secondsToTimeFormatted(lap.moving_time, false)}, `;
+                  repDetails += `${this.printer.secondsToTimeFormatted({seconds: lap.moving_time})}, `;
                   break;
                 case "PACE":
                   repDetails += `${this.printer.lapPaceFormatted(lap)}, `;
@@ -206,10 +211,10 @@ class Formatter {
       if ("component_laps" in tokenLap) {
         for (const lap of tokenLap.component_laps) {
           if (isKilometer(lap.distance) || isMile(lap.distance)) {
-            splits += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `; // force KM  / mile as the split if the component laps are in KM / mile
+            splits += `${this.printer.secondsToTimeFormatted({seconds: lap.moving_time})}, `; // force KM  / mile as the split if the component laps are in KM / mile
           } else {
             // TODO look at config for this
-            splits += `${this.printer.secondsToTimeFormatted(lap.moving_time)}, `;
+            splits += `${this.printer.secondsToTimeFormatted({seconds: lap.moving_time})}, `;
           }
         }
         splits = splits.slice(0, -2);
@@ -434,7 +439,7 @@ class Formatter {
   printRace(run) {
     const raceType = detectRaceType(run);
     const knownRaceName = matchKnownRace(run);
-    const totalTime = this.printer.secondsToTimeFormatted(run.moving_time, false);
+    const totalTime = this.printer.secondsToTimeFormatted({seconds: run.moving_time});
 
     return {
       "title": `${knownRaceName === "" ? raceType : knownRaceName} — ${totalTime}`,

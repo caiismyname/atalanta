@@ -505,6 +505,34 @@ describe("Formatter", () => {
       assert.ok(outputIsTime(averageOutput));
       assert.ok(averageOutput.includes("21:"));
     });
+
+    it("4:60 in average", () => {
+      const formatter = new Formatter(formatConfig);
+      const run = generateAndReturnWorkout({
+        laps: [
+          [1609.3, "METERS", true],
+          [1609.3, "METERS", false],
+          [1609.3, "METERS", true],
+          [1609.3, "METERS", false]
+        ],
+        includeWarmup: true,
+        workoutSecondsPerMile: 300,
+        restSecondsPerMile: 720,
+        shouldFuzz: false
+      });
+
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(formatter.determineSetAverage(res.sets[0]), "— Avg: 5:00");
+    });
   });
 
   describe("SPLITS FORMATTING", () => {
@@ -622,6 +650,64 @@ describe("Formatter", () => {
 
         assert.ok(outputIsPace(milePrinter.lapPaceFormatted(lapMile)));
         assert.ok(outputIsPace(kmPrinter.lapPaceFormatted(lapKm)));
+      });
+
+      it("Ensure splits always :00 if whole minute — interval rep splits", () => {
+        const formatter = new Formatter(defaultFormatConfig);
+        const run = generateAndReturnWorkout({
+          laps: [
+            [1609.3, "METERS", true],
+            [1609.3, "METERS", false],
+            [1609.3, "METERS", true],
+            [1609.3, "METERS", false]
+          ],
+          includeWarmup: true,
+          workoutSecondsPerMile: 300,
+          restSecondsPerMile: 720,
+          shouldFuzz: false
+        });
+
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.ok(outputIsTime(formatter.determineSetSplits(res.sets[0])));
+        assert.equal(formatter.determineSetSplits(res.sets[0]), "5:00, 5:00");
+      });
+
+      it("Ensure splits always :00 if whole minute — long effort sub-splits", () => {
+        const formatter = new Formatter(defaultFormatConfig);
+        const run = generateAndReturnWorkout({
+          laps: [
+            [1609.3, "METERS", true],
+            [1609.3, "METERS", true],
+            [1609.3, "METERS", true],
+            [1609.3, "METERS", true]
+          ],
+          includeWarmup: true,
+          workoutSecondsPerMile: 360,
+          restSecondsPerMile: 720,
+          shouldFuzz: false
+        });
+
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.ok(!res.summary.description.includes("mins"));
+        assert.equal(formatter.determineSetSplits(res.sets[0]), "6:00, 6:00, 6:00, 6:00");
       });
     });
 
@@ -1475,77 +1561,88 @@ describe("Formatter", () => {
     const printer = new FormatPrinter(formatConfig);
 
     it("48 sec", () => {
-      const res = printer.secondsToTimeFormatted(48);
+      const res = printer.secondsToTimeFormatted({seconds: 48});
       assert.equal(res, "48 sec");
     });
 
+    it("6:00", () => {
+      const res = printer.secondsToTimeFormatted({seconds: 360});
+      assert.equal(res, "6:00.0");
+    });
+
     it("12:34", () => {
-      const res = printer.secondsToTimeFormatted((12 * 60) + 34);
+      const res = printer.secondsToTimeFormatted({seconds: (12 * 60) + 34});
       assert.equal(res, "12:34");
     });
 
     it("46 mins", () => {
-      const res = printer.secondsToTimeFormatted(60 * 46);
+      const res = printer.secondsToTimeFormatted({
+        seconds: 60 * 46, 
+        displayWholeMinutesWithoutSeconds: true
+      });
       assert.equal(res, "46 mins");
     });
 
     it("46:00", () => {
-      const res = printer.secondsToTimeFormatted(60 * 46, false);
+      const res = printer.secondsToTimeFormatted({
+        seconds: 60 * 46, 
+        displayWholeMinutesWithoutSeconds: false
+      });
       assert.equal(res, "46:00");
     });
 
     it("46:46", () => {
-      const res = printer.secondsToTimeFormatted((60 * 46) + 46);
+      const res = printer.secondsToTimeFormatted({seconds: (60 * 46) + 46});
       assert.equal(res, "46:46");
     });
 
     it("1:00:00", () => {
-      const res = printer.secondsToTimeFormatted(60 * 60 * 1);
+      const res = printer.secondsToTimeFormatted({seconds: 60 * 60 * 1});
       assert.equal(res, "1:00:00");
     });
 
     it("1:00:23", () => {
-      const res = printer.secondsToTimeFormatted((60 * 60) + 23);
+      const res = printer.secondsToTimeFormatted({seconds: (60 * 60) + 23});
       assert.equal(res, "1:00:23");
     });
 
     it("1:01:00", () => {
-      const res = printer.secondsToTimeFormatted(60 * 61);
+      const res = printer.secondsToTimeFormatted({seconds: 60 * 61});
       assert.equal(res, "1:01:00");
     });
 
     it("1:01:01", () => {
-      const res = printer.secondsToTimeFormatted((60 * 61) + 1);
+      const res = printer.secondsToTimeFormatted({seconds: (60 * 61) + 1});
       assert.equal(res, "1:01:01");
     });
 
     it("1:15:15", () => {
-      const res = printer.secondsToTimeFormatted((60 * 75) + 15);
+      const res = printer.secondsToTimeFormatted({seconds: (60 * 75) + 15});
       assert.equal(res, "1:15:15");
     });
 
     it("1:30:00", () => {
-      const res = printer.secondsToTimeFormatted(60 * 60 * 1.5);
+      const res = printer.secondsToTimeFormatted({seconds: 60 * 60 * 1.5});
       assert.equal(res, "1:30:00");
     });
 
     it("1:30:21", () => {
-      const res = printer.secondsToTimeFormatted((60 * 60 * 1.5) + 21);
+      const res = printer.secondsToTimeFormatted({seconds: (60 * 60 * 1.5) + 21});
       assert.equal(res, "1:30:21");
     });
 
     it("2:00:00", () => {
-      const res = printer.secondsToTimeFormatted(60 * 60 * 2);
+      const res = printer.secondsToTimeFormatted({seconds: 60 * 60 * 2});
       assert.equal(res, "2:00:00");
     });
 
     it("2:00:01", () => {
-      const res = printer.secondsToTimeFormatted((60 * 60 * 2) + 1);
+      const res = printer.secondsToTimeFormatted({seconds: (60 * 60 * 2) + 1});
       assert.equal(res, "2:00:01");
     });
 
     it("10:00:00", () => {
-      const res = printer.secondsToTimeFormatted(60 * 60 * 10);
+      const res = printer.secondsToTimeFormatted({seconds: 60 * 60 * 10});
       assert.equal(res, "10:00:00");
     });
   });
@@ -1764,7 +1861,7 @@ describe("Parser", () => {
         }
 
         for (const time of seconds) {
-          it(`${printer.secondsToTimeFormatted(time)}`, () => {
+          it(`${printer.secondsToTimeFormatted({seconds: time})}`, () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
@@ -1792,7 +1889,7 @@ describe("Parser", () => {
         }
 
         for (const time of minutes) {
-          it(`${printer.secondsToTimeFormatted(time)}`, () => {
+          it(`${printer.secondsToTimeFormatted({seconds: time})}`, () => {
             resetConfigs();
 
             parserConfig.dominantWorkoutType = dominentWorkoutType;
