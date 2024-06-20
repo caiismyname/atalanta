@@ -2220,6 +2220,28 @@ describe("Parser", () => {
         }
       });
 
+      it("Split the same workout type if it appears across sets", () => {
+        resetConfigs();
+  
+        const run = userTestRuns["incorrect_basis"]["split_workouttype_across_sets"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+  
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 800);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "m");
+  
+        assert.equal(res.sets[1].laps[0].workoutBasis, "TIME");
+        assert.equal(res.sets[1].laps[0].closestTime, 180);
+      });
+
       describe("Basis homogeneity check", () => {
         it("200m misparsed as 30sec, basis homogeneity check", () => {
           resetConfigs();

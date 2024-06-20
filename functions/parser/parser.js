@@ -19,11 +19,28 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
 
   const workoutsIdentifiedLaps = tagWorkoutLaps(laps);
   const mergedLaps = mergeAbuttingLaps(workoutsIdentifiedLaps);
-  const typeTaggedLaps = tagWorkoutTypes(mergedLaps);
-  const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
-  const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
-  const workoutTypeMatchingCheckedLaps = checkWorkoutTypeMatching(basisHomogeneityCheckedValueAssignedLaps);
-  const sets = extractPatterns(workoutTypeMatchingCheckedLaps.filter((lap) => lap.isWorkout));
+  let typeTaggedLaps = tagWorkoutTypes(mergedLaps);
+
+
+  let valueAssignedLaps;
+  let basisHomogeneityCheckedValueAssignedLaps;
+  let workoutTypeMatchingCheckedLaps;
+  let sets;
+
+  for (let pass = 1; pass <= 2; pass++) {
+    valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
+    basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
+
+    workoutTypeMatchingCheckedLaps = checkWorkoutTypeMatching(basisHomogeneityCheckedValueAssignedLaps);
+    sets = extractPatterns(workoutTypeMatchingCheckedLaps.filter((lap) => lap.isWorkout));
+    
+    if (pass === 1) {
+      // On the first pass, split any cross-set workoutTypes into two
+      // This gives the second pass a chance to determine whether they should actually be two different workout types.
+      // If they are truly the same, the `checkWorkoutTypeMatching` will re-merge them together
+      typeTaggedLaps = separateCrossSetWorkoutTypes(sets, workoutTypeMatchingCheckedLaps);
+    }
+  }
 
   // Check the extracted workout structure for reasonableness as a backup for the initial workout detection
   if (!verifyIsWorkout(laps, sets, config.parser) && !forceParse) {
@@ -852,7 +869,7 @@ function checkWorkoutTypeMatching(laps) {
   for (let workoutList of Object.values(parsedReps)) {
     if (workoutList.length > 1) {
       for (let lap of laps) {
-        if (lap.workoutType in workoutList) {
+        if (workoutList.includes(lap.workoutType)) {
           lap.workoutType = Math.min(...workoutList);
         }
       }
@@ -860,6 +877,41 @@ function checkWorkoutTypeMatching(laps) {
   }
 
   return laps;
+}
+
+function separateCrossSetWorkoutTypes(sets, laps) {
+  const workoutTypeGroupedLaps = lapsByWorkoutType(laps);
+  let newWorkoutTypeIndex = workoutTypeGroupedLaps.length;
+
+  for (let workoutType = 0; workoutType < workoutTypeGroupedLaps.length; workoutType++) {
+    // Find any workoutTypes that appear in multiple sets
+    let setsContainingWorkoutType = 0;
+    for (let set of sets) {
+      if (set.laps.map(lap => lap.workoutType).includes(workoutType)) {
+        setsContainingWorkoutType++;
+      }
+
+      // If found, split the type into two
+      if (setsContainingWorkoutType > 1) {
+        const lapsToUpdateIds = [];
+        for (const lap of set.laps) {
+          if (lap.workoutType === workoutType) {
+            lapsToUpdateIds.push(lap.id);
+          }
+        }
+
+        for (const lap of laps) {
+          if (lapsToUpdateIds.includes(lap.id)) {
+            lap.workoutType = newWorkoutTypeIndex;
+          }
+        }
+
+        newWorkoutTypeIndex++;
+      }
+    }
+  }
+  
+  return (laps);
 }
 
 function lapsByWorkoutType(laps) {
