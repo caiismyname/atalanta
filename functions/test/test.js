@@ -2367,6 +2367,25 @@ describe("Parser", () => {
           assert.equal(secondLap.closestDistance, 1500);
           assert.equal(secondLap.closestDistanceUnit, "m");
         });
+
+        it("Don't perform 0-stddev override if biasing via basis homogeneity check", () => {
+          resetConfigs();
+    
+          const run = userTestRuns["incorrect_basis"]["400m_vs_80sec_basis_homogeneity"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+    
+          // console.log(res.sets[0].laps.filter(lap => lap.workoutBasis === "TIME"))
+          console.log(res)
+          assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE")
+        });
       });
     });
 
@@ -2916,7 +2935,6 @@ describe("Parser", () => {
   });
 
   describe("Test", () => {
-
   });
 });
 
