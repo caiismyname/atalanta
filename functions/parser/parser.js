@@ -22,7 +22,8 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
   const typeTaggedLaps = tagWorkoutTypes(mergedLaps);
   const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
   const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
-  const sets = extractPatterns(basisHomogeneityCheckedValueAssignedLaps.filter((lap) => lap.isWorkout));
+  const workoutTypeMatchingCheckedLaps = checkWorkoutTypeMatching(basisHomogeneityCheckedValueAssignedLaps);
+  const sets = extractPatterns(workoutTypeMatchingCheckedLaps.filter((lap) => lap.isWorkout));
 
   // Check the extracted workout structure for reasonableness as a backup for the initial workout detection
   if (!verifyIsWorkout(laps, sets, config.parser) && !forceParse) {
@@ -822,6 +823,51 @@ function checkBasisHomogeneity(laps, parserConfig) {
   } else { // No outlier basis detected
     return laps;
   }
+}
+
+// Verifies that all distinct workout types result in distinct workout distance/times. 
+// If dupes are found, merge the types into one
+function checkWorkoutTypeMatching(laps) {
+  let parsedReps = {};
+  const groupedLaps = lapsByWorkoutType(laps);
+
+  if (groupedLaps.length < 2) {
+    return laps;
+  }
+
+  for (let group of groupedLaps) {
+    const tokenLap = group[0]; // This is run after the basis homogeneity check, so all group elements should be consisent
+    const workoutType = tokenLap.workoutType;
+    let parsedRep = "";
+    
+    // Basically, hash the parsed workout into a string format
+    if (tokenLap.workoutBasis === "TIME") {
+      parsedRep = `${tokenLap.workoutBasis}_${tokenLap.closestTime}`;
+    } else {
+      parsedRep = `${tokenLap.workoutBasis}_${tokenLap.closestDistance}_${tokenLap.closestDistanceUnit}`;
+    }
+
+    if (parsedRep in parsedReps) {
+      parsedReps[parsedRep].push(workoutType);
+    } else {
+      parsedReps[parsedRep] = [workoutType];
+    }
+  }
+
+  // If there are multiple workout types that match the same parsed workout,
+  // merge them into the same workout type, arbitrarily chosen as the 
+  // type with the smallest identifier
+  for (let workoutList of Object.values(parsedReps)) {
+    if (workoutList.length > 1) {
+      for (let lap of laps) {
+        if (lap.workoutType in workoutList) {
+          lap.workoutType = Math.min(...workoutList);
+        }
+      }
+    }
+  }
+
+  return laps;
 }
 
 function patternReducer(pattern, list) {

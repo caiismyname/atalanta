@@ -2544,8 +2544,6 @@ describe("Parser", () => {
         verbose: false,
       });
 
-      console.log(res);
-
       assert.equal(res.sets.length, 2);
       assert.equal(res.sets[0].count, 5);
       assert.equal(res.sets[1].count, 2);
@@ -2741,6 +2739,24 @@ describe("Parser", () => {
 
       // This test is actually to ensure the parser does not throw an exception on single-lap workouts
       assert.ok(!res.isWorkout);
+    });
+
+    it("Same distance not grouped", () => {
+      resetConfigs();
+
+      const run = userTestRuns["uncategorized"][0];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets.length, 1);
+      assert.equal(res.sets[0].count, 6);
     });
   });
 
