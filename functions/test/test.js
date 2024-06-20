@@ -2741,10 +2741,10 @@ describe("Parser", () => {
       assert.ok(!res.isWorkout);
     });
 
-    it("Same distance not grouped", () => {
+    it("Same parsed output not grouped", () => {
       resetConfigs();
 
-      const run = userTestRuns["uncategorized"][0];
+      const run = userTestRuns["general_irl_examples"]["same_parsed_output_not_grouped"];
       const res = parseWorkout({
         run: run,
         config: {
