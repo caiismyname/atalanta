@@ -644,6 +644,9 @@ function getPersonalDetailsFromUserToken(idToken, callback) {
   }
 }
 
+const garminApiKey = defineString("GARMIN_API_KEY");
+console.log(`TESTING KEYS: ${garminApiKey.value()}`);
+
 // The main app for Firebase
 exports.app = onRequest(app);
 

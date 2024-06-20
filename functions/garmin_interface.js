@@ -5,9 +5,11 @@ class GarminInterface {
 
     // Private
     static garminConfigDetails() {
+        const garminApiKey = defineString("GARMIN_API_KEY");
+        const garminApiSecret = defineString("GARMIN_API_SECRET");
         return {
-            garminConsumerKey: 'yourConsumerKey',
-            garminConsumerSecret: 'yourConsumerSecret',
+            garminConsumerKey: garminApiKey.value(),
+            garminConsumerSecret: garminApiSecret.value(),
             garminRequestTokenURL: 'https://connectapi.garmin.com/oauth-service/oauth/request_token',
             garminAccessTokenURL: 'https://connectapi.garmin.com/oauth-service/oauth/access_token'
         }
