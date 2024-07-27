@@ -74,7 +74,7 @@ class FormatPrinter {
         seconds: `0${rounded}`,
         minuteDiff: 0,
       };
-    } else if (rounded === 60 || rounded === '60.0') {
+    } else if (rounded === 60 || rounded === "60.0") {
       return {
         seconds: "00",
         minuteDiff: 1,
@@ -89,10 +89,10 @@ class FormatPrinter {
 
   // eslint-disable-next-line no-unused-vars
   secondsToTimeFormatted({
-    seconds = 0, 
-    displayWholeMinutesWithoutSeconds = false, 
+    seconds = 0,
+    displayWholeMinutesWithoutSeconds = false,
     displaySecondsWithoutSuffix = true,
-    roundSeconds = true
+    roundSeconds = true,
   } = {}) {
     const secondsCutoff = 90;
     const hours = Math.floor(seconds / 60 / 60);
@@ -200,9 +200,9 @@ class FormatPrinter {
   averageTimeOfSetFormatted(set) {
     const averageSeconds = set.laps.reduce((a, b) => a + b.moving_time, 0.0) / set.laps.length;
     return this.secondsToTimeFormatted({
-      seconds: averageSeconds, 
-      displayWholeMinutesWithoutSeconds: false, 
-      roundSeconds: false
+      seconds: averageSeconds,
+      displayWholeMinutesWithoutSeconds: false,
+      roundSeconds: false,
     }); // Don't round b/c the average is likely a decimal
   }
 

@@ -44,7 +44,7 @@ function generateAndReturnWorkout({
   includeWarmup = true,
   workoutSecondsPerMile = defaultWorkoutSecondsPerMile,
   restSecondsPerMile = defaultRestSecondsPerMile,
-  shouldFuzz = true
+  shouldFuzz = true,
 } = {},
 ) {
   if (includeWarmup) {
@@ -56,7 +56,7 @@ function generateAndReturnWorkout({
     name: name,
     workoutSecondsPerMile: workoutSecondsPerMile,
     restSecondsPerMile: restSecondsPerMile,
-    shouldFuzz: shouldFuzz
+    shouldFuzz: shouldFuzz,
   });
 }
 
@@ -66,7 +66,7 @@ function generate({
   name = "unamed",
   workoutSecondsPerMile = defaultWorkoutSecondsPerMile,
   restSecondsPerMile = defaultRestSecondsPerMile,
-  shouldFuzz = true
+  shouldFuzz = true,
 } = {}) {
   const laps = [];
   let prevIndex = 0;
@@ -79,7 +79,7 @@ function generate({
       prevIndex: prevIndex,
       lapIndex: lapIndex,
       pace: isWorkout ? workoutSecondsPerMile : restSecondsPerMile,
-      shouldFuzz: shouldFuzz
+      shouldFuzz: shouldFuzz,
     });
     laps.push(newLap);
     prevIndex = newLap.end_index;
@@ -109,7 +109,7 @@ function generateLap({
   prevIndex = -1,
   lapIndex = 1,
   pace = defaultRestSecondsPerMile,
-  shouldFuzz = true
+  shouldFuzz = true,
 } = {}) {
   const lap = {
     "elapsed_time": 0,
@@ -131,7 +131,6 @@ function generateLap({
     } else {
       lap.moving_time = Helpers.metersToMiles(lap.distance) * pace;
     }
-    
   } else if (unit === "SECONDS") {
     lap.moving_time = value;
     if (shouldFuzz) {
