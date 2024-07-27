@@ -221,7 +221,7 @@ class FormatPrinter {
       if ("component_laps" in laps[0]) {
         laps = laps[0].component_laps;
       } else {
-        return this.secondsToTimeFormatted({seconds: set.laps[0].moving_time, displaySecondsWithoutSuffix: true});
+        return this.secondsToTimeFormatted({seconds: set.laps[0].moving_time});
       }
     }
 
@@ -233,7 +233,7 @@ class FormatPrinter {
       max = Math.max(lap.moving_time, max);
     }
 
-    return `${this.secondsToTimeFormatted({seconds: min, displaySecondsWithoutSuffix: true})} — ${this.secondsToTimeFormatted({seconds: max, displaySecondsWithoutSuffix: true})}`;
+    return `${this.secondsToTimeFormatted({seconds: min})} — ${this.secondsToTimeFormatted({seconds: max})}`;
   }
 
   setPaceRangeFormatted(set) {
