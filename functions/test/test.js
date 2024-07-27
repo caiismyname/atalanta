@@ -513,12 +513,12 @@ describe("Formatter", () => {
           [1609.3, "METERS", true],
           [1609.3, "METERS", false],
           [1609.3, "METERS", true],
-          [1609.3, "METERS", false]
+          [1609.3, "METERS", false],
         ],
         includeWarmup: true,
         workoutSecondsPerMile: 300,
         restSecondsPerMile: 720,
-        shouldFuzz: false
+        shouldFuzz: false,
       });
 
       const res = parseWorkout({
@@ -659,12 +659,12 @@ describe("Formatter", () => {
             [1609.3, "METERS", true],
             [1609.3, "METERS", false],
             [1609.3, "METERS", true],
-            [1609.3, "METERS", false]
+            [1609.3, "METERS", false],
           ],
           includeWarmup: true,
           workoutSecondsPerMile: 300,
           restSecondsPerMile: 720,
-          shouldFuzz: false
+          shouldFuzz: false,
         });
 
         const res = parseWorkout({
@@ -688,12 +688,12 @@ describe("Formatter", () => {
             [1609.3, "METERS", true],
             [1609.3, "METERS", true],
             [1609.3, "METERS", true],
-            [1609.3, "METERS", true]
+            [1609.3, "METERS", true],
           ],
           includeWarmup: true,
           workoutSecondsPerMile: 360,
           restSecondsPerMile: 720,
-          shouldFuzz: false
+          shouldFuzz: false,
         });
 
         const res = parseWorkout({
@@ -1562,12 +1562,23 @@ describe("Formatter", () => {
 
     it("48 sec", () => {
       const res = printer.secondsToTimeFormatted({seconds: 48});
-      assert.equal(res, "48 sec");
+      assert.equal(res, "48");
+    });
+
+    it("72 sec", () => {
+      const secondsPrinter = new FormatPrinter({...formatConfig, "sub90SecFormat": "SECONDS"});
+      const res = secondsPrinter.secondsToTimeFormatted({seconds: 72});
+      assert.equal(res, "72");
+    });
+
+    it("1:12", () => {
+      const res = printer.secondsToTimeFormatted({seconds: 72});
+      assert.equal(res, "1:12");
     });
 
     it("6:00", () => {
       const res = printer.secondsToTimeFormatted({seconds: 360});
-      assert.equal(res, "6:00.0");
+      assert.equal(res, "6:00");
     });
 
     it("12:34", () => {
@@ -1577,16 +1588,16 @@ describe("Formatter", () => {
 
     it("46 mins", () => {
       const res = printer.secondsToTimeFormatted({
-        seconds: 60 * 46, 
-        displayWholeMinutesWithoutSeconds: true
+        seconds: 60 * 46,
+        displayWholeMinutesWithoutSeconds: true,
       });
       assert.equal(res, "46 mins");
     });
 
     it("46:00", () => {
       const res = printer.secondsToTimeFormatted({
-        seconds: 60 * 46, 
-        displayWholeMinutesWithoutSeconds: false
+        seconds: 60 * 46,
+        displayWholeMinutesWithoutSeconds: false,
       });
       assert.equal(res, "46:00");
     });
@@ -2220,6 +2231,28 @@ describe("Parser", () => {
         }
       });
 
+      it("Split the same workout type if it appears across sets", () => {
+        resetConfigs();
+
+        const run = userTestRuns["incorrect_basis"]["split_workouttype_across_sets"];
+        const res = parseWorkout({
+          run: run,
+          config: {
+            parser: parserConfig,
+            format: formatConfig,
+          },
+          returnSets: true,
+          verbose: false,
+        });
+
+        assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
+        assert.equal(res.sets[0].laps[0].closestDistance, 800);
+        assert.equal(res.sets[0].laps[0].closestDistanceUnit, "m");
+
+        assert.equal(res.sets[1].laps[0].workoutBasis, "TIME");
+        assert.equal(res.sets[1].laps[0].closestTime, 180);
+      });
+
       describe("Basis homogeneity check", () => {
         it("200m misparsed as 30sec, basis homogeneity check", () => {
           resetConfigs();
@@ -2366,6 +2399,25 @@ describe("Parser", () => {
           assert.equal(secondLap.workoutBasis, "DISTANCE");
           assert.equal(secondLap.closestDistance, 1500);
           assert.equal(secondLap.closestDistanceUnit, "m");
+        });
+
+        it("Don't perform 0-stddev override if biasing via basis homogeneity check", () => {
+          resetConfigs();
+
+          const run = userTestRuns["incorrect_basis"]["400m_vs_80sec_basis_homogeneity"];
+          const res = parseWorkout({
+            run: run,
+            config: {
+              parser: parserConfig,
+              format: formatConfig,
+            },
+            returnSets: true,
+            verbose: false,
+          });
+
+          // console.log(res.sets[0].laps.filter(lap => lap.workoutBasis === "TIME"))
+          console.log(res);
+          assert.equal(res.sets[0].laps[0].workoutBasis, "DISTANCE");
         });
       });
     });
@@ -2543,8 +2595,6 @@ describe("Parser", () => {
         returnSets: true,
         verbose: false,
       });
-
-      console.log(res);
 
       assert.equal(res.sets.length, 2);
       assert.equal(res.sets[0].count, 5);
@@ -2742,6 +2792,24 @@ describe("Parser", () => {
       // This test is actually to ensure the parser does not throw an exception on single-lap workouts
       assert.ok(!res.isWorkout);
     });
+
+    it("Same parsed output not grouped", () => {
+      resetConfigs();
+
+      const run = userTestRuns["general_irl_examples"]["same_parsed_output_not_grouped"];
+      const res = parseWorkout({
+        run: run,
+        config: {
+          parser: parserConfig,
+          format: formatConfig,
+        },
+        returnSets: true,
+        verbose: false,
+      });
+
+      assert.equal(res.sets.length, 1);
+      assert.equal(res.sets[0].count, 6);
+    });
   });
 
   describe.skip("FALSE POSITIVES", () => {
@@ -2900,7 +2968,6 @@ describe("Parser", () => {
   });
 
   describe("Test", () => {
-
   });
 });
 

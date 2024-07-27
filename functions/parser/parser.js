@@ -19,10 +19,28 @@ function parseWorkout({run, config={parser: defaultParserConfig, format: default
 
   const workoutsIdentifiedLaps = tagWorkoutLaps(laps);
   const mergedLaps = mergeAbuttingLaps(workoutsIdentifiedLaps);
-  const typeTaggedLaps = tagWorkoutTypes(mergedLaps);
-  const valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
-  const basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
-  const sets = extractPatterns(basisHomogeneityCheckedValueAssignedLaps.filter((lap) => lap.isWorkout));
+  let typeTaggedLaps = tagWorkoutTypes(mergedLaps);
+
+
+  let valueAssignedLaps;
+  let basisHomogeneityCheckedValueAssignedLaps;
+  let workoutTypeMatchingCheckedLaps;
+  let sets;
+
+  for (let pass = 1; pass <= 2; pass++) {
+    valueAssignedLaps = tagWorkoutBasisAndValue(typeTaggedLaps, config.parser, verbose);
+    basisHomogeneityCheckedValueAssignedLaps = checkBasisHomogeneity(valueAssignedLaps, config.parser);
+
+    workoutTypeMatchingCheckedLaps = checkWorkoutTypeMatching(basisHomogeneityCheckedValueAssignedLaps);
+    sets = extractPatterns(workoutTypeMatchingCheckedLaps.filter((lap) => lap.isWorkout));
+
+    if (pass === 1) {
+      // On the first pass, split any cross-set workoutTypes into two
+      // This gives the second pass a chance to determine whether they should actually be two different workout types.
+      // If they are truly the same, the `checkWorkoutTypeMatching` will re-merge them together
+      typeTaggedLaps = separateCrossSetWorkoutTypes(sets, workoutTypeMatchingCheckedLaps);
+    }
+  }
 
   // Check the extracted workout structure for reasonableness as a backup for the initial workout detection
   if (!verifyIsWorkout(laps, sets, config.parser) && !forceParse) {
@@ -276,19 +294,6 @@ function tagWorkoutTypes(laps) {
   return laps;
 }
 
-// HELPER
-function lapsByWorkoutType(laps) {
-  const groupedLaps = [];
-  const maxWorkoutType = laps.map((lap) => lap.workoutType === undefined ? 0 : lap.workoutType).reduce((a, b) => Math.max(a, b), 0);
-
-  for (let workoutType = 0; workoutType <= maxWorkoutType; workoutType++) {
-    const correspondingLaps = laps.filter((lap) => lap.workoutType === workoutType);
-    groupedLaps.push(correspondingLaps);
-  }
-
-  return groupedLaps;
-}
-
 function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
   const MAX_TIME_DIFF = 5; // The maximum difference allowed between a lap's total time and the guessed time and have it still be considered TIME basis, in seconds.
   const groupedByWorkoutType = lapsByWorkoutType(laps);
@@ -315,12 +320,12 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
 
     let aggregateBasis = "";
 
-    // If we know one format is more common, apply the biasFactor to make for a higher threshold before we categorize a workout's basis as the un-common format.
+    // If we know one format is more common, apply the biasFactor to make for a higher threshold
+    // before we categorize a workout's basis as the un-common format.
     // The differences are normalized (essentially percentages) so the scale is equivalent across time and distance
 
     let distanceDisadvantageFactor = 1.0; // Increase the `closest[Distance/Time]Difference` value by this factor to give an advantage to the _other_ basis
     let timeDisadvantageFactor = 1.0;
-
 
     const biasFactor = 2.0;
 
@@ -377,14 +382,19 @@ function tagWorkoutBasisAndValue(laps, parserConfig, verbose = false) {
 
     // If the opposite basis has zero std dev (even if the value isn't recognized), it's likely intentional
     if (correspondingLaps.length > 1) {
-      if (distanceStdDev === 0.0.toFixed(4) && aggregateBasis === "TIME") {
+      if (
+        distanceStdDev === 0.0.toFixed(4) &&
+        aggregateBasis === "TIME" &&
+        parserConfig.homogeneityAdvantageDirection !== "TIME" // Disable the 0-stddev logic if intentionally biasing the other direction
+      ) {
         aggregateBasis = "DISTANCE";
         aggregateLap.closestDistance = correspondingLaps[0].distance;
         aggregateLap.closestDistanceUnit = "m";
       } else if (
         timeStdDev === 0.0.toFixed(4) &&
-          aggregateBasis === "DISTANCE" &&
-          correspondingLaps[0].moving_time % 5 === 0 // Check that the time ends in a 0 or 5, which is more likely to be an intentional time interval
+        aggregateBasis === "DISTANCE" &&
+        correspondingLaps[0].moving_time % 5 === 0 && // Check that the time ends in a 0 or 5, which is more likely to be an intentional time interval
+        parserConfig.homogeneityAdvantageDirection !== "DISTANCE" // Disable the 0-stddev logic if intentionally biasing the other direction
       ) {
         aggregateBasis = "TIME";
         aggregateLap.closestTime = correspondingLaps[0].moving_time; // B/c the formatter pulls from `closestTime`, not `movingTime`
@@ -822,6 +832,98 @@ function checkBasisHomogeneity(laps, parserConfig) {
   } else { // No outlier basis detected
     return laps;
   }
+}
+
+// Verifies that all distinct workout types result in distinct workout distance/times.
+// If dupes are found, merge the types into one
+function checkWorkoutTypeMatching(laps) {
+  const parsedReps = {};
+  const groupedLaps = lapsByWorkoutType(laps);
+
+  if (groupedLaps.length < 2) {
+    return laps;
+  }
+
+  for (const group of groupedLaps) {
+    const tokenLap = group[0]; // This is run after the basis homogeneity check, so all group elements should be consisent
+    const workoutType = tokenLap.workoutType;
+    let parsedRep = "";
+
+    // Basically, hash the parsed workout into a string format
+    if (tokenLap.workoutBasis === "TIME") {
+      parsedRep = `${tokenLap.workoutBasis}_${tokenLap.closestTime}`;
+    } else {
+      parsedRep = `${tokenLap.workoutBasis}_${tokenLap.closestDistance}_${tokenLap.closestDistanceUnit}`;
+    }
+
+    if (parsedRep in parsedReps) {
+      parsedReps[parsedRep].push(workoutType);
+    } else {
+      parsedReps[parsedRep] = [workoutType];
+    }
+  }
+
+  // If there are multiple workout types that match the same parsed workout,
+  // merge them into the same workout type, arbitrarily chosen as the
+  // type with the smallest identifier
+  for (const workoutList of Object.values(parsedReps)) {
+    if (workoutList.length > 1) {
+      for (const lap of laps) {
+        if (workoutList.includes(lap.workoutType)) {
+          lap.workoutType = Math.min(...workoutList);
+        }
+      }
+    }
+  }
+
+  return laps;
+}
+
+function separateCrossSetWorkoutTypes(sets, laps) {
+  const workoutTypeGroupedLaps = lapsByWorkoutType(laps);
+  let newWorkoutTypeIndex = workoutTypeGroupedLaps.length;
+
+  for (let workoutType = 0; workoutType < workoutTypeGroupedLaps.length; workoutType++) {
+    // Find any workoutTypes that appear in multiple sets
+    let setsContainingWorkoutType = 0;
+    for (const set of sets) {
+      if (set.laps.map((lap) => lap.workoutType).includes(workoutType)) {
+        setsContainingWorkoutType++;
+      }
+
+      // If found, split the type into two
+      if (setsContainingWorkoutType > 1) {
+        const lapsToUpdateIds = [];
+        for (const lap of set.laps) {
+          if (lap.workoutType === workoutType) {
+            lapsToUpdateIds.push(lap.id);
+          }
+        }
+
+        for (const lap of laps) {
+          if (lapsToUpdateIds.includes(lap.id)) {
+            lap.workoutType = newWorkoutTypeIndex;
+          }
+        }
+
+        newWorkoutTypeIndex++;
+      }
+    }
+  }
+
+  return (laps);
+}
+
+function lapsByWorkoutType(laps) {
+  const groupedLaps = [];
+  const maxWorkoutType = laps.map((lap) => lap.workoutType === undefined ? 0 : lap.workoutType).reduce((a, b) => Math.max(a, b), 0);
+
+  for (let workoutType = 0; workoutType <= maxWorkoutType; workoutType++) {
+    const correspondingLaps = laps.filter((lap) => lap.workoutType === workoutType);
+    groupedLaps.push(correspondingLaps);
+  }
+
+  return groupedLaps;
 }
 
 function patternReducer(pattern, list) {

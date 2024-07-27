@@ -74,7 +74,7 @@ class FormatPrinter {
         seconds: `0${rounded}`,
         minuteDiff: 0,
       };
-    } else if (rounded === 60 || rounded === '60.0') {
+    } else if (rounded === 60 || rounded === "60.0") {
       return {
         seconds: "00",
         minuteDiff: 1,
@@ -89,9 +89,10 @@ class FormatPrinter {
 
   // eslint-disable-next-line no-unused-vars
   secondsToTimeFormatted({
-    seconds = 0, 
-    displayWholeMinutesWithoutSeconds = false, 
-    roundSeconds = true
+    seconds = 0,
+    displayWholeMinutesWithoutSeconds = false,
+    displaySecondsWithoutSuffix = true,
+    roundSeconds = true,
   } = {}) {
     const secondsCutoff = 90;
     const hours = Math.floor(seconds / 60 / 60);
@@ -99,8 +100,24 @@ class FormatPrinter {
     const secondsRes = this.secondsFormatter(seconds % 60, roundSeconds); // shouldRound defaults to true b/c strava doesn't give decimals for laps
 
     // First check if we want to format as only seconds
-    if (seconds <= secondsCutoff && this.sub90SecFormat === "SECONDS") {
-      return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}${displayWholeMinutesWithoutSeconds ? " sec" : ""}`;
+    if (seconds <= secondsCutoff) {
+      const pureSeconds = `${seconds}${displaySecondsWithoutSuffix ? "" : " sec"}`;
+      const asMinute = `${minutes + secondsRes.minuteDiff}:${secondsRes.seconds}`;
+
+      if (seconds < 60) {
+        return pureSeconds;
+      }
+
+      if (seconds === 60 && displayWholeMinutesWithoutSeconds) {
+        return `1 min`;
+      }
+
+      switch (this.sub90SecFormat) {
+        case "SECONDS":
+          return pureSeconds;
+        case "MINUTE":
+          return asMinute;
+      }
     }
 
     // Compose the hour:minute:seconds
@@ -183,9 +200,9 @@ class FormatPrinter {
   averageTimeOfSetFormatted(set) {
     const averageSeconds = set.laps.reduce((a, b) => a + b.moving_time, 0.0) / set.laps.length;
     return this.secondsToTimeFormatted({
-      seconds: averageSeconds, 
-      displayWholeMinutesWithoutSeconds: false, 
-      roundSeconds: false
+      seconds: averageSeconds,
+      displayWholeMinutesWithoutSeconds: false,
+      roundSeconds: false,
     }); // Don't round b/c the average is likely a decimal
   }
 

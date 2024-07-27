@@ -19,10 +19,11 @@ class Formatter {
       const lapName = lap.workoutBasis === "DISTANCE" ?
           `${lap.closestDistance}${lap.closestDistanceUnit}` :
           `${this.printer.secondsToTimeFormatted({
-            seconds: lap.closestTime, 
-            displayWholeMinutesWithoutSeconds: true, 
-            roundSeconds: true
-            })
+            seconds: lap.closestTime,
+            displayWholeMinutesWithoutSeconds: true,
+            displaySecondsWithoutSuffix: false,
+            roundSeconds: true,
+          })
           }`;
 
       setName += `${lapName}, `;
