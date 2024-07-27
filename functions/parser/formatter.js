@@ -21,6 +21,7 @@ class Formatter {
           `${this.printer.secondsToTimeFormatted({
             seconds: lap.closestTime, 
             displayWholeMinutesWithoutSeconds: true, 
+            displaySecondsWithoutSuffix: false,
             roundSeconds: true
             })
           }`;

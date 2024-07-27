@@ -1562,12 +1562,23 @@ describe("Formatter", () => {
 
     it("48 sec", () => {
       const res = printer.secondsToTimeFormatted({seconds: 48});
-      assert.equal(res, "48 sec");
+      assert.equal(res, "48");
+    });
+
+    it("72 sec", () => {
+      const secondsPrinter = new FormatPrinter({...formatConfig, "sub90SecFormat": "SECONDS"});
+      const res = secondsPrinter.secondsToTimeFormatted({seconds: 72});
+      assert.equal(res, "72");
+    });
+
+    it("1:12", () => {
+      const res = printer.secondsToTimeFormatted({seconds: 72});
+      assert.equal(res, "1:12");
     });
 
     it("6:00", () => {
       const res = printer.secondsToTimeFormatted({seconds: 360});
-      assert.equal(res, "6:00.0");
+      assert.equal(res, "6:00");
     });
 
     it("12:34", () => {

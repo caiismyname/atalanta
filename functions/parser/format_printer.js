@@ -91,6 +91,7 @@ class FormatPrinter {
   secondsToTimeFormatted({
     seconds = 0, 
     displayWholeMinutesWithoutSeconds = false, 
+    displaySecondsWithoutSuffix = true,
     roundSeconds = true
   } = {}) {
     const secondsCutoff = 90;
@@ -99,8 +100,24 @@ class FormatPrinter {
     const secondsRes = this.secondsFormatter(seconds % 60, roundSeconds); // shouldRound defaults to true b/c strava doesn't give decimals for laps
 
     // First check if we want to format as only seconds
-    if (seconds <= secondsCutoff && this.sub90SecFormat === "SECONDS") {
-      return `${(minutes * 60) + Number.parseFloat(secondsRes.seconds)}${displayWholeMinutesWithoutSeconds ? " sec" : ""}`;
+    if (seconds <= secondsCutoff) {
+      const pureSeconds = `${seconds}${displaySecondsWithoutSuffix ? "" : " sec"}`;
+      const asMinute = `${minutes + secondsRes.minuteDiff}:${secondsRes.seconds}`;
+
+      if (seconds < 60) {
+        return pureSeconds;
+      }
+
+      if (seconds === 60 && displayWholeMinutesWithoutSeconds) {
+        return `1 min`;
+      }
+
+      switch (this.sub90SecFormat) {
+        case "SECONDS":
+          return pureSeconds;
+        case "MINUTE":
+          return asMinute;
+      }
     }
 
     // Compose the hour:minute:seconds
@@ -204,7 +221,7 @@ class FormatPrinter {
       if ("component_laps" in laps[0]) {
         laps = laps[0].component_laps;
       } else {
-        return this.secondsToTimeFormatted({seconds: set.laps[0].moving_time});
+        return this.secondsToTimeFormatted({seconds: set.laps[0].moving_time, displaySecondsWithoutSuffix: true});
       }
     }
 
@@ -216,7 +233,7 @@ class FormatPrinter {
       max = Math.max(lap.moving_time, max);
     }
 
-    return `${this.secondsToTimeFormatted({seconds: min})} — ${this.secondsToTimeFormatted({seconds: max})}`;
+    return `${this.secondsToTimeFormatted({seconds: min, displaySecondsWithoutSuffix: true})} — ${this.secondsToTimeFormatted({seconds: max, displaySecondsWithoutSuffix: true})}`;
   }
 
   setPaceRangeFormatted(set) {
